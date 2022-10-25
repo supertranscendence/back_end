@@ -17,3 +17,7 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
     ports:
       - "${DB_HOST_PORT}:5432"
+
+  node:
+    image: node:16.18-alpine3.16
+    restart: always
