@@ -22,5 +22,5 @@ services:
     image: node:16.18-alpine3.16
     command: npm run
     volumes:
-      - "api:/usr/app"
+      - "./api:/usr/app"
       - "/usr/app/node_modules"
