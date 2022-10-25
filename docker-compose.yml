@@ -19,9 +19,6 @@ services:
       - "${DB_HOST_PORT}:5432"
 
   api:
-    image: node:16.18-alpine3.16
-    command: npm run
-    working_dir: "/usr/app"
+    build: ./api
     volumes:
-      - "./api:/usr/app"
-      - "/usr/app/node_modules"
+      - "./api/app:/usr/app"
