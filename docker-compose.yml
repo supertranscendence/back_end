@@ -21,6 +21,6 @@ services:
 
   api:
     container_name: api
+    build: ./api
     expose:
       - "3000"
-    build: ./api
