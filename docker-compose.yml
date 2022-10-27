@@ -9,6 +9,7 @@ services:
       - "80:80"
 
   db:
+    container_name: db
     image: postgres:15-alpine
     restart: always
     environment:
@@ -19,4 +20,5 @@ services:
       - "${DB_HOST_PORT}:5432"
 
   api:
+    container_name: api
     build: ./api
