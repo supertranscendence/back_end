@@ -1,3 +1,3 @@
 #!/bin/bash
 
-sudo docker compose -f ~/test/docker-compose.yml up -d
+sudo docker compose -f ~/test/docker-compose.yml up --build -d
