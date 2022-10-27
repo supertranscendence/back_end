@@ -20,5 +20,3 @@ services:
 
   api:
     build: ./api
-    volumes:
-      - "./api/app:/usr/app"
