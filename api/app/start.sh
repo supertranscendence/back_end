@@ -1,4 +1,5 @@
 #!/bin/bash
 
+yarn install
 yarn build
-pm2-runtime start dist/main.js --name api
+exec pm2-runtime start dist/main.js --name api
