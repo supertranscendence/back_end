@@ -22,4 +22,3 @@ services:
     build: ./api
     volumes:
       - "./api/app:/usr/app"
-      - "./api/node_modules:/usr/app/node_modules"
