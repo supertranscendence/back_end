@@ -14,10 +14,10 @@ import { TestappModule } from './testapp/testapp.module';
       username: process.env.POSTGRES_USER,
       password: process.env.POSTGRES_PASSWORD,
       database: process.env.POSTGRES_DB,
-      // entities: ['dist/**/*.entity{.ts,.js}'],
+      entities: ['dist/**/*.entity{.ts,.js}'],   //entities는 엔티티 파일들이 위치하는 경로를 설정한다.
       synchronize: false,
-      // retryDelay: 3000,
-      // retryAttempts: 10
+      retryDelay: 3000,
+      retryAttempts: 10
     }),
     TestappModule,
   ],
