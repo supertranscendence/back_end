@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 // Similarly, the export keyword lets you declare variables, functions, and classes that the module should be exposed to other scripts.
 
@@ -15,4 +15,18 @@ export class testapp {
 
     @Column({default: false})
     completed: boolean;
+
+    @CreateDateColumn({
+        name: 'creation_at',
+        type: 'timestamptz',
+        default: () => 'CURRENT_TIMESTAMP',
+    })
+    creationAAt: Date;
+
+    @UpdateDateColumn({
+        name: 'updated_at',
+        type: 'timestamptz',
+        default: () => 'CURRENT_TIMESTAMP'
+    })
+    updatedAt: Date;
 }
