@@ -23,6 +23,7 @@ jobs:
     # (1) 기본 체크아웃
     - name: Checkout
       uses: actions/checkout@v3
+
     - name: create .env file
       run: |
           echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
@@ -31,8 +32,6 @@ jobs:
           DB_HOST_PORT=${{ secrets.DB_HOST_PORT }}" > .env
           
     - name: make env2
-      uses: actions/checkout@v3
-    - name: create .env file
       run: |
           echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
           POSTGRES_USER=${{ secrets.POSTGRES_USER }}
