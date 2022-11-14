@@ -30,6 +30,16 @@ jobs:
           POSTGRES_DB=${{ secrets.POSTGRES_DB }}
           DB_HOST_PORT=${{ secrets.DB_HOST_PORT }}" > .env
           
+    - name: make env2
+      uses: actions/checkout@v3
+    - name: create .env file
+      run: |
+          echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_USER=${{ secrets.POSTGRES_USER }}
+          POSTGRES_HOST=${{ secrets.POSTGRES_HOST }}
+          POSTGRES_DB=${{ secrets.POSTGRES_DB }}
+          DB_HOST_PORT=${{ secrets.DB_HOST_PORT }}" > ./api/app/.env
+          
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
