@@ -32,10 +32,10 @@ CREATE TABLE pong.FRIENDS
  block   boolean NOT NULL,
  created  TIMESTAMP not null default now(),
  updated  TIMESTAMP,
- CONSTRAINT FK_FRIENDS FOREIGN KEY ( "id" ) REFERENCES USERS ( "id" )
+ CONSTRAINT FK_FRIENDS FOREIGN KEY ( "id" ) REFERENCES pong.USERS ( "id" )
 );
 
-CREATE INDEX FK_FRIENDS ON FRIENDS
+CREATE INDEX FK_FRIENDS ON pong.FRIENDS
 (
  "id"
 );
@@ -46,10 +46,10 @@ CREATE TABLE pong.ACHIEVEMENTS
  achievement int NOT NULL,
  created  TIMESTAMP not null default now(),
  updated  TIMESTAMP,
- CONSTRAINT FK_2 FOREIGN KEY ( "id" ) REFERENCES USERS ( "id" )
+ CONSTRAINT FK_1 FOREIGN KEY ( "id" ) REFERENCES pong.USERS ( "id" )
 );
 
-CREATE INDEX FK_1 ON ACHIEVEMENTS
+CREATE INDEX FK_1 ON pong.ACHIEVEMENTS
 (
  "id"
 );
@@ -75,35 +75,35 @@ $$ LANGUAGE 'plpgsql'
 
 CREATE TRIGGER set_updated_at
     BEFORE UPDATE
-    ON users
+    ON pong.users
     FOR EACH ROW
 EXECUTE PROCEDURE set_updated_at()
 ;
 
 CREATE TRIGGER set_updated_at
     BEFORE UPDATE
-    ON achievements
+    ON pong.achievements
     FOR EACH ROW
 EXECUTE PROCEDURE set_updated_at()
 ;
 
 CREATE TRIGGER set_updated_at
     BEFORE UPDATE
-    ON achievements_code
+    ON pong.achievements_code
     FOR EACH ROW
 EXECUTE PROCEDURE set_updated_at()
 ;
 
 CREATE TRIGGER set_updated_at
     BEFORE UPDATE
-    ON friends
+    ON pong.friends
     FOR EACH ROW
 EXECUTE PROCEDURE set_updated_at()
 ;
 
 CREATE TRIGGER set_updated_at
     BEFORE UPDATE
-    ON game
+    ON pong.game
     FOR EACH ROW
 EXECUTE PROCEDURE set_updated_at()
 ;
