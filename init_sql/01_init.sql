@@ -1,4 +1,7 @@
-CREATE TABLE USERS
+create schema pong;
+CREATE SCHEMA pong AUTHORIZATION ts_dev;
+
+CREATE TABLE pong.USERS
 (
  "id"       serial NOT NULL,
  intra    varchar(20) NOT NULL,
@@ -11,7 +14,7 @@ CREATE TABLE USERS
 );
 
 
-CREATE TABLE GAME
+CREATE TABLE pong.GAME
 (
  "id"      serial NOT NULL,
  player  varchar(40) NOT NULL,
@@ -22,7 +25,7 @@ CREATE TABLE GAME
 );
 
 
-CREATE TABLE FRIENDS
+CREATE TABLE pong.FRIENDS
 (
  "id"      int NOT NULL,
  intra   varchar(20) NOT NULL,
@@ -38,7 +41,7 @@ CREATE INDEX FK_FRIENDS ON FRIENDS
  "id"
 );
 
-CREATE TABLE ACHIEVEMENTS
+CREATE TABLE pong.ACHIEVEMENTS
 (
  "id"          int NOT NULL,
  achievement int NOT NULL,
