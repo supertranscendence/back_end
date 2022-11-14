@@ -73,35 +73,35 @@ END;
 $$ LANGUAGE 'plpgsql'
 ;
 
-CREATE TRIGGER pong.set_updated_at
+CREATE TRIGGER set_updated_at
     BEFORE UPDATE
     ON pong.users
     FOR EACH ROW
 EXECUTE PROCEDURE pong.set_updated_at()
 ;
 
-CREATE TRIGGER pong.set_updated_at
+CREATE TRIGGER set_updated_at
     BEFORE UPDATE
     ON pong.achievements
     FOR EACH ROW
 EXECUTE PROCEDURE pong.set_updated_at()
 ;
 
-CREATE TRIGGER pong.set_updated_at
+CREATE TRIGGER set_updated_at
     BEFORE UPDATE
     ON pong.achievements_code
     FOR EACH ROW
 EXECUTE PROCEDURE pong.set_updated_at()
 ;
 
-CREATE TRIGGER pong.set_updated_at
+CREATE TRIGGER set_updated_at
     BEFORE UPDATE
     ON pong.friends
     FOR EACH ROW
 EXECUTE PROCEDURE pong.set_updated_at()
 ;
 
-CREATE TRIGGER pong.set_updated_at
+CREATE TRIGGER set_updated_at
     BEFORE UPDATE
     ON pong.game
     FOR EACH ROW
