@@ -16,6 +16,8 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - ./init_sql:/docker-entrypoint-initdb.d
     ports:
       - "${DB_HOST_PORT}:5432"
 
