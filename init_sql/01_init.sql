@@ -67,8 +67,8 @@ CREATE OR REPLACE FUNCTION pong.set_updated_at()
     RETURNS TRIGGER AS
 $$
 BEGIN
-    OLD.updated = NOW();
-    RETURN OLD;
+    NEW.updated = NOW();
+    RETURN NEW;
 END;
 $$ LANGUAGE 'plpgsql'
 ;
