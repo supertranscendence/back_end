@@ -1,4 +1,3 @@
-create schema pong;
 CREATE SCHEMA pong AUTHORIZATION ts_dev;
 
 CREATE TABLE pong.USERS
