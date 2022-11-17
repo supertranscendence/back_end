@@ -20,8 +20,16 @@ export class GameService {
     // findOne(id : number) {
     //     return this.gameRepository.findOne(id);
     // }
-    async findOne(id: number): Promise<Game> {
-        return await this.gameRepository.getId(new Game);
+    findOne(idx: number): Promise<Game> {
+        const g = new Game();
+        g.id = idx;
+        // return await this.gameRepository.find({
+        //     select: ['id', 'player', 'score', 'created', 'updated'],
+        //     where: { id: idx },
+        
+        // });
+
+        return this.gameRepository.findOneBy(g);
     }
 
     create(body: any) {
