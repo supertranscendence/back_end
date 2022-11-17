@@ -12,10 +12,10 @@ export const typeORMConfig : TypeOrmModuleOptions = {
     username: process.env.POSTGRES_USER,
     password: process.env.POSTGRES_PASSWORD,
     database: process.env.POSTGRES_DB,
-    entities: ['dist/**/*.entity{.ts,.js}'], //entities는 엔티티 파일들이 위치하는 경로를 설정한다.
+    entities: ['dist/**/*{.ts,.js}'], //entities는 엔티티 파일들이 위치하는 경로를 설정한다.
     //         'src/entities/*.ts 의 원래 파일들을 저기에서 찾아오기!
     //entities: ['/entities/Game'],
-    // dist/**/*.entity{.ts,.js}
+    // dist/**/*.entity{.ts,.js}q
     synchronize: true,
     retryDelay: 3000,
     retryAttempts: 10
