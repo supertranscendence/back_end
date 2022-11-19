@@ -1,4 +1,4 @@
-import {Column,Entity,Index,OneToMany,PrimaryGeneratedColumn} from "typeorm";
+import {Column,Entity,Index,OneToMany,PrimaryGeneratedColumn, CreateDateColumn} from "typeorm";
 import {Achievements} from './Achievements'
 import {Friends} from './Friends'
 
@@ -22,8 +22,8 @@ avatar:string | null;
 @Column("integer",{ name:"level",nullable:true })
 level:number | null;
 
-@Column("timestamp without time zone",{ name:"created",nullable:true })
-created:Date | null;
+@CreateDateColumn()
+created:Date;
 
 @Column("timestamp without time zone",{ name:"updated",nullable:true })
 updated:Date | null;
