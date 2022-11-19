@@ -16,7 +16,7 @@ export const typeORMConfig : TypeOrmModuleOptions = {
     //         'src/entities/*.ts 의 원래 파일들을 저기에서 찾아오기!
     //entities: ['/entities/Game'],
     // dist/**/*.entity{.ts,.js}q
-    synchronize: true,
+    synchronize: false,
     retryDelay: 3000,
     retryAttempts: 10
 }
