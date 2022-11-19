@@ -38,11 +38,11 @@ export class UsersController {
         return this.users.create(body);
     }
 
-    // @Put(':id')
-    // update(@Param('id') tid:number, @Body() body: any) {
-    //     // return body;
-    //     return this.users.update(tid, body);
-    // }
+    @Put(':id')
+    update(@Param('id') tid:number, @Body() body: any) {
+        // return body;
+        return this.users.update(tid, body);
+    }
 
     @Delete(':id')
     delete(@Param('id') tid : number) {

@@ -62,13 +62,15 @@ export class UsersService {
         user.nickname = body.nickname;
         user.avatar = body.avatar;
         user.level = body.level;
+        console.log(body);
         return this.usersRepository.save(user);
     }
 
     async update(id: number, body: any) {
         // const test = await this.usersRepository.findOne(id);
-        const test = await this.usersRepository.getId(new Users);
+        const test = await this.usersRepository.getById(id);
         this.usersRepository.merge(test, body);
+        console.log(body);
         return this.usersRepository.save(test);
     }
 
