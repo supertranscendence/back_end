@@ -56,8 +56,13 @@ export class UsersService {
     }
 
     create(body: any) {
-        const newTest = this.usersRepository.create(body);
-        return this.usersRepository.save(newTest);
+        //const newTest = this.usersRepository.create(body);
+        const user = new Users();
+        user.intra = body.intra;
+        user.nickname = body.nickname;
+        user.avatar = body.avatar;
+        user.level = body.level;
+        return this.usersRepository.save(user);
     }
 
     async update(id: number, body: any) {
