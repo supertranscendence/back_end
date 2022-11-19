@@ -63,6 +63,7 @@ export class UsersService {
         user.avatar = body.avatar;
         user.level = body.level;
         console.log(body);
+        console.log(user);
         return this.usersRepository.save(user);
     }
 
