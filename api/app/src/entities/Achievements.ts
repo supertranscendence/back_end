@@ -1,4 +1,4 @@
-import {Column,Entity,JoinColumn,ManyToOne,PrimaryGeneratedColumn} from "typeorm";
+import {Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn} from "typeorm";
 import {Users} from './Users'
 
 
@@ -11,8 +11,8 @@ tid:number;
 @Column("integer",{ name:"achievement",nullable:true })
 achievement:number | null;
 
-@Column("timestamp without time zone",{ name:"created",nullable:true })
-created:Date | null;
+@CreateDateColumn()
+created:Date;
 
 @Column("timestamp without time zone",{ name:"updated",nullable:true })
 updated:Date | null;

@@ -1,4 +1,4 @@
-import { Column, Entity, Index, PrimaryGeneratedColumn } from "typeorm";
+import {Column, CreateDateColumn, Entity, Index, PrimaryGeneratedColumn} from "typeorm";
 
 @Entity("achievements_code", { schema: "pong" })
 export class AchievementsCode {
@@ -6,8 +6,8 @@ export class AchievementsCode {
   @PrimaryGeneratedColumn({ type: "integer", name: "code" })
   code: number;
 
-  @Column("timestamp without time zone", { name: "created", nullable: true })
-  created: Date | null;
+  @CreateDateColumn()
+  created:Date;
 
   @Column("timestamp without time zone", { name: "updated", nullable: true })
   updated: Date | null;
