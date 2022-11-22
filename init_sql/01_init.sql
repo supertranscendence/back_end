@@ -62,6 +62,15 @@ CREATE TABLE pong.ACHIEVEMENTS_CODE
  updated  TIMESTAMP,
  CONSTRAINT PK_ACHIEVEMENTS_CODE PRIMARY KEY ( code )
 );
+CREATE TABLE pong.auth (
+	id int4 null,
+	aid serial4 NOT NULL,
+	act varchar NULL,
+	res varchar(20) NULL,
+	CONSTRAINT auth_pkey PRIMARY KEY (aid),
+	CONSTRAINT FK_2 FOREIGN KEY (id) REFERENCES pong.users(id)
+);
+CREATE UNIQUE INDEX "FK_INDEX_AUTH" ON pong.auth USING btree (aid);
 
 CREATE OR REPLACE FUNCTION pong.set_updated_at()
     RETURNS TRIGGER AS
