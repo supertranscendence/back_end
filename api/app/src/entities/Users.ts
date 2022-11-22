@@ -1,6 +1,7 @@
 import {Column,Entity,Index,OneToMany,PrimaryGeneratedColumn, CreateDateColumn} from "typeorm";
 import {Achievements} from './Achievements'
 import {Friends} from './Friends'
+import {Auth} from "./Auth";
 
 
 @Entity("users" ,{schema:"pong" } )
@@ -29,14 +30,13 @@ created:Date;
 updated:Date | null;
 
 @OneToMany(()=>Achievements,achievements=>achievements.userid)
-
-
 achievements:Achievements[];
 
 @OneToMany(()=>Friends,friends=>friends.userid)
-
-
 friends:Friends[];
 // 여기
+
+@OneToMany(()=>Auth,auths=>auths.id)
+auths:Auth[];
 
 }
