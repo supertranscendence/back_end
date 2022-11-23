@@ -9,7 +9,7 @@ async function bootstrap() {
       .setTitle('Super Transcendence')
       .setDescription('Don\'t panic')
       .setVersion('0.1')
-      .build();;
+      .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/doc', app, document);
   await app.listen(3000);
