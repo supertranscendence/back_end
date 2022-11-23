@@ -65,8 +65,8 @@ CREATE TABLE pong.ACHIEVEMENTS_CODE
 CREATE TABLE pong.auth (
 	id int4 null,
 	aid serial4 NOT NULL,
-	act varchar NULL,
-	res varchar(20) NULL,
+	act varchar(500) NULL,
+	res varchar(500) NULL,
 	CONSTRAINT auth_pkey PRIMARY KEY (aid),
 	CONSTRAINT FK_2 FOREIGN KEY (id) REFERENCES pong.users(id)
 );
