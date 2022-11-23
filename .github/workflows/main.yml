@@ -38,10 +38,10 @@ jobs:
           POSTGRES_HOST=${{ secrets.POSTGRES_HOST }}
           POSTGRES_DB=${{ secrets.POSTGRES_DB }}
           DB_HOST_PORT=${{ secrets.DB_HOST_PORT }}
-          DB_HOST_PORT=${{ secrets.AID }}
-          DB_HOST_PORT=${{ secrets.APW }}
-          DB_HOST_PORT=${{ secrets.URL }}
-          DB_HOST_PORT=${{ secrets.JWT_SECRET }}" > ./api/app/.env
+          AID=${{ secrets.AID }}
+          APW=${{ secrets.APW }}
+          URL=${{ secrets.URL }}
+          JWT_SECRET=${{ secrets.JWT_SECRET }}" > ./api/app/.env
           
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
