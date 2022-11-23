@@ -6,7 +6,7 @@ CREATE TABLE pong.USERS
  intra    varchar(20) NOT NULL,
  nickname varchar(20) NOT NULL,
  avatar   varchar(500) NOT NULL,
- lv    int NOT NULL,
+ "level"    int NOT NULL,
  created  TIMESTAMP not null default now(),
  updated  TIMESTAMP,
  CONSTRAINT PK_1 PRIMARY KEY ( "id" )
