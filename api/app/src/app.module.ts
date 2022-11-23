@@ -7,6 +7,7 @@ import { UsersModule } from './users/users.module';
 import { AchievementsCodeModule } from './achievements_code/achievements_code.module';
 // import { GameRepository } from './game/repository/game.repository';
 import { GameModule } from './game/game.module';
+import {AuthModule} from "./auth/auth.module";
 // import { TestModule } from './test/test.module';
 
 
@@ -20,6 +21,7 @@ import { GameModule } from './game/game.module';
     FriendsModule,
     UsersModule,
     AchievementsCodeModule,
+      AuthModule
   ],
   controllers: [],
   providers: [],

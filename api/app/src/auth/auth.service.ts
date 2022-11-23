@@ -1,45 +1,32 @@
-import {Injectable, InternalServerErrorException, UnauthorizedException} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import * as jwt from 'jsonwebtoken';
-import {AuthRepository} from "./auth.repository";
+import { AuthRepository } from "./auth.repository";
 
 @Injectable()
 export class AuthService {
-    constructor(
-        private authRepository : AuthRepository,
+    constructor(private authRepository : AuthRepository) {}
 
-    ) {}
-    async verifyUser(token: string) {
-        const user = await this.authRepository.findOneBy({
-            act: token
-        });
-        if (!user)
-            throw new jwt.JsonWebTokenError("User Not Exist");
-        return this.login(user.act);
-    }
-
-    login(user: string) {
-    }
-
-    vf(token: string) {
+    async vf(token: string) {
         try {
-            jwt.verify(token, process.env.JWT_SECRET);
+            jwt.verify(token, process.env.JWT_SECRET); // 토큰 이슈가 없다면 그대로 return
         }catch (e) {
             console.log(e.message);
-            if (e.message == 'invalid signature')
-                throw UnauthorizedException;
-            console.error("expired");
-            console.log("token:", jwt.decode(token)['user']);
+            if (e.message != 'jwt expired') // TODO: 만료된 토큰 이외의 경우는 따로 관리
+                throw new jwt.JsonWebTokenError(e.message);
             const user = jwt.decode(token)['user'];
-            token = jwt.sign({...{user}}, process.env.JWT_SECRET, {
-                expiresIn: '20sec',
-            })
-            console.log("new token", token);
+            const new_token = this.makeAccess(user);
+            await this.authRepository.update({act: token},{act: new_token}).then(res => {
+                console.log(res);
+                if (!res.affected) // 가장 최근에 발행된 토큰이 아닌경우 걸린다. 만료와는 다른경우
+                    throw new jwt.JsonWebTokenError('old jwt');
+            });
+            console.log("new token", new_token);
+            token = new_token;
         }
-        return jwt.verify(token, process.env.JWT_SECRET)
+        return token;
     }
 
     makeRefresh(intra: string): string{
-        intra += "_refresh";
         return jwt.sign({...{intra}}, process.env.JWT_SECRET, {
             expiresIn: '365d',
         });
@@ -48,11 +35,15 @@ export class AuthService {
     makeAccess(intra: string): string{
         return jwt.sign({...{intra}}, process.env.JWT_SECRET, {
             expiresIn: '1h',
+            //expiresIn: '20sec',
         });
     }
 
     async register(id: number, access: string, refresh: string) {
-        return await this.authRepository.insertToken({id: id, act: access, res: refresh});
+        const auth = await this.authRepository.findOneByOrFail({id: id}).catch(() => {return null;});
+        if (!auth)
+            return await this.authRepository.insertToken({id: id, act: access, res: refresh});
+        return await this.authRepository.update(id, {act: access, res: refresh});
     }
 
     async findOneById(id: number) {
