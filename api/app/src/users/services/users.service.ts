@@ -28,6 +28,9 @@ export class UsersService {
         return await this.usersRepository.getId(new Users);
     }
 
+    async findByIntra(intra: string): Promise<Users> {
+        return await this.usersRepository.findOneBy({intra: intra});
+    }
 
     async findJoin() {
         const entityManager = getManager();
