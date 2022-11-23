@@ -5,7 +5,7 @@ CREATE TABLE pong.USERS
  "id"       serial NOT NULL,
  intra    varchar(20) NOT NULL,
  nickname varchar(20) NOT NULL,
- avatar   varchar(500) NOT NULL,
+ avatar   varchar(500),
  "level"    int NOT NULL,
  created  TIMESTAMP not null default now(),
  updated  TIMESTAMP,
