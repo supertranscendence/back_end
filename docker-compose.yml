@@ -14,7 +14,7 @@ services:
   certbot:
     image: certbot/certbot:latest
     command: certonly --webroot --webroot-path=/var/www/certbot --email gilee@student.42seoul.kr --agree-tos --no-eff-email -d server.gilee.click
-    restart: no
+    restart: "no"
     volumes:
       - ./data/certbot/conf:/etc/letsencrypt
       - ./data/certbot/www:/var/www/certbot
