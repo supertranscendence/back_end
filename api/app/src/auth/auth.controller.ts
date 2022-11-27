@@ -22,6 +22,7 @@ export class AuthController {
         res.cookie('accessToken', req.user.ac, {maxAge: 10000, httpOnly: true, sameSite: 'Lax'});
         res.cookie('refreshToken', req.user.re, {maxAge: 10000, httpOnly: true, sameSite: 'Lax'});
         //res.redirect(process.env.FRONTEND_URL + '/login');
+        console.log(process.env.FRONTEND_URL);
         res.redirect(process.env.FRONTEND_URL);
     }
 }
