@@ -19,8 +19,8 @@ export class AuthController {
     @Header('Access-Control-Allow-Credentials', 'true')
     async ftLoginCallback(@Req() req, @Res() res){
         console.log(req.user);
-        res.cookie('accessToken', req.user.ac, {maxAge: 10000, httpOnly: true, secure: true, sameSite: 'None'});
-        res.cookie('refreshToken', req.user.re, {maxAge: 10000, httpOnly: true, secure: true, sameSite: 'None'});
+        res.cookie('accessToken', req.user.ac, {domain: '127.0.0.1', maxAge: 10000, httpOnly: true, secure: true, sameSite: 'None'});
+        res.cookie('refreshToken', req.user.re, {domain: '127.0.0.1', maxAge: 10000, httpOnly: true, secure: true, sameSite: 'None'});
         res.redirect(process.env.FRONTEND_URL + '/login');
     }
 }
