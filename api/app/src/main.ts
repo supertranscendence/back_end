@@ -2,9 +2,10 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import {DocumentBuilder, SwaggerModule} from "@nestjs/swagger";
 import * as cookieParser from "cookie-parser";
+import {NestExpressApplication} from "@nestjs/platform-express";
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, {cors : true});
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {cors : true});
 
   const config = new DocumentBuilder()
       .setTitle('Super Transcendence')
@@ -15,6 +16,7 @@ async function bootstrap() {
   SwaggerModule.setup('api/doc', app, document);
   app.enableCors();
   app.use(cookieParser());
+  app.set('trust proxy', '1');
   await app.listen(3000);
 }
 bootstrap();
