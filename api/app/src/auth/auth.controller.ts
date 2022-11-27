@@ -16,6 +16,7 @@ export class AuthController {
     @UseGuards(AuthGuard('42'))
     @HttpCode(302)
     @Header('Access-Control-Allow-Origin', '*')
+    @Header('Access-Control-Allow-Credentials', 'true')
     async ftLoginCallback(@Req() req, @Res() res){
         console.log(req.user);
         res.cookie('accessToken', req.user.ac, {maxAge: 10000});
