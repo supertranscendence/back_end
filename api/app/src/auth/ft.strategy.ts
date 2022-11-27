@@ -1,6 +1,6 @@
 import { Strategy } from "passport-42";
 import { PassportStrategy } from "@nestjs/passport";
-import { Injectable } from "@nestjs/common";
+import {ExecutionContext, Injectable} from "@nestjs/common";
 import { UsersService } from "../users/services/users.service";
 import { faker } from '@faker-js/faker';
 import { Users } from "../entities/Users";
@@ -18,6 +18,7 @@ export class FtStrategy extends PassportStrategy(Strategy) {
 
     async validate(accessToken, refreshToken, profile, cb) {
         const act: string = this.authService.makeAccess(profile.username);
+        console.log(accessToken);
         let ref: string;
         let isNewbie: boolean = false;
         const user: Users = await this.userService.findByIntra(profile.username).then(
