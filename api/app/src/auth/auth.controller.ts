@@ -23,8 +23,8 @@ export class AuthController {
         console.log(req.user);
         let date: Date = new Date();
         date.setDate(date.getTime() + 1000 * 10);
-        res.cookie('accessToken', req.user.ac, {domain: this.config.get('DOMAIN'), expires: date.toUTCString(), sameSite: 'Strict'});
-        res.cookie('refreshToken', req.user.re, {domain: this.config.get('DOMAIN'), expires: date.toUTCString(), sameSite: 'Strict'});
+        res.cookie('accessToken', req.user.ac, {domain: this.config.get('DOMAIN'), expire: date.toUTCString(), sameSite: 'Strict'});
+        res.cookie('refreshToken', req.user.re, {domain: this.config.get('DOMAIN'), expire: date.toUTCString(), sameSite: 'Strict'});
         //res.redirect(this.config.get(FRONTEND_URL + '/login');
         console.log(this.config.get('FRONTEND_URL'));
         res.redirect(this.config.get('FRONTEND_URL'));
