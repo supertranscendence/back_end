@@ -2,4 +2,4 @@
 
 yarn install
 yarn build
-pm2-runtime start dist/main.js --name api
+export NODE_ENV=prod && pm2-runtime start dist/main.js --name api
