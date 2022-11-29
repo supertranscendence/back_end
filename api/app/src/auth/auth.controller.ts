@@ -21,8 +21,10 @@ export class AuthController {
     @Header('Access-Control-Allow-Credentials', 'true')
     async ftLoginCallback(@Req() req, @Res() res){
         console.log(req.user);
-        res.cookie('accessToken', req.user.ac, {domain: this.config.get('DOMAIN'), maxAge: 10000, sameSite: 'Strict'});
-        res.cookie('refreshToken', req.user.re, {domain: this.config.get('DOMAIN'), maxAge: 10000, sameSite: 'Strict'});
+        let date: Date = new Date();
+        date.setDate(date.getTime() + 1000 * 10);
+        res.cookie('accessToken', req.user.ac, {domain: this.config.get('DOMAIN'), expires: date.toUTCString(), sameSite: 'Strict'});
+        res.cookie('refreshToken', req.user.re, {domain: this.config.get('DOMAIN'), expires: date.toUTCString(), sameSite: 'Strict'});
         //res.redirect(this.config.get(FRONTEND_URL + '/login');
         console.log(this.config.get('FRONTEND_URL'));
         res.redirect(this.config.get('FRONTEND_URL'));
