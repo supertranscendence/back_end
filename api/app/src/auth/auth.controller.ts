@@ -5,12 +5,14 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthGuard } from "@nestjs/passport";
+import {ConfigService} from "@nestjs/config";
 
 @Controller('api/auth')
 export class AuthController {
 
     constructor (
-        private auth : AuthService
+        private auth : AuthService,
+        private config: ConfigService
     ) {}
     @Get('/ft/redirect')
     @UseGuards(AuthGuard('42'))
@@ -19,10 +21,10 @@ export class AuthController {
     @Header('Access-Control-Allow-Credentials', 'true')
     async ftLoginCallback(@Req() req, @Res() res){
         console.log(req.user);
-        res.cookie('accessToken', req.user.ac, {domain: '.gilee.click', maxAge: 10000, sameSite: 'Strict'});
-        res.cookie('refreshToken', req.user.re, {domain: '.gilee.click', maxAge: 10000, sameSite: 'Strict'});
-        //res.redirect(process.env.FRONTEND_URL + '/login');
-        console.log(process.env.FRONTEND_URL);
-        res.redirect(process.env.FRONTEND_URL);
+        res.cookie('accessToken', req.user.ac, {domain: this.config.get('DOMAIN'), maxAge: 10000, sameSite: 'Strict'});
+        res.cookie('refreshToken', req.user.re, {domain: this.config.get('DOMAIN'), maxAge: 10000, sameSite: 'Strict'});
+        //res.redirect(this.config.get(FRONTEND_URL + '/login');
+        console.log(this.config.get('FRONTEND_URL'));
+        res.redirect(this.config.get('FRONTEND_URL'));
     }
 }
