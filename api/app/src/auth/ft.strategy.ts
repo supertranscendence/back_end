@@ -5,14 +5,15 @@ import { UsersService } from "../users/services/users.service";
 import { faker } from '@faker-js/faker';
 import { Users } from "../entities/Users";
 import { AuthService } from "./auth.service";
+import {ConfigService} from "@nestjs/config";
 
 @Injectable()
 export class FtStrategy extends PassportStrategy(Strategy) {
-    constructor(private userService: UsersService, private authService: AuthService) {
+    constructor(private userService: UsersService, private authService: AuthService, config: ConfigService) {
         super({
-            clientID: process.env.AID,
-            clientSecret: process.env.APW,
-            callbackURL: process.env.URL
+            clientID: config.get('AID'),
+            clientSecret: config.get('APW'),
+            callbackURL: config.get('URL')
         });
     }
 

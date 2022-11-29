@@ -5,11 +5,13 @@ import {AuthRepository} from "./auth.repository";
 import {FtStrategy} from "./ft.strategy";
 import {UsersService} from "../users/services/users.service";
 import {UsersRepository} from "../users/repository/users.repository";
+import {ConfigModule, ConfigService} from "@nestjs/config";
 
 //@Global()
 @Module({
+    imports: [],
     controllers: [AuthController],
-    providers: [AuthService, AuthRepository, FtStrategy, UsersService, UsersRepository],
+    providers: [AuthService, AuthRepository, FtStrategy, UsersService, UsersRepository, ],
     exports: [AuthService, AuthRepository],
 })
 export class AuthModule {}

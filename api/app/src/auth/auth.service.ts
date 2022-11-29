@@ -1,14 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import * as jwt from 'jsonwebtoken';
 import { AuthRepository } from "./auth.repository";
+import {ConfigService} from "@nestjs/config";
 
 @Injectable()
 export class AuthService {
-    constructor(private authRepository : AuthRepository) {}
+    constructor(private authRepository : AuthRepository,
+                private config: ConfigService) {}
 
     async vf(token: string) {
         try {
-            jwt.verify(token, process.env.JWT_SECRET); // 토큰 이슈가 없다면 그대로 return
+            jwt.verify(token, this.config.get('JWT_SECRET')); // 토큰 이슈가 없다면 그대로 return
         }catch (e) {
             console.log(e.message);
             if (e.message != 'jwt expired') // TODO: 만료된 토큰 이외의 경우는 따로 관리
@@ -27,13 +29,13 @@ export class AuthService {
     }
 
     makeRefresh(intra: string): string{
-        return jwt.sign({...{intra}}, process.env.JWT_SECRET, {
+        return jwt.sign({...{intra}}, this.config.get('JWT_SECRET'), {
             expiresIn: '365d',
         });
     }
 
     makeAccess(intra: string): string{
-        return jwt.sign({...{intra}}, process.env.JWT_SECRET, {
+        return jwt.sign({...{intra}}, this.config.get('JWT_SECRET'), {
             expiresIn: '1h',
             //expiresIn: '20sec',
         });
