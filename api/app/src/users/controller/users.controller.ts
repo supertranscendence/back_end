@@ -17,11 +17,11 @@ export class UsersController {
         return this.users.findJoin();
     }
 
-    // @Get()
-    // getAll() {
-    //     // return [1, 2, 3];
-    //     return this.users.findAll();
-    // }
+    @Get()
+    getAll() {
+        // return [1, 2, 3];
+        return this.users.findAll();
+    }
 
 
     // @Get(':id')
