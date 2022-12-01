@@ -11,6 +11,7 @@ import {ConfigModule} from "@nestjs/config";
 import {validate} from "./env.validation";
 import {ConfigService} from "@nestjs/config";
 // import { TestModule } from './test/test.module';
+import { GatewayModule } from './gateway/gateway.module';
 
 
 @Module({
@@ -31,7 +32,8 @@ import {ConfigService} from "@nestjs/config";
     FriendsModule,
     UsersModule,
     AchievementsCodeModule,
-      AuthModule
+      AuthModule,
+      GatewayModule
   ],
   controllers: [],
 })
