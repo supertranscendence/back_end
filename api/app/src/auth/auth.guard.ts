@@ -20,7 +20,9 @@ export class AuthGuardLocal implements CanActivate {
     }
 
     private extractToken(request: any): string {
-        const token = request.headers.authorization;
+        // console.log(request.handshake.headers.authorization);
+        const token = request.handshake.headers.authorization;
+        // console.log(token);
         return token ? token.split('Bearer ')[1] : null;
     }
 }
