@@ -103,9 +103,13 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect
         console.log('-----');
         console.log(intra);
         console.log('-----');
+        console.log('test');
         this.server.emit('emitMessage', {
             msg: 'New Message',
             content: await this.users.findByIntra(intra),
+            
         })
     }
+
+    
 }
