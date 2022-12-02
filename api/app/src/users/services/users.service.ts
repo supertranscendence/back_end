@@ -30,31 +30,31 @@ export class UsersService {
         return await this.usersRepository.findOneBy({intra: intra});
     }
 
-    async findJoin() {
-        const entityManager = getManager();
-        
-        let data = await entityManager
-        .getRepository(Users)
-        // .createQueryBuilder("friends")
-        .createQueryBuilder("achie") // table에 대한 별칭
-        .leftJoinAndSelect("achie.friends", "new_alias") // " table에 대한 별칭에서 . friends라는 colum을 찾아서 이건 (user.ts의 friends 변수 Friends의 ManyToOne), 새 alias"
-        .getMany();
-
-        // leftJoinAndSelect(subQueryFactory: (qb: SelectQueryBuilder<any>) => SelectQueryBuilder<any>, alias: string, condition?: string, parameters?: ObjectLiteral): this;
-
-        // const data = this.usersRepository.find({
-        //     join: {
-        //         alias: "friends",
-        //         leftJoinAndSelect: {
-        //             friends: "friends.friends",
-        //             abc : "friends.intra"
-        //         }
-        //     }
-        // });
-
-        // console.log(data);
-        return (data);
-    }
+    // async findJoin() {
+    //     const entityManager = getManager();
+    //
+    //     let data = await entityManager
+    //     .getRepository(Users)
+    //     // .createQueryBuilder("friends")
+    //     .createQueryBuilder("achie") // table에 대한 별칭
+    //     .leftJoinAndSelect("achie.friends", "new_alias") // " table에 대한 별칭에서 . friends라는 colum을 찾아서 이건 (user.ts의 friends 변수 Friends의 ManyToOne), 새 alias"
+    //     .getMany();
+    //
+    //     // leftJoinAndSelect(subQueryFactory: (qb: SelectQueryBuilder<any>) => SelectQueryBuilder<any>, alias: string, condition?: string, parameters?: ObjectLiteral): this;
+    //
+    //     // const data = this.usersRepository.find({
+    //     //     join: {
+    //     //         alias: "friends",
+    //     //         leftJoinAndSelect: {
+    //     //             friends: "friends.friends",
+    //     //             abc : "friends.intra"
+    //     //         }
+    //     //     }
+    //     // });
+    //
+    //     // console.log(data);
+    //     return (data);
+    // }
 
     create(body: any) {
         //const newTest = this.usersRepository.create(body);

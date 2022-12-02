@@ -43,6 +43,7 @@ jobs:
           URL=${{ secrets.URL }}
           FRONTEND_URL=${{ secrets.FRONTEND_URL }}
           DOMAIN=${{ secrets.DOMAIN }}
+          HOST=${{ secrets.HOST }}
           JWT_SECRET=${{ secrets.JWT_SECRET }}" > ./api/app/.env
           
     - name: Configure AWS credentials

@@ -1,9 +1,12 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
+import {Body, Controller, Delete, Get, Param, Post, Put, SetMetadata, UseFilters, UseGuards} from '@nestjs/common';
 import { UsersService } from '../services/users.service';
 import { AuthGuardLocal } from "../../auth/auth.guard";
+import {JWTExceptionFilter} from "../../exception/jwt.filter";
 
-@Controller('api/users')
+@UseFilters(JWTExceptionFilter)
 @UseGuards(AuthGuardLocal)
+@SetMetadata('roles', ['admin'])
+@Controller('api/users')
 export class UsersController {
 
     constructor (
@@ -12,10 +15,13 @@ export class UsersController {
 
 
     @Get()
-    getJoin() {
-        // return [1, 2, 3];
-        return this.users.findJoin();
+    findOne() {
+        return this.users.findAll();
     }
+    // getJoin() {
+    //     // return [1, 2, 3];
+    //     return this.users.findJoin();
+    // }
 
     @Get()
     getAll() {
@@ -25,9 +31,9 @@ export class UsersController {
 
 
     // @Get(':id')
+    // }
     // getOne(@Param('id') tid : number) {
     //     return this.users.findOne(tid);
-    // }
 
     // @Get('')
     // getJoin(@Param('id') tid : number) {
