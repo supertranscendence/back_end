@@ -14,7 +14,11 @@ async function bootstrap() {
       .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/doc', app, document);
-  app.enableCors();
+  app.enableCors(
+      {
+        origin: 'https://gilee.click'
+      }
+  );
   app.use(cookieParser());
   app.set('trust proxy', '1');
   await app.listen(3000);

@@ -1,11 +1,12 @@
 import {
     Controller,
     Get,
-    Res, HttpCode, UseGuards, Req, Headers, Header
+    Res, HttpCode, UseGuards, Req, Headers, Header, UseFilters
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthGuard } from "@nestjs/passport";
 import {ConfigService} from "@nestjs/config";
+import {JWTExceptionFilter} from "../exception/jwt.filter";
 
 @Controller('api/auth')
 export class AuthController {
@@ -32,5 +33,14 @@ export class AuthController {
         //res.redirect(this.config.get(FRONTEND_URL + '/login');
         console.log(this.frontend_url);
         res.redirect(this.frontend_url);
+    }
+
+    @Get('/ft/refresh')
+    ftLoginRefresh(){
+
+    }
+    @Get('/ft/revoke')
+    ftLoginRevoke(){
+
     }
 }
