@@ -12,7 +12,9 @@ import { AuthGuard } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
 
 import { AuthGuardLocal } from './auth.guard';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
+@ApiBearerAuth()
 @Controller('api/auth')
 export class AuthController {
   readonly frontend_url;

@@ -6,37 +6,41 @@ import { FriendsModule } from './friends/friends.module';
 import { UsersModule } from './users/users.module';
 import { AchievementsCodeModule } from './achievements_code/achievements_code.module';
 import { GameModule } from './game/game.module';
-import {AuthModule} from "./auth/auth.module";
-import {ConfigModule} from "@nestjs/config";
-import {validate} from "./env.validation";
-import {ConfigService} from "@nestjs/config";
+import { AuthModule } from './auth/auth.module';
+import { ConfigModule } from '@nestjs/config';
+import { validate } from './env.validation';
+import { ConfigService } from '@nestjs/config';
 // import { TestModule } from './test/test.module';
 import { GatewayModule } from './gateway/gateway.module';
-import {ExceptionModule} from "./exception/exception.module";
-
+import { ExceptionModule } from './exception/exception.module';
 
 @Module({
-    imports: [
-        ConfigModule.forRoot({
-            validate,
-            isGlobal: true,
-            envFilePath: process.env.NODE_ENV === 'dev' ? '.env.dev' : process.env.NODE_ENV === 'prod' ? '.env' : '.env.test',
-        }),
-        TypeOrmModule.forRootAsync({
-            imports: [ConfigModule],
-            useClass: TypeOrmConfigService,
-            inject: [ConfigService]
-        }),
-        // TestappModule,
-        GameModule,
-        AchievementsModule,
-        FriendsModule,
-        UsersModule,
-        AchievementsCodeModule,
-        AuthModule,
-        GatewayModule,
-        ExceptionModule
-    ],
-    controllers: [],
+  imports: [
+    ConfigModule.forRoot({
+      validate,
+      isGlobal: true,
+      envFilePath:
+        process.env.NODE_ENV === 'dev'
+          ? '.env.dev'
+          : process.env.NODE_ENV === 'prod'
+          ? '.env'
+          : '.env.test',
+    }),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      useClass: TypeOrmConfigService,
+      inject: [ConfigService],
+    }),
+    // TestappModule,
+    GameModule,
+    AchievementsModule,
+    FriendsModule,
+    UsersModule,
+    AchievementsCodeModule,
+    AuthModule,
+    GatewayModule,
+    ExceptionModule,
+  ],
+  controllers: [],
 })
 export class AppModule {}
