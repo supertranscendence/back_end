@@ -9,12 +9,16 @@ export class AuthGuardLocal implements CanActivate {
   canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
-    const request = context.switchToHttp().getRequest();
-    return this.validateRequest(request);
+    const type = context.getType();
+    console.log(type);
+    let request;
+    if (type == 'ws') request = context.switchToWs().getClient();
+    else request = context.switchToHttp().getRequest();
+    return this.validateRequest(request, type);
   }
 
-  private async validateRequest(request: any) {
-    this.auth.verifyToken(this.auth.extractToken(request));
+  private async validateRequest(request: any, type: string) {
+    this.auth.verifyToken(this.auth.extractToken(request, type));
     return true;
   }
 }

@@ -69,16 +69,30 @@ export class AuthService {
 
   async refreshJWT(req: Request): Promise<any> {
     const res = this.extractToken(req);
+    const intra = jwt.decode(res)['intra'];
     const act = this.makeAccess(jwt.decode(res)['intra']);
-    await this.authRepository.update({ res: res }, { act: act });
-    console.log(`refreshed ${jwt.decode(res)['intra']}'s access token: ${act}`);
+    await this.authRepository
+      .update({ res: res }, { act: act })
+      .then((r) => {
+        if (!r.affected) throw new InternalServerErrorException();
+        console.log(
+          `refreshed ${jwt.decode(res)['intra']}'s access token: ${act}`,
+        );
+      })
+      .catch((e) => {
+        console.log(intra + ' refresh failed');
+        throw e;
+      });
     return { act };
   }
 
-  extractToken(request: any): string {
-    // console.log(request.handshake.headers.authorization);
-    //const token = request.handshake.headers.authorization; // handshake는 socket객체에 있는거..
-    const token = request.headers.authorization;
+  extractToken(request: any, reqType = 'http'): string {
+    let token;
+    if (reqType == 'http') {
+      token = request.headers.authorization;
+    } else if (reqType == 'ws') {
+      token = request.handshake.headers.authorization;
+    }
     return token ? token.split('Bearer ')[1] : null;
   }
 }

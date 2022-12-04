@@ -1,53 +1,59 @@
-import {
-    ArgumentsHost,
-    Catch,
-    ExceptionFilter, ExecutionContext,
-} from '@nestjs/common';
-import {Request, Response} from 'express';
-import {JsonWebTokenError, verify, decode} from "jsonwebtoken";
-import {AuthService} from "../auth/auth.service";
-import {ConfigService} from "@nestjs/config";
+import { Catch, ExceptionFilter, ExecutionContext } from '@nestjs/common';
+import { Request, Response } from 'express';
+import { JsonWebTokenError } from 'jsonwebtoken';
+import { ConfigService } from '@nestjs/config';
+import { HttpArgumentsHost, WsArgumentsHost } from '@nestjs/common/interfaces';
+import { Client } from 'socket.io/dist/client';
 
 @Catch(JsonWebTokenError)
 export class JWTExceptionFilter implements ExceptionFilter {
-    readonly host_url;
-    constructor(private config: ConfigService) {
-        this.host_url = this.config.get('HOST');
+  readonly host_url;
+
+  constructor(private config: ConfigService) {
+    this.host_url = this.config.get('HOST');
+  }
+
+  catch(exception: Error, host: ExecutionContext) {
+    console.log('type: ', host.getType());
+    const type = host.getType();
+    let ctx: WsArgumentsHost | HttpArgumentsHost;
+    let res, req;
+    if (type == 'http') {
+      ctx = host.switchToHttp();
+      res = ctx.getResponse<Response>();
+      req = ctx.getRequest<Request>();
+
+      const base = `Bearer realm=${this.host_url}/api/auth/ft`;
+      let handler = '/revoke';
+      const response = (exception as JsonWebTokenError).message;
+
+      if (
+        req.url == '/api/auth/ft/refresh' ||
+        req.url == '/api/auth/ft/revoke'
+      ) {
+        handler = '/redirect';
+      } else if (response == 'jwt expired') {
+        handler = '/refresh';
+      }
+
+      const log = {
+        timestamp: new Date(),
+        url: req.url,
+        response,
+        realm: base + handler,
+      };
+
+      console.log(log);
+
+      res
+        .status(401)
+        .setHeader('WWW-Authenticate', base + handler)
+        .json(response);
+    } else {
+      ctx = host.switchToWs();
+      req = ctx.getData();
+      res = ctx.getClient();
+      res.emit('refresh', {}); //TODO: ws refresh, revoke 전략 필요 exception filter 나누기
     }
-    catch(exception: Error, host: ExecutionContext) {
-        const ctx = host.switchToHttp();
-        const res = ctx.getResponse<Response>();
-        const req = ctx.getRequest<Request>();
-        let value: string = `Bearer realm=${this.host_url}/api/auth/ft`;
-        let handler: string = '/revoke';
-        const response = (exception as JsonWebTokenError).message;
-//
-        if (response == 'jwt expired') // TODO: 만료된 토큰 이외의 경우는 따로 관리
-        {
-            handler = '/refresh';
-            // const user = decode(token)['user'];
-            // const new_token = this.makeAccess(user);
-            // await this.authRepository.update({act: token}, {act: new_token}).then(res => {
-            //     console.log(res);
-            //     if (!res.affected) // 가장 최근에 발행된 토큰이 아닌경우 걸린다. 만료와는 다른경우
-            //         throw new jwt.JsonWebTokenError('old jwt');
-            // });
-            // console.log("new token", new_token);
-            // token = new_token;
-        }
-
-        //
-        const log = {
-            timestamp: new Date(),
-            url: req.url,
-            response,
-        }
-
-        console.log(log);
-
-        res
-            .status(401)
-            .setHeader('WWW-Authenticate', value + handler)
-            .json(response);
-    }
+  }
 }
