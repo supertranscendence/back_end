@@ -47,7 +47,7 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
     this.gatewayService.removeUser(client.client.id);
     console.log(this.gatewayService.getUsers());
   }
-
+  
   @SubscribeMessage('getChatRoomInfo')
   letAllUsers(client: Socket) {
     const event = 'events';
@@ -68,39 +68,49 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
 
     // @SubscribeMessage('newMsg')
     // sentMsg(client : Socket, room: string) {
-    //     // console.log(typeof(fx));
-    //     console.log('newMsg');
-    //     client.join(room);
-    //     // console.log(this.gatewayService.publicRooms(client, this.publicRoom).length);
-    //     client.emit("new-room-created"); // 다른 이벤트 보내기!
-    //     return {}; // 인자 없는 콜백          
-    // };
-
-    @SubscribeMessage('newMsg')
-    newmsg(socket: Socket, newMsgObj: {room: string, user: string, msg: string}) {
+      //     // console.log(typeof(fx));
+      //     console.log('newMsg');
+      //     client.join(room);
+      //     // console.log(this.gatewayService.publicRooms(client, this.publicRoom).length);
+      //     client.emit("new-room-created"); // 다른 이벤트 보내기!
+      //     return {}; // 인자 없는 콜백          
+      // };
+      
+      @SubscribeMessage('newMsg')
+      newmsg(socket: Socket, newMsgObj: {room: string, user: string, msg: string}) {
         console.log("newMsg getto", newMsgObj);
         socket.to(newMsgObj.room).emit("newMsg", newMsgObj);
         return {};
-    }
-
-    @SubscribeMessage('enterRoom')
-    enterRoom(socket: Socket, joinInfo: {name :string, room : string}) {
+      }
+      
+      @SubscribeMessage('enterRoom')
+      enterRoom(socket: Socket, joinInfo: {name :string, room : string}) {
         socket.join(joinInfo.room);
         console.log("jjjjoooin", joinInfo);
         // socket.to(joinInfo.room).emit("welcoome" , joinInfo.name);
         //룸정보 바꼇어요해줘야함 
         // socket.emit("new-room-created");
         return {};
-    }
-    // 이것을 기반으로 callback 해결을 해보자 그리고 case 정리해두기!
+      }
+      // 이것을 기반으로 callback 해결을 해보자 그리고 case 정리해두기!
+      
 
-    /////////////////////////////////////////////////////////////////////////
-    
-    // this.server.on("create-room", (socket, room,fx) => {
-    // socket.on("create-room", (room,fx) => {
-    //     console.log('create-room');
-    //     socket.join(room);
-    //     console.log(this.publicRooms(socket).length);
+      // socket.leave('방이름');
+      // 방 나갈때 제거가 안됨
+      @SubscribeMessage('disconnecting')
+      leftRoom(socket: Socket) {
+        socket.rooms.forEach(room => 
+          // socket.to(room).emit("bye", socket.id));
+          socket.to(room)
+      )}
+
+      /////////////////////////////////////////////////////////////////////////
+      
+      // this.server.on("create-room", (socket, room,fx) => {
+        // socket.on("create-room", (room,fx) => {
+          //     console.log('create-room');
+          //     socket.join(room);
+          //     console.log(this.publicRooms(socket).length);
     //     fx();
     //     socket.emit("new-room-created");
     // }); // 방에 참가, 새방 생성 되었다
