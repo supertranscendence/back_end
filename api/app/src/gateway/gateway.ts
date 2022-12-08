@@ -60,10 +60,9 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
         console.log('create-room');
         client.join(room);
         // console.log(this.gatewayService.publicRooms(client, this.publicRoom).length);
-        client.emit("new-room-created"); // 다른 이벤트 보내기!
+        client.emit("new-room-created", room); // 다른 이벤트 보내기!
         return {}; // 인자 없는 콜백          
     };
-
 
     @SubscribeMessage('newMsg')
     sentMsg(client : Socket, room: string) {
@@ -74,6 +73,16 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
         client.emit("new-room-created"); // 다른 이벤트 보내기!
         return {}; // 인자 없는 콜백          
     };
+
+    @SubscribeMessage('enterRoom')
+    enterRoom(socket: Socket, joinInfo: {name :string, room : string}) {
+        socket.join(joinInfo.room);
+        console.log("jjjjoooin", joinInfo);
+        // socket.to(joinInfo.room).emit("welcoome" , joinInfo.name);
+        //룸정보 바꼇어요해줘야함 
+        // socket.emit("new-room-created");
+        return {};
+    }
     // 이것을 기반으로 callback 해결을 해보자 그리고 case 정리해두기!
 
     /////////////////////////////////////////////////////////////////////////
