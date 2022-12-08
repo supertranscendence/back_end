@@ -79,7 +79,7 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
     @SubscribeMessage('newMsg')
     newmsg(socket: Socket, newMsgObj: {room: string, user: string, msg: string}) {
         console.log("newMsg getto", newMsgObj);
-        socket.to(newMsgObj.room).emit("newMsg", `${newMsgObj.user}: ${newMsgObj.msg}`);
+        socket.to(newMsgObj.room).emit("newMsg", newMsgObj);
         return {};
     }
 
