@@ -91,7 +91,9 @@ export class AuthService {
     if (reqType == 'http') {
       token = request.headers.authorization;
     } else if (reqType == 'ws') {
-      token = request.handshake.headers.authorization;
+      console.log(request.handshake.auth);
+      token = request.handshake.auth[0];
+      console.log(token);
     }
     return token ? token.split('Bearer ')[1] : null;
   }
