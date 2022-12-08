@@ -66,15 +66,22 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
         return {}; // 인자 없는 콜백          
     };
 
+    // @SubscribeMessage('newMsg')
+    // sentMsg(client : Socket, room: string) {
+    //     // console.log(typeof(fx));
+    //     console.log('newMsg');
+    //     client.join(room);
+    //     // console.log(this.gatewayService.publicRooms(client, this.publicRoom).length);
+    //     client.emit("new-room-created"); // 다른 이벤트 보내기!
+    //     return {}; // 인자 없는 콜백          
+    // };
+
     @SubscribeMessage('newMsg')
-    sentMsg(client : Socket, room: string) {
-        // console.log(typeof(fx));
-        console.log('newMsg');
-        client.join(room);
-        // console.log(this.gatewayService.publicRooms(client, this.publicRoom).length);
-        client.emit("new-room-created"); // 다른 이벤트 보내기!
-        return {}; // 인자 없는 콜백          
-    };
+    newmsg(socket: Socket, newMsgObj: {room: string, user: string, msg: string}) {
+        console.log("newMsg getto", newMsgObj);
+        socket.to(newMsgObj.room).emit("newMsg", `${newMsgObj.user}: ${newMsgObj.msg}`);
+        return {};
+    }
 
     @SubscribeMessage('enterRoom')
     enterRoom(socket: Socket, joinInfo: {name :string, room : string}) {
