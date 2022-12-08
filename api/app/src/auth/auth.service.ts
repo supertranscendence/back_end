@@ -1,54 +1,98 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import * as jwt from 'jsonwebtoken';
-import { AuthRepository } from "./auth.repository";
-import {ConfigService} from "@nestjs/config";
+import { AuthRepository } from './auth.repository';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
-    constructor(private authRepository : AuthRepository,
-                private config: ConfigService) {}
+  readonly JWT_SECRET;
 
-    async vf(token: string) {
-        try {
-            jwt.verify(token, this.config.get('JWT_SECRET')); // 토큰 이슈가 없다면 그대로 return
-        }catch (e) {
-            console.log(e.message);
-            if (e.message != 'jwt expired') // TODO: 만료된 토큰 이외의 경우는 따로 관리
-                throw new jwt.JsonWebTokenError(e.message);
-            const user = jwt.decode(token)['user'];
-            const new_token = this.makeAccess(user);
-            await this.authRepository.update({act: token},{act: new_token}).then(res => {
-                console.log(res);
-                if (!res.affected) // 가장 최근에 발행된 토큰이 아닌경우 걸린다. 만료와는 다른경우
-                    throw new jwt.JsonWebTokenError('old jwt');
-            });
-            console.log("new token", new_token);
-            token = new_token;
-        }
-        return token;
-    }
+  constructor(
+    private authRepository: AuthRepository,
+    private config: ConfigService,
+  ) {
+    this.JWT_SECRET = this.config.get('JWT_SECRET');
+  }
 
-    makeRefresh(intra: string): string{
-        return jwt.sign({...{intra}}, this.config.get('JWT_SECRET'), {
-            expiresIn: '365d',
-        });
-    }
+  verifyToken(token: string): void {
+    jwt.verify(token, this.JWT_SECRET, (error) => {
+      if (error) throw error;
+    });
+  }
 
-    makeAccess(intra: string): string{
-        return jwt.sign({...{intra}}, this.config.get('JWT_SECRET'), {
-            expiresIn: '1h',
-            //expiresIn: '20sec',
-        });
-    }
+  makeRefresh(intra: string): string {
+    return jwt.sign({ ...{ intra } }, this.JWT_SECRET, {
+      expiresIn: '365d',
+    });
+  }
 
-    async register(id: number, access: string, refresh: string) {
-        const auth = await this.authRepository.findOneByOrFail({id: id}).catch(() => {return null;});
-        if (!auth)
-            return await this.authRepository.insertToken({id: id, act: access, res: refresh});
-        return await this.authRepository.update(id, {act: access, res: refresh});
-    }
+  makeAccess(intra: string): string {
+    return jwt.sign({ ...{ intra } }, this.JWT_SECRET, {
+      expiresIn: '1h',
+      //expiresIn: '20sec',
+    });
+  }
 
-    async findOneById(id: number) {
-        return await this.authRepository.findById(id);
+  async register(id: number, access: string, refresh: string) {
+    const auth = await this.authRepository
+      .findOneByOrFail({ id: id })
+      .catch(() => {
+        return null;
+      });
+    if (!auth)
+      return await this.authRepository.insertToken({
+        id: id,
+        act: access,
+        res: refresh,
+      });
+    return await this.authRepository.update(id, { act: access, res: refresh });
+  }
+
+  async findOneById(id: number) {
+    return await this.authRepository.findOneByOrFail({ id: id });
+  }
+
+  async revokeJWT(req: Request): Promise<void> {
+    const res = this.extractToken(req);
+    const intra = jwt.decode(res)['intra'];
+    await this.authRepository
+      .delete({ res: res })
+      .then((r) => {
+        if (!r.affected) throw new InternalServerErrorException();
+        console.log(`revoked ${jwt.decode(res)['intra']}'s refresh token`);
+      })
+      .catch((e) => {
+        console.log(intra + ' revoke failed');
+        throw e;
+      });
+  }
+
+  async refreshJWT(req: Request): Promise<any> {
+    const res = this.extractToken(req);
+    const intra = jwt.decode(res)['intra'];
+    const act = this.makeAccess(jwt.decode(res)['intra']);
+    await this.authRepository
+      .update({ res: res }, { act: act })
+      .then((r) => {
+        if (!r.affected) throw new InternalServerErrorException();
+        console.log(
+          `refreshed ${jwt.decode(res)['intra']}'s access token: ${act}`,
+        );
+      })
+      .catch((e) => {
+        console.log(intra + ' refresh failed');
+        throw e;
+      });
+    return { act };
+  }
+
+  extractToken(request: any, reqType = 'http'): string {
+    let token;
+    if (reqType == 'http') {
+      token = request.headers.authorization;
+    } else if (reqType == 'ws') {
+      token = request.handshake.headers.authorization;
     }
+    return token ? token.split('Bearer ')[1] : null;
+  }
 }

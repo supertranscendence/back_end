@@ -1,28 +1,24 @@
-import { CanActivate, ExecutionContext, Injectable, InternalServerErrorException } from "@nestjs/common";
-import { Observable } from "rxjs";
-import { AuthService } from "./auth.service";
-import { Request } from "express";
+import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import { Observable } from 'rxjs';
+import { AuthService } from './auth.service';
 
 @Injectable()
 export class AuthGuardLocal implements CanActivate {
-    constructor(private auth: AuthService) {
-    }
-    canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
-        const request = context.switchToHttp().getRequest();
-        return this.validateRequest(request);
-    }
+  constructor(private auth: AuthService) {}
 
-    private async validateRequest(request: any) {
-        const jwt = this.extractToken(request);
+  canActivate(
+    context: ExecutionContext,
+  ): boolean | Promise<boolean> | Observable<boolean> {
+    const type = context.getType();
+    console.log(type);
+    let request;
+    if (type == 'ws') request = context.switchToWs().getClient();
+    else request = context.switchToHttp().getRequest();
+    return this.validateRequest(request, type);
+  }
 
-        request.auth = await this.auth.vf(jwt);
-        return true
-    }
-
-    private extractToken(request: any): string {
-        // console.log(request.handshake.headers.authorization);
-        const token = request.handshake.headers.authorization;
-        // console.log(token);
-        return token ? token.split('Bearer ')[1] : null;
-    }
+  private async validateRequest(request: any, type: string) {
+    this.auth.verifyToken(this.auth.extractToken(request, type));
+    return true;
+  }
 }
