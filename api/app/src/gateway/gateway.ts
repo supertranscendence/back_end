@@ -101,7 +101,7 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
       leftRoom(socket: Socket) {
         socket.rooms.forEach(room => 
           // socket.to(room).emit("bye", socket.id));
-          socket.to(room)
+          socket.leave(room)
       )}
 
       /////////////////////////////////////////////////////////////////////////
