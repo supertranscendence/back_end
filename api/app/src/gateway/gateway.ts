@@ -35,6 +35,7 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
       console.log('socket.id', socket.id);
       console.log(socket.client.request.headers.authorization);
       console.log(socket.client.request.headers);
+      console.log(socket.handshake);
       this.gatewayService.addUser({ client: socket.client });
       console.log(this.gatewayService.getUsers());
     });
