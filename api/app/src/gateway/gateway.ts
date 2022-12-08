@@ -54,38 +54,38 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
     return this.gatewayService.publicRooms(client, this.publicRoom); // return이 callback이다 fx를 보낼 필요가 없다!
   }
 
-  @SubscribeMessage('create-room')
-  createroom(client: Socket, room: string) {
-    // console.log(typeof(fx));
-    console.log('create-room');
-    client.join(room);
-    // console.log(this.gatewayService.publicRooms(client, this.publicRoom).length);
-    client.emit('new-room-created'); // 다른 이벤트 보내기!
-    return {}; // 인자 없는 콜백
-  }
+    @SubscribeMessage('create-room')
+    createroom(client: Socket, room: string) {
+        // console.log(typeof(fx));
+        console.log('create-room');
+        client.join(room);
+        // console.log(this.gatewayService.publicRooms(client, this.publicRoom).length);
+        client.emit("new-room-created"); // 다른 이벤트 보내기!
+        return {}; // 인자 없는 콜백          
+    };
 
-  @SubscribeMessage('newMsg')
-  sentMsg(client: Socket, room: string) {
-    // console.log(typeof(fx));
-    console.log('newMsg');
-    client.join(room);
-    // console.log(this.gatewayService.publicRooms(client, this.publicRoom).length);
-    client.emit('new-room-created'); // 다른 이벤트 보내기!
-    return {}; // 인자 없는 콜백
-  }
 
-  @SubscribeMessage('events')
-  onEvent(client: any, data: any) {
-    console.log('take');
-    this.gatewayService.addRoom({
-      host: '1234',
-      name: data,
-    });
-    console.log(this.gatewayService.getRooms());
-    client.emit('events', 'hihibnibi');
-    this.server.emit('events', 'broadcast');
-    //return { event: 'events', data: data };
-  }
+    @SubscribeMessage('newMsg')
+    sentMsg(client : Socket, room: string) {
+        // console.log(typeof(fx));
+        console.log('newMsg');
+        client.join(room);
+        // console.log(this.gatewayService.publicRooms(client, this.publicRoom).length);
+        client.emit("new-room-created"); // 다른 이벤트 보내기!
+        return {}; // 인자 없는 콜백          
+    };
+    // 이것을 기반으로 callback 해결을 해보자 그리고 case 정리해두기!
+
+    /////////////////////////////////////////////////////////////////////////
+    
+    // this.server.on("create-room", (socket, room,fx) => {
+    // socket.on("create-room", (room,fx) => {
+    //     console.log('create-room');
+    //     socket.join(room);
+    //     console.log(this.publicRooms(socket).length);
+    //     fx();
+    //     socket.emit("new-room-created");
+    // }); // 방에 참가, 새방 생성 되었다
 
   // socket에서 data가져오기
   @UseGuards(AuthGuardLocal)
