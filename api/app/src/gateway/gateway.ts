@@ -5,19 +5,15 @@ import {
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
-  WsResponse,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { AuthGuardLocal } from '../auth/auth.guard';
 import { UsersService } from '../users/services/users.service';
 import { gatewayService } from './gateway.service';
-import { from, map, Observable } from 'rxjs';
-import { ApiTags } from '@nestjs/swagger';
 import { JWTExceptionFilter } from '../exception/jwt.filter';
 
 @UseGuards(AuthGuardLocal)
 @UseFilters(JWTExceptionFilter)
-@ApiTags('ws')
 @WebSocketGateway({
   namespace: 'api/socket',
 })
@@ -32,23 +28,22 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
 
   publicRoom = [];
 
-  // handleConnection(client: any) {
-  //   console.log('Connected');
-  //   console.log(client.id);
-  // }
-
   onModuleInit() {
     // console.log(this.server);
     this.server.on('connection', (socket) => {
       console.log('onModuleInit');
       console.log('socket.id', socket.id);
       console.log(socket.client.request.headers.authorization);
+      this.gatewayService.addUser({ client: socket.client });
+      console.log(this.gatewayService.getUsers());
     });
   }
 
   handleDisconnect(client: any) {
-    console.log(client.id);
+    console.log(client.client.id);
     console.log('Dissconnected');
+    this.gatewayService.removeUser(client.client.id);
+    console.log(this.gatewayService.getUsers());
   }
 
   @SubscribeMessage('getChatRoomInfo')
@@ -80,11 +75,16 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('events')
-  onEvent(client: any, data: any): Observable<WsResponse<number>> {
+  onEvent(client: any, data: any) {
     console.log('take');
-    return from([1, 2, 3]).pipe(
-      map((item) => ({ event: 'events', data: item })),
-    );
+    this.gatewayService.addRoom({
+      host: '1234',
+      name: data,
+    });
+    console.log(this.gatewayService.getRooms());
+    client.emit('events', 'hihibnibi');
+    this.server.emit('events', 'broadcast');
+    //return { event: 'events', data: data };
   }
 
   // socket에서 data가져오기
