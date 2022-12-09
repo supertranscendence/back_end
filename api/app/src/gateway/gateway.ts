@@ -112,17 +112,30 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
         console.log('-----------------');
         console.log(socket.rooms);
         console.log('==============');
-
+        // console.log(socket);
         socket.rooms.forEach((i) => {
-          console.log(i);
+          console.log("iiii",i);
           socket.leave(i);
       })
-
+      
       // socket.to(room).emit("bye", socket.id));
 
           
       }
+      // 본인 소켓이 조인 되어있는 방 string
+      @SubscribeMessage('joinedRoom')
+      joinedRoom(socket: Socket) {
+        let ret: string;
+        socket.rooms.forEach((idx) => {
+          ret += idx + ' ';
+        })
+        console.log('===');
+        console.log(ret);
+        console.log('===');
+        return ret;
+      }
     /////////////////////////////////////////////////////////////////////////
+    // 본인 소켓이 조인 되어있는 방
     
     // this.server.on("create-room", (socket, room,fx) => {
     // socket.on("create-room", (room,fx) => {
