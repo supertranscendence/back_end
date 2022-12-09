@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ConsoleLogger, Injectable } from '@nestjs/common';
 import { IChatRoom, IUser } from '../types/types';
 import { Client } from 'socket.io/dist/client';
 import { DefaultEventsMap } from 'socket.io/dist/typed-events';
@@ -10,8 +10,8 @@ export class gatewayService {
   private readonly users: IUser[];
 
   constructor() {
-    this.rooms = [];
-    this.users = [];
+    this.rooms = []; // 방
+    this.users = []; // 소켓
   }
 
   getRooms(): IChatRoom[] {
@@ -26,15 +26,35 @@ export class gatewayService {
   }
 
   addRoom(room: { host: string; name: string }): void {
-    console.log(room);
+    
+    console.log('before push');
+    console.log(this.getRooms());
+
     this.rooms.push(<IChatRoom>room);
+    
+    console.log('afterRoom');
+    console.log(this.getRooms());
+
+
+    // id: number;
+    // name: string;
+    // pw: string;
+    // isPublic: boolean;
+    // users: IUser[];
+    // muted: IUser[];
+    // ban: IUser[];
+    // host: string;
   }
 
   addUser(user: {
     client: Client<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>;
   }): void {
-    console.log(user.client['id']);
+    console.log('addUser');
+    console.log(user.client['id']); // 한사람의 정보
     this.users.push(<IUser>user);
+    console.log('====');
+    console.log(this.getUsers());
+    console.log('====');
   }
 
   removeUser(id: string) {

@@ -11,6 +11,7 @@ import { AuthGuardLocal } from '../auth/auth.guard';
 import { UsersService } from '../users/services/users.service';
 import { gatewayService } from './gateway.service';
 import { JWTExceptionFilter } from '../exception/jwt.filter';
+import { throws } from 'assert';
 
 @UseGuards(AuthGuardLocal)
 @UseFilters(JWTExceptionFilter)
@@ -26,18 +27,19 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
 
-  publicRoom = [];
 
   onModuleInit() {
     // console.log(this.server);
     this.server.on('connection', (socket) => {
       console.log('onModuleInit');
       console.log('socket.id', socket.id);
-      console.log(socket.client.request.headers.authorization);
-      console.log(socket.client.request.headers);
-      console.log(socket.handshake);
+      // console.log(socket.client.request.headers.authorization);
+      // console.log(socket.client.request.headers);
+      // console.log(socket.handshake);
       this.gatewayService.addUser({ client: socket.client });
-      console.log(this.gatewayService.getUsers());
+      console.log(this.gatewayService.getUsers()); // User전체정보
+
+
     });
   }
 
@@ -48,18 +50,28 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
     console.log(this.gatewayService.getUsers());
   }
 
+  // 방정보 가져오기
   @SubscribeMessage('getChatRoomInfo')
   letAllUsers(client: Socket) {
     const event = 'events';
     // fx(this.publicRooms(client)); // 여기 부분을 어떻게 고치지 >> return으로!
     // return this.publicRooms(client) ; // fx랑 this.publicRooms(clients)를 보내야 될거 같은데
-    return this.gatewayService.publicRooms(client, this.publicRoom); // return이 callback이다 fx를 보낼 필요가 없다!
+    return this.gatewayService.publicRooms(client, this.gatewayService.getRooms()); // return이 callback이다 fx를 보낼 필요가 없다!
   }
 
+    // 방 생성
     @SubscribeMessage('create-room')
     createroom(client: Socket, room: string) {
         // console.log(typeof(fx));
         console.log('create-room');
+        
+        let host : string = 'host';
+        let name : string = 'name';
+        
+        let room_dev: { host: string; name: string }  = {host, name};
+
+        this.gatewayService.addRoom(room_dev);
+        this.gatewayService.addUser(client);
         client.join(room);
         // console.log(this.gatewayService.publicRooms(client, this.publicRoom).length);
         client.emit("new-room-created", room); // 다른 이벤트 보내기!
@@ -76,6 +88,7 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
     //     return {}; // 인자 없는 콜백          
     // };
 
+    // 새로운 메세지 보내기
     @SubscribeMessage('newMsg')
     newmsg(socket: Socket, newMsgObj: {room: string, user: string, msg: string}) {
         console.log("newMsg getto", newMsgObj);
@@ -83,10 +96,12 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
         return {};
     }
 
+    // 방 입장
     @SubscribeMessage('enterRoom')
     enterRoom(socket: Socket, joinInfo: {name :string, room : string}) {
         socket.join(joinInfo.room);
         console.log("jjjjoooin", joinInfo);
+        this.gatewayService.addUser(socket);
         // socket.to(joinInfo.room).emit("welcoome" , joinInfo.name);
         //룸정보 바꼇어요해줘야함 
         // socket.emit("new-room-created");
