@@ -50,12 +50,16 @@ export class AuthController {
 
   @UseGuards(AuthGuardLocal)
   @Get('/ft/refresh')
+  @Header('Access-Control-Allow-Origin', 'https://gilee.click')
+  @Header('Access-Control-Allow-Credentials', 'true')
   ftLoginRefresh(@Req() req: Request) {
     return this.auth.refreshJWT(req);
   }
 
   @UseGuards(AuthGuardLocal)
   @Get('/ft/revoke')
+  @Header('Access-Control-Allow-Origin', 'https://gilee.click')
+  @Header('Access-Control-Allow-Credentials', 'true')
   async ftLoginRevoke(@Req() req: Request, @Res() res) {
     await this.auth.revokeJWT(req);
     res.status(302).redirect(this.frontend_url);
