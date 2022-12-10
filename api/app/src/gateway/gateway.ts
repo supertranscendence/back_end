@@ -111,7 +111,7 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
   // 방 나갈때 제거가 안됨
   @SubscribeMessage('disconnecting')
   leftRoom(socket: Socket) {
-    socket.rooms.forEach((room) =>
+    // socket.rooms.forEach((room) =>
       // socket.to(room).emit("bye", socket.id));
 
           
