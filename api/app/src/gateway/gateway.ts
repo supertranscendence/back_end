@@ -56,15 +56,24 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
     return this.gatewayService.publicRooms(client, this.publicRoom); // return이 callback이다 fx를 보낼 필요가 없다!
   }
 
-  @SubscribeMessage('create-room')
-  createroom(client: Socket, room: string) {
-    // console.log(typeof(fx));
-    console.log('create-room');
-    client.join(room);
-    // console.log(this.gatewayService.publicRooms(client, this.publicRoom).length);
-    client.emit('new-room-created', room); // 다른 이벤트 보내기!
-    return {}; // 인자 없는 콜백
-  }
+    // 방 생성
+    @SubscribeMessage('create-room')
+    createroom(client: Socket, room: string) {
+        // console.log(typeof(fx));
+        console.log('create-room');
+        
+        let host : string = 'host';
+        let name : string = 'name';
+        
+        let room_dev: { host: string; name: string }  = {host, name};
+
+        this.gatewayService.addRoom(room_dev);
+        this.gatewayService.addUser(client);
+        client.join(room);
+        // console.log(this.gatewayService.publicRooms(client, this.publicRoom).length);
+        client.emit("new-room-created", room); // 다른 이벤트 보내기!
+        return {}; // 인자 없는 콜백          
+    };
 
   // @SubscribeMessage('newMsg')
   // sentMsg(client : Socket, room: string) {
@@ -104,20 +113,32 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
   leftRoom(socket: Socket) {
     socket.rooms.forEach((room) =>
       // socket.to(room).emit("bye", socket.id));
-      socket.leave(room),
-    );
-  }
 
-  /////////////////////////////////////////////////////////////////////////
-
-  // this.server.on("create-room", (socket, room,fx) => {
-  // socket.on("create-room", (room,fx) => {
-  //     console.log('create-room');
-  //     socket.join(room);
-  //     console.log(this.publicRooms(socket).length);
-  //     fx();
-  //     socket.emit("new-room-created");
-  // }); // 방에 참가, 새방 생성 되었다
+          
+      }
+      // 본인 소켓이 조인 되어있는 방 string
+      @SubscribeMessage('joinedRoom')
+      joinedRoom(socket: Socket) {
+        let ret: string;
+        socket.rooms.forEach((idx) => {
+          ret += idx + ' ';
+        })
+        console.log('===');
+        console.log(ret);
+        console.log('===');
+        return ret;
+      }
+    /////////////////////////////////////////////////////////////////////////
+    // 본인 소켓이 조인 되어있는 방
+    
+    // this.server.on("create-room", (socket, room,fx) => {
+    // socket.on("create-room", (room,fx) => {
+    //     console.log('create-room');
+    //     socket.join(room);
+    //     console.log(this.publicRooms(socket).length);
+    //     fx();
+    //     socket.emit("new-room-created");
+    // }); // 방에 참가, 새방 생성 되었다
 
   // socket에서 data가져오기
   @UseGuards(AuthGuardLocal)
