@@ -65,8 +65,8 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
         // console.log(typeof(fx));
         console.log('create-room');
         
-        let host : string = 'host';
-        let name : string = 'name';
+        let host : string = 'host(virtual)';
+        let name : string = 'name(virtual)';
         
         let room_dev: { host: string; name: string }  = {host, name};
 
@@ -134,7 +134,12 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
       })
       
       // socket.to(room).emit("bye", socket.id));
-
+      
+        // leftRoom()
+        // 소켓을 끊어내지 않고
+        // removeUser?같은거 하면 되겠지?
+        // 추가 할 때 room 에 User가 있으면 추가 하지 않고 그냥 들어가도록
+        // 
           
       }
       // 본인 소켓이 조인 되어있는 방 string
