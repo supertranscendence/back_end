@@ -11,9 +11,9 @@ export enum UserStatus {
 export interface IUser {
   client: Client<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>;
   intra: string;
-  nickname: string;
-  avatar: string;
-  status: UserStatus;
+  nickname?: string;
+  avatar?: string;
+  status?: UserStatus;
 }
 
 export interface IChatRoom {
