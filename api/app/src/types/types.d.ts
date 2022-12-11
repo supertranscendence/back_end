@@ -19,9 +19,9 @@ export interface IUser {
 export interface IChatRoom {
   id: number;
   name: string;
-  pw: string;
+  pw?: string;
   isPublic: boolean;
-  users: IUser[];
+  users: Map<string, IUser>;
   muted: IUser[];
   ban: IUser[];
   host: string;
