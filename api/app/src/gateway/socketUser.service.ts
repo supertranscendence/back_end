@@ -15,7 +15,7 @@ export class SUserService{
         console.log('>>>>>>>>>>addUser<<<<<<<<<', socketid);
         this.users.set(socketid, user);
         console.log('>>>>>>>>>>addUserEnd<<<<<<<<<', socketid);
-    }
+    } 
 
     getUsers() : void {
       console.log('getUsers');
@@ -24,12 +24,13 @@ export class SUserService{
         console.log(value);
       })
       console.log('getUsers End');
-    }
+    } 
 
-    getUser(socketid: string) : void {
+    getUser(socketid: string) : IUser {
       console.log('getUser............');
       console.log(this.users.get(socketid));
       console.log('getUser............');
+      return this.users.get(socketid)
     }
 
     removeUser(id: string) {
@@ -38,4 +39,5 @@ export class SUserService{
     this.users.delete(id);
   }
 
+    
 }
