@@ -6,7 +6,8 @@ import { FtStrategy } from '../auth/ft.strategy';
 import { UsersRepository } from '../users/repository/users.repository';
 import { UsersService } from '../users/services/users.service';
 import { MyGateway } from './gateway';
-import { gatewayService } from './gateway.service';
+import { RoomService } from './room.service';
+import { SUserService } from './socketUser.service';
 
 @Module({
   imports: [PassportModule.register({ defaultStrategy: 'jwt' })],
@@ -17,7 +18,8 @@ import { gatewayService } from './gateway.service';
     AuthService,
     AuthRepository,
     FtStrategy,
-    gatewayService,
+    RoomService,
+    SUserService,
   ],
 })
 export class GatewayModule {}
