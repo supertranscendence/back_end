@@ -12,8 +12,9 @@ import { UsersService } from '../users/services/users.service';
 import { JWTExceptionFilter } from '../exception/jwt.filter';
 import { RoomService } from './room.service';
 import { SUserService } from './socketUser.service';
-import { IUser, UserStatus } from '../types/types';
+import { IChatRoom, IUser, UserStatus } from '../types/types';
 import { IsUppercase } from 'class-validator';
+import { throwIfEmpty } from 'rxjs';
 
 @UseGuards(AuthGuardLocal)
 @UseFilters(JWTExceptionFilter)
@@ -42,60 +43,121 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
       let status : UserStatus = 1;  // 상태로 추가하면 오류!
       let user_copy : IUser = {client :socket.client, avatar, nickname, intra, status}
 
-      this.user.addUser(socket.id, user_copy);
+      this.user.addUser(socket.id, user_copy); // 사람을 추가해서 user에 넣기
       this.user.getUser(socket.id);
       this.user.getUsers();
     });
-  }
+  } 
 
   handleDisconnect(client: any) {
     console.log(client.id);
     console.log('Dissconnected start');
-    //유저를 제거하고 방에서도 제거
+    //유저를 제거하고 방에서도 제거 >> 방에서 제거하는 것은 어떻게 하지?, 방도 추가를 해주어야 하나? 싶은데
+    this.room.deleteUser(client.id);
+    
     this.user.removeUser(client.id);
     console.log('Dissconnected');
   }
 
-  // @SubscribeMessage('getChatRoomInfo')
-  // letAllUsers(client: Socket) {
-  //   const event = 'events';
-  //   console.log('getChatRoomINfo~~~');
-  //   // fx(this.publicRooms(client)); // 여기 부분을 어떻게 고치지 >> return으로!
-  //   // return this.publicRooms(client) ; // fx랑 this.publicRooms(clients)를 보내야 될거 같은데
-  //   this.room.showRooms()
-  //   return this.room.publicRooms(client); // return이 callback이다 fx를 보낼 필요가 없다!
-  // }
 
-  // //   // 방 생성
-  //   @SubscribeMessage('create-room')
-  //   createroom(client: Socket, room: string) {
-  //       console.log('create-room');
-        
-  //       let host : string = 'host';
-  //       let name : string = room;
-  //       let users : SUserService[] = [];
-  //       let room_dev: { host: string; name: string, users }  = {host, name, users};
-  //       console.log('before addRoom');
-  //       this.room.showRooms();
-  //       this.room.addRoom(room_dev);
-  //       console.log('before afterRoom');
-  //       this.room.showRooms();
+  // // 방 정보 호출
+  // 방 생성
 
-  //       let avatar : string = 'room_avatar_copy';
-  //       let nickname : string = 'room_jjjjjjjj';
-  //       let intra : string = 'room_jji_copy';
-  //       //여기서 user찾는 로직으로 user찾아서 리턴받아서 room에 뿌리기
+  // sids와 room과의 비교를 통해 퍼블릭 룸 나타내기! 임의의 chatroomlist
 
-  //       let a = {avatar, nickname, intra};;
-  //       this.room.getRoom(name).users.push(<IUser>a);
+  // 방 정보 호출
+  @SubscribeMessage('getChatRoomInfo')
+  letAllUsers(client: Socket) {
+    console.log('getChatRoomINfo~~~');
+    this.room.showRooms()
+    return this.room.getPublicRooms(client); // return이 callback이다 fx를 보낼 필요가 없다!
+  } 
 
-  //       this.room.showRooms();        
-  //       client.join(room);
-  //       // console.log(this.gatewayService.publicRooms(client, this.publicRoom).length);
-  //       client.emit("new-room-created", room); // 다른 이벤트 보내기!
-  //       return {}; // 인자 없는 콜백          
-  //   };
+  // 방 생성
+  @SubscribeMessage('create-room')
+  createroom(client: Socket, room: string) {
+      console.log('create-room');
+      
+      let id: number = 0;
+      let name: string = room;
+      let isPublic : boolean = true;
+      let users: Map<string, IUser> = new Map();
+      let muted: IUser[];
+      let ban: IUser[];
+      let host: string = 'host';
 
+      let chatRoom_copy : IChatRoom = {id, name, isPublic, users, muted, ban, host}
+      
+      this.room.addRoom(room, chatRoom_copy);
+      this.room.showRooms();
+
+      let userTemp : IUser = this.user.getUser(client.id); // 현재 클라이언트와 같은 사람 찾아와
+
+      this.room.addUser(room, userTemp, client); // 방에 사람 추가
+      this.room.getInRoomUser(room); // 여기서는 방에 사람이 있는지
+
+      client.join(room);
+      client.emit("new-room-created", room); // 다른 이벤트 보내기!
+      return {}; // 인자 없는 콜백          
+  };
+
+    
+  @SubscribeMessage('newMsg')
+  newmsg(
+      socket: Socket,
+    newMsgObj: { room: string; user: string; msg: string },
+    ) {
+    console.log('newMsg getto', newMsgObj);
+    socket.to(newMsgObj.room).emit('newMsg', newMsgObj);
+    return {};
+  }
+
+  
+  // 방 생성하지 않고 입장
+  @SubscribeMessage('enterRoom')
+  enterRoom(client: Socket, joinInfo: { name: string; room: string }) {
+    client.join(joinInfo.room);
+    console.log('jjjjoooin', joinInfo);
+    
+    // 여기는 상상으로 짜봄
+    // 자신의 아이디로 유저정보 뽑고, 그 유저로 있는 방에 참가! 방의 user에도 인원을 추가 해 주어야함!
+    let userTemp : IUser = this.user.getUser(client.id);
+    //room에 참가
+    this.room.addUser(joinInfo.room, userTemp, client);// 방에 사람 추가하기
+    this.room.getInRoomUser(joinInfo.room); // 여기서는 방에 사람이 있는지
+    
+    return {};
+  }
+  
+  
+  // 여기는 호박이가 짜서 수정을 해야됨
+  // 방 나가는 로직 >> 여기 두부분은 얘기를 통해 해결을 해야할듯?!!?!??
+  @SubscribeMessage('leaveRoom')
+  leaveRoom(socket: Socket,roomInfo :{room: string}) {
+    socket.leave(roomInfo.room);
+    console.log('leave', roomInfo);
+
+    // 여기는 추가
+    this.room.deleteUserBysocketId(socket.id, roomInfo.room);
+
+    // 방에 아무도 없으면 방제거
+    this.room.roomHowManyPeople(roomInfo.room);
+
+    return {};
+  }
+  
+  // 소켓에서 제거하는 로직인거 같음
+  @SubscribeMessage('clearRoom')
+  clearRoom(socket: Socket) {
+    console.log('clear');
+    socket.rooms.forEach((ele:any) =>{
+      if (ele != socket.id)
+      socket.leave(ele); 
+    })
+  }
+  // 여기는 호박이가 짜서 수정을 해야됨
+  
+  
   // // // @SubscribeMessage('newMsg')
   // // // sentMsg(client : Socket, room: string) {
   // // //     // console.log(typeof(fx));
@@ -105,41 +167,20 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
   // // //     client.emit("new-room-created"); // 다른 이벤트 보내기!
   // // //     return {}; // 인자 없는 콜백
   // // // };
-
-  // @SubscribeMessage('newMsg')
-  // newmsg(
-  //   socket: Socket,
-  //   newMsgObj: { room: string; user: string; msg: string },
-  // ) {
-  //   console.log('newMsg getto', newMsgObj);
-  //   socket.to(newMsgObj.room).emit('newMsg', newMsgObj);
-  //   return {};
-  // }
-
-  // @SubscribeMessage('enterRoom')
-  // enterRoom(socket: Socket, joinInfo: { name: string; room: string }) {
-  //   socket.join(joinInfo.room);
-  //   console.log('jjjjoooin', joinInfo);
-  //   // socket.to(joinInfo.room).emit("welcoome" , joinInfo.name);
-  //   //룸정보 바꼇어요해줘야함
-  //   // socket.emit("new-room-created");
-  //   return {};
-  // }
-
   // // 이것을 기반으로 callback 해결을 해보자 그리고 case 정리해두기!
-
+  
   // // socket.leave('방이름');
   // // 방 나갈때 제거가 안됨
   // @SubscribeMessage('disconnecting')
   // leftRoom(socket: Socket) {
-  //   // socket.rooms.forEach((room) =>
-  //     // socket.to(room).emit("bye", socket.id));
-
-          
-  //     }
-  //     // 본인 소켓이 조인 되어있는 방 string
-  //     @SubscribeMessage('joinedRoom')
-  //     joinedRoom(socket: Socket) {
+    //   // socket.rooms.forEach((room) =>
+    //     // socket.to(room).emit("bye", socket.id));
+    
+    
+    //     }
+    //     // 본인 소켓이 조인 되어있는 방 string
+    //     @SubscribeMessage('joinedRoom')
+    //     joinedRoom(socket: Socket) {
   //       let ret: string;
   //       socket.rooms.forEach((idx) => {
   //         ret += idx + ' ';
@@ -173,20 +214,5 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
 //     });
 //   }
 
-  // @SubscribeMessage('leaveRoom')
-  // leaveRoom(socket: Socket,roomInfo :{room: string}) {
-  //   socket.leave(roomInfo.room);
-  //   console.log('leave', roomInfo);
-  //  여기서 room에서 제거하는 로직
-  //   return {};
-  // }
-  
-  // @SubscribeMessage('clearRoom')
-  // clearRoom(socket: Socket) {
-  //   console.log('clear');
-  //   socket.rooms.forEach((ele:any) =>{
-  //     if (ele != socket.id)
-  //       socket.leave(ele);
-  //   })
-  // }
+
 }
