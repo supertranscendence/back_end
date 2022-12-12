@@ -1,4 +1,7 @@
 import {
+  Inject,
+  Logger,
+  LoggerService,
   OnModuleInit,
   UseFilters,
   UseGuards,
@@ -29,7 +32,11 @@ import { LoggingInterceptor } from '../logger.Interceptor';
   namespace: 'api/socket',
 })
 export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
-  constructor(private room: RoomService, private user: SUserService) {}
+  constructor(
+    private room: RoomService,
+    private user: SUserService,
+    @Inject(Logger) private readonly logger: LoggerService,
+  ) {}
 
   @WebSocketServer()
   server: Server;
@@ -39,7 +46,7 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
     this.server.on('connection', (socket) => {
       console.log('onModuleInit');
 
-      console.log('socket.id', socket.id); // 자기 자신
+      this.logger.log('intra: gilee', 'socket.id:', socket.id); // 자기 자신
 
       const avatar = 'avatar_copy';
       const nickname = 'jjjjjjjj';
@@ -165,8 +172,7 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
   clearRoom(socket: Socket) {
     console.log('clear');
     socket.rooms.forEach((ele: any) => {
-      if (ele != socket.id) 
-      {
+      if (ele != socket.id) {
         socket.leave(ele);
         this.room.deleteUserBysocketId(socket.id, ele);
         // 방에 아무도 없으면 방제거
