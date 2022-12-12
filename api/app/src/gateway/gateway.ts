@@ -41,19 +41,8 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
   //  socket 객체는 개별 클라이언트와의 interacting을 위한 기본적인 객체
   onModuleInit() {
     this.server.on('connection', (socket) => {
-      
-      console.log(this.server);
-      console.log('onModuleInit\n\n\n\n\n');
-      console.log(socket);
-      console.log('            \n\n\n\n\n');
-      socket.onAny(liset => {
-        console.log('이러한 call 이 왔어요' , liset);
-      })
-      
-      console.log('socket.id : ', socket.id); // 서버소켓이다
-      console.log('socket.id : ', socket.client['id']); // 자기 자신
-      console.log('socket.id : ', socket.client['id']); // 자기 자신
-
+      console.log('onModuleInit');
+      this.logger.log('intra: gilee', 'socket.id:', socket.id); // 자기 자신
 
       const avatar = 'avatar_copy';
       const nickname = 'jjjjjjjj';
@@ -190,8 +179,7 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
     // this.room.showRooms();
 
     socket.rooms.forEach((ele: any) => {
-      if (ele != socket.id) 
-      {
+      if (ele != socket.id) {
         socket.leave(ele);
         this.room.deleteUserBysocketId(socket.id, ele);
         // 방에 아무도 없으면 방제거
