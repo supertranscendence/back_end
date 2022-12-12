@@ -36,6 +36,6 @@ services:
     container_name: api
     build: ./api
     volumes:
-      - ./logs/api/:/log
+      - ./logs/api/:/app/log
     expose:
       - "3000"
