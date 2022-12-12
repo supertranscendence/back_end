@@ -165,7 +165,13 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
   clearRoom(socket: Socket) {
     console.log('clear');
     socket.rooms.forEach((ele: any) => {
-      if (ele != socket.id) socket.leave(ele);
+      if (ele != socket.id) 
+      {
+        socket.leave(ele);
+        this.room.deleteUserBysocketId(socket.id, ele);
+        // 방에 아무도 없으면 방제거
+        this.room.roomHowManyPeople(ele);
+      }
     });
   }
 
