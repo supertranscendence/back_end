@@ -42,11 +42,11 @@ export class RoomService{
       console.log('showRooms............');
         this.rooms.forEach(a => {
           console.log('this is room name : ', a.name);
-            console.log(a.id);
-            console.log(a.pw);
+            // console.log(a.id);
+            // console.log(a.pw);
             console.log(a.users);
-            console.log(a.ban);
-            console.log(a.host);
+            // console.log(a.ban);
+            // console.log(a.host);
         })
         console.log('showRooms End............');
       } 

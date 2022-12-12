@@ -1,4 +1,7 @@
 import {
+  Inject,
+  LoggerService,
+  Logger,
   OnModuleInit,
   UseFilters,
   UseGuards,
@@ -29,17 +32,28 @@ import { LoggingInterceptor } from '../logger.Interceptor';
   namespace: 'api/socket',
 })
 export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
-  constructor(private room: RoomService, private user: SUserService) {}
-
+  constructor(private room: RoomService, private user: SUserService,
+    @Inject(Logger) private readonly logger: LoggerService
+    ) {}
   @WebSocketServer()
   server: Server;
 
   //  socket 객체는 개별 클라이언트와의 interacting을 위한 기본적인 객체
   onModuleInit() {
     this.server.on('connection', (socket) => {
-      console.log('onModuleInit');
+      
+      console.log(this.server);
+      console.log('onModuleInit\n\n\n\n\n');
+      console.log(socket);
+      console.log('            \n\n\n\n\n');
+      socket.onAny(liset => {
+        console.log('이러한 call 이 왔어요' , liset);
+      })
+      
+      console.log('socket.id : ', socket.id); // 서버소켓이다
+      console.log('socket.id : ', socket.client['id']); // 자기 자신
+      console.log('socket.id : ', socket.client['id']); // 자기 자신
 
-      console.log('socket.id', socket.id); // 자기 자신
 
       const avatar = 'avatar_copy';
       const nickname = 'jjjjjjjj';
@@ -60,6 +74,8 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
   }
 
   handleDisconnect(client: any) {
+    
+    console.log(client.client['id']);
     console.log(client.id);
     console.log('Dissconnected start');
     //유저를 제거하고 방에서도 제거 >> 방에서 제거하는 것은 어떻게 하지?, 방도 추가를 해주어야 하나? 싶은데
@@ -77,7 +93,7 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
   // 방 정보 호출
   @SubscribeMessage('getChatRoomInfo')
   letAllUsers(client: Socket) {
-    console.log('getChatRoomINfo~~~');
+    this.logger.log('getChatRoomINfo~~~');// 누가들어왔는지 socket id, intra
     this.room.showRooms();
     return this.room.getPublicRooms(client); // return이 callback이다 fx를 보낼 필요가 없다!
   }
@@ -144,26 +160,35 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
     return {};
   }
 
-  // 여기는 호박이가 짜서 수정을 해야됨
-  // 방 나가는 로직 >> 여기 두부분은 얘기를 통해 해결을 해야할듯?!!?!??
+  // 방 나가기 버튼
   @SubscribeMessage('leaveRoom')
   leaveRoom(socket: Socket, roomInfo: { room: string }) {
     socket.leave(roomInfo.room);
-    console.log('leave', roomInfo);
+
+    // this.logger.log('leaveRoom Before');
+    // console.log('leaveRoom Before')
+    // this.room.showRooms();
 
     // 여기는 추가
     this.room.deleteUserBysocketId(socket.id, roomInfo.room);
+    this.room.showRooms();
 
     // 방에 아무도 없으면 방제거
     this.room.roomHowManyPeople(roomInfo.room);
+    // this.logger.log('leaveRoom After');
+    // console.log('leaveRoom After')
+    // this.room.showRooms();
 
     return {};
   }
 
-  // 소켓에서 제거하는 로직인거 같음
+  // 다른방 눌렀다가 오기
   @SubscribeMessage('clearRoom')
   clearRoom(socket: Socket) {
-    console.log('clear');
+    // this.logger.log('clearRoom Before');
+    // console.log('clearRoom Before')
+    // this.room.showRooms();
+
     socket.rooms.forEach((ele: any) => {
       if (ele != socket.id) 
       {
@@ -172,10 +197,11 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
         // 방에 아무도 없으면 방제거
         this.room.roomHowManyPeople(ele);
       }
+      // this.logger.log('clearRoom After');
+      // console.log('clearRoom After')
+      // this.room.showRooms();
     });
   }
-
-  // 여기는 호박이가 짜서 수정을 해야됨
 
   // // // @SubscribeMessage('newMsg')
   // // // sentMsg(client : Socket, room: string) {
