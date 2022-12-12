@@ -92,6 +92,8 @@ export class AuthService {
       token = request.headers.authorization;
     } else if (reqType == 'ws') {
       token = request.handshake.auth.token;
+      token = token ? token : request.handshake.headers.authorization;
+      console.log(token);
     }
     return token ? token.split('Bearer ')[1] : null;
   }

@@ -10,7 +10,6 @@ export class AuthGuardLocal implements CanActivate {
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
     const type = context.getType();
-    console.log(type);
     let request;
     if (type == 'ws') request = context.switchToWs().getClient();
     else request = context.switchToHttp().getRequest();

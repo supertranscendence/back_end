@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Logger, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TypeOrmConfigService } from './typeorm.config';
 import { AchievementsModule } from './achievements/achievements.module';
@@ -13,6 +13,7 @@ import { ConfigService } from '@nestjs/config';
 // import { TestModule } from './test/test.module';
 import { GatewayModule } from './gateway/gateway.module';
 import { ExceptionModule } from './exception/exception.module';
+import { LoggerMiddleware } from './logger.middleware';
 
 @Module({
   imports: [
@@ -42,5 +43,10 @@ import { ExceptionModule } from './exception/exception.module';
     ExceptionModule,
   ],
   controllers: [],
+  providers: [Logger],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer): any {
+    consumer.apply(LoggerMiddleware).forRoutes('*');
+  }
+}

@@ -1,5 +1,5 @@
 import { Catch, ExceptionFilter, ExecutionContext } from '@nestjs/common';
-import { Request, Response } from 'express';
+import { Request, response, Response } from 'express';
 import { JsonWebTokenError } from 'jsonwebtoken';
 import { ConfigService } from '@nestjs/config';
 import { HttpArgumentsHost, WsArgumentsHost } from '@nestjs/common/interfaces';
@@ -50,6 +50,7 @@ export class JWTExceptionFilter implements ExceptionFilter {
         .setHeader('WWW-Authenticate', base + handler)
         .json(response);
     } else {
+      console.log(exception);
       ctx = host.switchToWs();
       req = ctx.getData();
       res = ctx.getClient();

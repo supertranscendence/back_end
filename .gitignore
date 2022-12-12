@@ -2,3 +2,5 @@
 /.idea
 scripts
 ormconfig.json
+/api/app/*-audit.json
+/api/app/log/
