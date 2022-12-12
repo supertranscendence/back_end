@@ -45,7 +45,6 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
   onModuleInit() {
     this.server.on('connection', (socket) => {
       console.log('onModuleInit');
-
       this.logger.log('intra: gilee', 'socket.id:', socket.id); // 자기 자신
 
       const avatar = 'avatar_copy';
