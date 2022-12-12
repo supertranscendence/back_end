@@ -43,7 +43,8 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
     this.server.on('connection', (socket) => {
       console.log('onModuleInit');
       
-      this.logger.log('connetion intra: gilee', 'socket.id:', socket.id); // 자기 자신
+      this.logger.log(`connetion intra: gilee', 'socket.id : ${socket.id}`); // 자기 자신
+      
 
       const avatar = 'avatar_copy';
       const nickname = 'jjjjjjjj';
@@ -68,7 +69,7 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
     // console.log(client.client['id']);
     // console.log(client.id);
     // console.log('Dissconnected start');
-    this.logger.log('handleDisconnet intra : ??? clientid :', client.id);
+    this.logger.log(`handleDisconnet intra : ??? clientid : ${client.id}`);
     //유저를 제거하고 방에서도 제거 >> 방에서 제거하는 것은 어떻게 하지?, 방도 추가를 해주어야 하나? 싶은데
     this.room.deleteUser(client.id);
 
@@ -84,7 +85,7 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
   // 방 정보 호출
   @SubscribeMessage('getChatRoomInfo')
   letAllUsers(client: Socket) {
-    this.logger.log('getChatRoomINfo~~~');// 누가들어왔는지 socket id, intra
+    this.logger.log(`getChatRoomINfo intra : ??? clientid : ${client.id}`);
     this.room.showRooms();
     return this.room.getPublicRooms(client); // return이 callback이다 fx를 보낼 필요가 없다!
   }
@@ -92,7 +93,7 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
   // 방 생성
   @SubscribeMessage('create-room')
   createroom(client: Socket, room: string) {
-    console.log('create-room');
+    this.logger.log(`getChatRoomINfo room ${room}, intra : ??? clientid : ${client.id}`);
 
     const id = 0;
     const name: string = room;
@@ -130,7 +131,8 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
     socket: Socket,
     newMsgObj: { room: string; user: string; msg: string },
   ) {
-    console.log('newMsg getto', newMsgObj);
+    this.logger.log(`newMsg ${newMsgObj.user}, ${newMsgObj.room}, ${newMsgObj.msg} intra : ??? clientid : ${socket.id}`);
+    // console.log('newMsg getto', newMsgObj);
     socket.to(newMsgObj.room).emit('newMsg', newMsgObj);
     return {};
   }
@@ -139,7 +141,8 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
   @SubscribeMessage('enterRoom')
   enterRoom(client: Socket, joinInfo: { name: string; room: string }) {
     client.join(joinInfo.room);
-    console.log('jjjjoooin', joinInfo);
+    this.logger.log(`enterRoom ${joinInfo.room}, ${joinInfo.name} intra : ??? clientid : ${client.id}`);
+    
 
     // 여기는 상상으로 짜봄
     // 자신의 아이디로 유저정보 뽑고, 그 유저로 있는 방에 참가! 방의 user에도 인원을 추가 해 주어야함!
