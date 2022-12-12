@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Logger, Module } from '@nestjs/common';
 import { PassportModule } from '@nestjs/passport';
 import { AuthRepository } from '../auth/auth.repository';
 import { AuthService } from '../auth/auth.service';
@@ -20,6 +20,7 @@ import { SUserService } from './socketUser.service';
     FtStrategy,
     RoomService,
     SUserService,
+    Logger,
   ],
 })
 export class GatewayModule {}
