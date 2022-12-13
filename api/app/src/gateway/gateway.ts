@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import {
   MessageBody,
+  OnGatewayConnection,
   OnGatewayDisconnect,
   SubscribeMessage,
   WebSocketGateway,
@@ -32,7 +33,7 @@ import { AuthService } from '../auth/auth.service';
 @WebSocketGateway({
   namespace: 'api/socket',
 })
-export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
+export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     private room: RoomService,
     private user: SUserService,
@@ -44,39 +45,29 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
   server: Server;
 
   //  socket 객체는 개별 클라이언트와의 interacting을 위한 기본적인 객체
-  onModuleInit() {
-    try {
-      this.server.on('connection', (socket) => {
-        console.log('onModuleInit');
+  handleConnection(client: any) {
+    const intra = this.room.getIntraAtToken(client);
+    const avatar = 'avatar_copy';
+    const nickname = intra;
+    const status: UserStatus = 1; // 상태로 추가하면 오류!
+    this.logger.log(
+      `Function Name : connection Intra: ${intra}, clientid : ${client.id}`,
+    );
 
-        //   const extraToken = this.auth.extractToken(socket, 'ws');
-        // const intra = this.auth.getIntra(extraToken);
-        const intra = this.room.getIntraAtToken(socket);
-        const avatar = 'avatar_copy';
-        const nickname = intra;
-        const status: UserStatus = 1; // 상태로 추가하면 오류!
-        this.logger.log(
-          `Function Name : connection Intra: ${intra}, clientid : ${socket.id}`,
-        );
+    const user_copy: IUser = {
+      client: client,
+      avatar,
+      nickname,
+      intra,
+      status,
+    };
 
-        const user_copy: IUser = {
-          client: socket.client,
-          avatar,
-          nickname,
-          intra,
-          status,
-        };
-
-        this.logger.log(
-          `Function Name : connection in addUser Intra: ${intra}, clientid : ${socket.id}`,
-        );
-        this.user.addUser(socket.id, user_copy); // 사람을 추가해서 user에 넣기
-        this.user.getUser(socket.id);
-        this.user.getUsers();
-      });
-    } catch (e) {
-      this.logger.error(e);
-    }
+    this.logger.log(
+      `Function Name : connection in addUser Intra: ${intra}, clientid : ${client.id}`,
+    );
+    this.user.addUser(client.id, user_copy); // 사람을 추가해서 user에 넣기
+    this.user.getUser(client.id);
+    this.user.getUsers();
   }
 
   handleDisconnect(client: any) {
