@@ -6,6 +6,7 @@ import {
   UseFilters,
   UseGuards,
   UseInterceptors,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import {
   MessageBody,
@@ -120,8 +121,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }[] = [];
 
     this.room.getAllRoom().forEach((value, element, _) => {
-      let temp: { roomName: string; isPublic: boolean; currNum: number };
-      temp = {
+      const temp: { roomName: string; isPublic: boolean; currNum: number } = {
         roomName: value.name,
         isPublic: value.isPublic,
         currNum: value.users.size,
