@@ -10,6 +10,7 @@ import { SUserService } from './socketUser.service';
 export class RoomService {
   // 내부 변수들도 초기화?
   public readonly rooms: Map<string, IChatRoom>;
+
   constructor(private auth: AuthService) {
     this.rooms = new Map();
   }
@@ -22,8 +23,8 @@ export class RoomService {
     return charRoomList; // 배열이 아니라 map으로 리턴
   }
 
-  getAllRoom() : Map<string,IChatRoom> {
-    return (this.rooms);
+  getAllRoom(): Map<string, IChatRoom> {
+    return this.rooms;
   }
 
   // setPublicRooms(socket: any, chatroomInfo : IChatRoom | null) {
@@ -38,43 +39,42 @@ export class RoomService {
   //   return this.rooms; // 배열이 아니라 map으로 리턴
   // }
 
-  addRoom(roomname: string, charRoom : IChatRoom): void {
+  addRoom(roomname: string, charRoom: IChatRoom): void {
     this.rooms.set(roomname, charRoom);
-  } 
-  
-  showRooms() : void {
-    console.log('showRooms............');
-      this.rooms.forEach(a => {
-        console.log('this is room name : ', a.name);
-          console.log('id     : ', a.id);
-          console.log('name   : ', a.name);
-          console.log('pw     : ' , a.pw);
-          console.log('Public : ', a.isPublic);
-          console.log('user   : ', a.users);
-          console.log('user.size   : ', a.users.size);
-          console.log('muted  : ', a.muted);
-          console.log('ban    : ', a.ban);
-          console.log('owner  : ', a.owner);
-          console.log('admin  : ', a.admin);
-      })
-      console.log('showRooms End............');
   }
 
-  getPW(roomName : string) : string{
-    return (this.rooms.get(roomName).pw);
+  showRooms(): void {
+    console.log('showRooms............');
+    this.rooms.forEach((a) => {
+      console.log('this is room name : ', a.name);
+      console.log('id     : ', a.id);
+      console.log('name   : ', a.name);
+      console.log('pw     : ', a.pw);
+      console.log('Public : ', a.isPublic);
+      console.log('user   : ', a.users);
+      console.log('user.size   : ', a.users.size);
+      console.log('muted  : ', a.muted);
+      console.log('ban    : ', a.ban);
+      console.log('owner  : ', a.owner);
+      console.log('admin  : ', a.admin);
+    });
+    console.log('showRooms End............');
   }
-    
+
+  getPW(roomName: string): string {
+    return this.rooms.get(roomName).pw;
+  }
+
   getRoom(intra: string): RoomService | null {
-      // console.log('getRoom...');
-      for (const room of this.rooms) {
-          if (this.rooms[intra]) 
-            return room[intra];
+    // console.log('getRoom...');
+    for (const room of this.rooms) {
+      if (this.rooms[intra]) return room[intra];
       console.log('getRoom...');
     }
     return null;
   }
 
-  getInRoomUser(roomname :string) : void {
+  getInRoomUser(roomname: string): void {
     console.log('getInRoomUser');
     console.log(this.rooms.get(roomname).users);
     // return (this.rooms.get(roomname).users);

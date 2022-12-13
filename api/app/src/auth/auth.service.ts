@@ -99,7 +99,12 @@ export class AuthService {
   }
 
   getIntra(token: string): string {
-    this.verifyToken(token);
+    try {
+      this.verifyToken(token);
+    } catch (e) {
+      console.log(e);
+      token = null;
+    }
     return token ? jwt.decode(token)['intra'] : null;
   }
 }
