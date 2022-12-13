@@ -187,7 +187,7 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
   @SubscribeMessage('PWDCheck')
   PWDCheck(client : Socket, roomInfo : {roomName : string, pw : string}) {
 
-    if (roomInfo.pw != this.room.getPW(roomInfo.roomName)) {
+    if (roomInfo.pw == this.room.getPW(roomInfo.roomName)) {
       this.logger.log(`Function Name : PWDCheck room :${roomInfo.roomName}, clientid : ${client.id} name : ${roomInfo.roomName} `);
       client.join(roomInfo.roomName);
       const intra = this.room.getIntraAtToken(client);
@@ -198,14 +198,14 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
       this.room.addUser(roomInfo.roomName, userTemp, client); // 방에 사람 추가하기
       this.room.getInRoomUser(roomInfo.roomName); // 여기서는 방에 사람이 있는지
   
-      return {};
+      return true;
     }
     else {
       this.logger.log(`Function Name : PWDCheck room false`);
       return false;
     }
   }
-  
+
   // admin설정
   @SubscribeMessage('newMsg')
   newmsg(
