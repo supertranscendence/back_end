@@ -10,7 +10,7 @@ import { SUserService } from './socketUser.service';
 export class RoomService {
   // 내부 변수들도 초기화?
   public readonly rooms: Map<string, IChatRoom>;
-  constructor() {
+  constructor(private auth: AuthService) {
     this.rooms = new Map();
   }
 
@@ -75,10 +75,10 @@ export class RoomService {
     // return (this.rooms.get(roomname).users);
   }
 
-  // getIntraAtToken(socket: Socket): string {
-  //   const intra = this.auth.getIntra(this.auth.extractToken(socket, 'ws'));
-  //   return intra;
-  // }
+  getIntraAtToken(socket: Socket): string {
+    const intra = this.auth.getIntra(this.auth.extractToken(socket, 'ws'));
+    return intra;
+  }
 
   addUser(name: string, user: IUser, client: Socket): void {
     console.log('AddUser');
