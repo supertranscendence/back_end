@@ -41,11 +41,15 @@ export class RoomService {
       console.log('showRooms............');
         this.rooms.forEach(a => {
           console.log('this is room name : ', a.name);
-            // console.log(a.id);
-            // console.log(a.pw);
-            console.log(a.users);
-            // console.log(a.ban);
-            // console.log(a.host);
+            console.log('id     : ', a.id);
+            console.log('name   : ', a.name);
+            console.log('pw     : ' , a.pw);
+            console.log('Public : ', a.isPublic);
+            console.log('user   : ', a.users);
+            console.log('muted  : ', a.muted);
+            console.log('ban    : ', a.ban);
+            console.log('owner  : ', a.owner);
+            console.log('admin  : ', a.admin);
         })
         console.log('showRooms End............');
       } 

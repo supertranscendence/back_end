@@ -11,15 +11,13 @@ export class SUserService {
   }
 
   addUser(socketid: string, user: IUser): void {
-    console.log('>>>>>>>>>>addUser<<<<<<<<<', socketid);
     this.users.set(socketid, user);
-    console.log('>>>>>>>>>>addUserEnd<<<<<<<<<', socketid);
   }
 
   getUsers(): void {
     console.log('getUsers');
     this.users.forEach((value, id) => {
-      console.log(`user : ` + id + '입니다');
+      console.log(`user : ${value.intra}, id: ${id} 입니다`);
       //console.log(value);
     });
     console.log('getUsers End');

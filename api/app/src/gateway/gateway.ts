@@ -24,6 +24,7 @@ import { IChatRoom, IUser, UserStatus } from '../types/types';
 import { IsUppercase } from 'class-validator';
 import { throwIfEmpty } from 'rxjs';
 import { LoggingInterceptor } from '../logger.Interceptor';
+import { AuthService } from '../auth/auth.service';
 
 @UseInterceptors(LoggingInterceptor)
 @UseGuards(AuthGuardLocal)
@@ -32,7 +33,7 @@ import { LoggingInterceptor } from '../logger.Interceptor';
   namespace: 'api/socket',
 })
 export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
-  constructor(private room: RoomService, private user: SUserService,
+  constructor(private room: RoomService, private user: SUserService, private auth: AuthService,
     @Inject(Logger) private readonly logger: LoggerService
     ) {}
   @WebSocketServer()
@@ -42,14 +43,15 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
   onModuleInit() {
     this.server.on('connection', (socket) => {
       console.log('onModuleInit');
-      
-      this.logger.log(`Function Name : connection Intra: ???, clientid : ${socket.id}`);
-      
+  
+      const extraToken = this.auth.extractToken(socket, 'ws');
+      const intra = this.auth.getIntra(extraToken);
 
       const avatar = 'avatar_copy';
-      const nickname = 'jjjjjjjj';
-      const intra = 'jji_copy';
+      const nickname = intra;
       const status: UserStatus = 1; // 상태로 추가하면 오류!
+      this.logger.log(`Function Name : connection Intra: ${intra}, clientid : ${socket.id}`);
+      
       const user_copy: IUser = {
         client: socket.client,
         avatar,
@@ -58,6 +60,7 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
         status,
       };
 
+      this.logger.log(`Function Name : addUser Intra: ${intra}, clientid : ${socket.id}`);
       this.user.addUser(socket.id, user_copy); // 사람을 추가해서 user에 넣기
       this.user.getUser(socket.id);
       this.user.getUsers();
@@ -66,10 +69,11 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
 
   handleDisconnect(client: any) {
 
-    this.logger.log(`Function Name : handleDisconnect Intra : ??? clientid : ${client.id}`);
+    const extraToken = this.auth.extractToken(client, 'ws');
+    const intra = this.auth.getIntra(extraToken);
+    this.logger.log(`Function Name : handleDisconnect Intra : ${intra}, clientid : ${client.id}`);
     //유저를 제거하고 방에서도 제거 >> 방에서 제거하는 것은 어떻게 하지?, 방도 추가를 해주어야 하나? 싶은데
     this.room.deleteUser(client.id);
-
     this.user.removeUser(client.id);
     console.log('Dissconnected');
   }
@@ -89,37 +93,45 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
 
   // 방 생성
   @SubscribeMessage('create-room')
-  createroom(client: Socket, room: string) {
-    this.logger.log(`Function Name : create-room room :${room}, Intra : ??? clientid : ${client.id}`);
+  createroom(client: Socket, roomInfo: { room :string, isPublic :boolean, pwd? : string}) { // roomname public 유무, 비밀번호,
+    const extraToken = this.auth.extractToken(client, 'ws');
+    const intra = this.auth.getIntra(extraToken);
+    this.logger.log(`Function Name : create-room room :${roomInfo.room}, Intra : ${intra} clientid : ${client.id}`);
+
     const id = 0;
-    const name: string = room;
-    const isPublic = true;
+    const name: string = roomInfo.room;
+    const isPublic = roomInfo.isPublic;
+    const pw = roomInfo.pwd;
     const users: Map<string, IUser> = new Map();
     let muted: IUser[];
     let ban: IUser[];
-    const host = 'host';
+    const owner = intra;
+    // 방을 만든 사람은 오너 저장
+    const admin : string[] = [];
 
     const chatRoom_copy: IChatRoom = {
       id,
       name,
+      pw,
       isPublic,
       users,
       muted,
       ban,
-      host,
+      owner,
+      admin
     };
 
-    this.room.addRoom(room, chatRoom_copy);
+    this.room.addRoom(roomInfo.room, chatRoom_copy);
     this.room.showRooms();
 
     const userTemp: IUser = this.user.getUser(client.id); // 현재 클라이언트와 같은 사람 찾아와
-    this.logger.log(`Add User ${client.id}`);
+    this.logger.log(`Add User socket id : ${client.id}, intra :${intra}`);
 
-    this.room.addUser(room, userTemp, client); // 방에 사람 추가
-    this.room.getInRoomUser(room); // 여기서는 방에 사람이 있는지
+    this.room.addUser(roomInfo.room, userTemp, client); // 방에 사람 추가
+    this.room.getInRoomUser(roomInfo.room); // 여기서는 방에 사람이 있는지
 
-    client.join(room);
-    client.emit('new-room-created', room); // 다른 이벤트 보내기!
+    client.join(roomInfo.room);
+    client.emit('new-room-created', roomInfo.room); // 다른 이벤트 보내기!
     return {}; // 인자 없는 콜백
   }
 
@@ -134,7 +146,7 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
   }
 
   // 방 생성하지 않고 입장
-  @SubscribeMessage('enterRoom')
+  @SubscribeMessage('enterRoom') // 비밀번호유무
   enterRoom(client: Socket, joinInfo: { name: string; room: string }) {
     client.join(joinInfo.room);
     this.logger.log(`Function Name : enterRoom room :${joinInfo.room}, intra : ??? clientid : ${client.id} name : ${joinInfo.name} `);

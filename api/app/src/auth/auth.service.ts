@@ -97,4 +97,8 @@ export class AuthService {
     }
     return token ? token.split('Bearer ')[1] : null;
   }
+  
+  getIntra(token : string) : string{
+    return jwt.decode(token)['intra'];
+  }
 }
