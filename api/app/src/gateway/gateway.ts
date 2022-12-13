@@ -96,12 +96,9 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
     let returnRoom : {roomName: string, isPublic: boolean, cuurrNum : number}[] = [];
 
     this.room.getAllRoom().forEach((value, element, _) => {
-      // value.name;
-      // value.isPublic,
-      // value.users.size
+
       let temp :{roomName: string, isPublic: boolean, cuurrNum : number};
       temp = {roomName: value.name, isPublic: value.isPublic, cuurrNum : value.users.size};
-
       returnRoom.push(temp);
 
     });
@@ -163,6 +160,8 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
     this.room.addUser(roomInfo.room, userTemp, client); // 방에 사람 추가
     this.room.getInRoomUser(roomInfo.room); // 여기서는 방에 사람이 있는지
 
+    this.room.showRooms(); // 사람 몇명있는지 확인
+
     client.join(roomInfo.room);
     client.emit('new-room-created', roomInfo.room); // 다른 이벤트 보내기!
     return {}; // 인자 없는 콜백
@@ -217,6 +216,8 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
 
     // 방에 아무도 없으면 방제거
     this.room.roomHowManyPeople(roomInfo.room);
+
+
     // this.logger.log('leaveRoom After');
     // console.log('leaveRoom After')
     // this.room.showRooms();
@@ -238,6 +239,8 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
         this.room.deleteUserBysocketId(socket.id, ele);
         // 방에 아무도 없으면 방제거
         this.room.roomHowManyPeople(ele);
+
+
       }
       // this.logger.log('clearRoom After');
       // console.log('clearRoom After')

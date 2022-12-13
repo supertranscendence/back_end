@@ -51,6 +51,7 @@ export class RoomService {
           console.log('pw     : ' , a.pw);
           console.log('Public : ', a.isPublic);
           console.log('user   : ', a.users);
+          console.log('user.size   : ', a.users.size);
           console.log('muted  : ', a.muted);
           console.log('ban    : ', a.ban);
           console.log('owner  : ', a.owner);
@@ -82,7 +83,7 @@ export class RoomService {
 
   addUser(name: string, user: IUser, client: Socket): void {
     console.log('AddUser');
-    this.rooms.get(name).users[client.id] = user;
+    this.rooms.get(name).users.set(client.id, user);
   }
 
   deleteUserBysocketId(socketid: string, room: string) {
