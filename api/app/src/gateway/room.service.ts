@@ -58,7 +58,11 @@ export class RoomService {
           console.log('admin  : ', a.admin);
       })
       console.log('showRooms End............');
-  } 
+  }
+
+  getPW(roomName : string) : string{
+    return (this.rooms.get(roomName).pw);
+  }
     
   getRoom(intra: string): RoomService | null {
       // console.log('getRoom...');

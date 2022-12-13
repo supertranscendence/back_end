@@ -107,13 +107,6 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
 
     //방에서 나가는 로직이 없으니까
 
-    // if
-    // this.room.getAllRoom().forEach(element => {
-    //   this.room.deleteUserBysocketId(client.id, element.name);
-    // this.room.roomHowManyPeople(element.name);  
-    // });
-
-
     const intra = this.room.getIntraAtToken(client);
     this.logger.log(`Function Name : getChatRoomInfo Intra : ${intra}, clientid : ${client.id}`);
     
@@ -191,6 +184,29 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
     return {}; // 인자 없는 콜백
   }
 
+  @SubscribeMessage('PWDCheck')
+  PWDCheck(client : Socket, roomInfo : {roomName : string, pw : string}) {
+
+    if (roomInfo.pw != this.room.getPW(roomInfo.roomName)) {
+      this.logger.log(`Function Name : PWDCheck room :${roomInfo.roomName}, clientid : ${client.id} name : ${roomInfo.roomName} `);
+      client.join(roomInfo.roomName);
+      const intra = this.room.getIntraAtToken(client);
+      // 여기는 상상으로 짜봄
+      // 자신의 아이디로 유저정보 뽑고, 그 유저로 있는 방에 참가! 방의 user에도 인원을 추가 해 주어야함!
+      const userTemp: IUser = this.user.getUser(client.id);
+      //room에 참가
+      this.room.addUser(roomInfo.roomName, userTemp, client); // 방에 사람 추가하기
+      this.room.getInRoomUser(roomInfo.roomName); // 여기서는 방에 사람이 있는지
+  
+      return {};
+    }
+    else {
+      this.logger.log(`Function Name : PWDCheck room false`);
+      return false;
+    }
+  }
+  
+  // admin설정
   @SubscribeMessage('newMsg')
   newmsg(
     socket: Socket,
