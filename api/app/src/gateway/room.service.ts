@@ -22,6 +22,10 @@ export class RoomService {
     return charRoomList; // 배열이 아니라 map으로 리턴
   }
 
+  getAllRoom() : Map<string,IChatRoom> {
+    return (this.rooms);
+  }
+
   // setPublicRooms(socket: any, chatroomInfo : IChatRoom | null) {
   //   const sids = socket.adapter.sids;
   //   const room_copy = socket.adapter.rooms;

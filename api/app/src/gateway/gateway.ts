@@ -45,7 +45,6 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
       console.log('onModuleInit');
   
       const intra = this.room.getIntraAtToken(socket);
-
       const avatar = 'avatar_copy';
       const nickname = intra;
       const status: UserStatus = 1; // 상태로 추가하면 오류!
@@ -59,7 +58,7 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
         status,
       };
 
-      this.logger.log(`Function Name : addUser Intra: ${intra}, clientid : ${socket.id}`);
+      this.logger.log(`Function Name : connection in addUser Intra: ${intra}, clientid : ${socket.id}`);
       this.user.addUser(socket.id, user_copy); // 사람을 추가해서 user에 넣기
       this.user.getUser(socket.id);
       this.user.getUsers();
@@ -81,12 +80,38 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
 
   // sids와 room과의 비교를 통해 퍼블릭 룸 나타내기! 임의의 chatroomlist
 
-  // 방 정보 호출
+  // 방 정보 호출 roomType(public) 현재 인원,
   @SubscribeMessage('getChatRoomInfo')
   getChatRoomInfo(client: Socket) {
-    this.logger.log(`Function Name : getChatRoomInfo Intra : ??? clientid : ${client.id}`);
+    const intra = this.room.getIntraAtToken(client);
+    this.logger.log(`Function Name : getChatRoomInfo Intra : ${intra}, clientid : ${client.id}`);
+    
+    let returnRoom : {roomName: string, isPublic: boolean, cuurrNum : number}[] = [];
+
+    this.room.getAllRoom().forEach((value, element, _) => {
+      // value.name;
+      // value.isPublic,
+      // value.users.size
+      let temp :{roomName: string, isPublic: boolean, cuurrNum : number};
+      temp = {roomName: value.name, isPublic: value.isPublic, cuurrNum : value.users.size};
+
+      returnRoom.push(temp);
+
+    });
+    // this.room.getPublicRooms(client).forEach((str:string) => {
+    //   returnRoom.push({roomName:str, a.idPublic, a.users.size})
+    //   this.room.
+    // })
+
+    // roomName : string, isPublic : boolean, currNum : number
     this.room.showRooms();
-    return this.room.getPublicRooms(client); // return이 callback이다 fx를 보낼 필요가 없다!
+    // this.room.getPublicRooms(client).forEach((str :string )=>{
+    //   [{},{}]
+
+    // }) // return이 callback이다 fx를 보낼 필요가 없다!
+
+    // return this.room.getPublicRooms(client); // return이 callback이다 fx를 보낼 필요가 없다!
+    return returnRoom;
   }
 
   // 방 생성
