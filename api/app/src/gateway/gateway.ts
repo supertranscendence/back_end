@@ -70,15 +70,27 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
 
   handleDisconnect(client: any) {
 
+
     // const extraToken = this.auth.extractToken(client, 'ws');
     // const intra = this.auth.getIntra(extraToken);
     const intra = this.room.getIntraAtToken(client);
     this.logger.log(`Function Name : handleDisconnect Intra : ${intra}, clientid : ${client.id}`);
     //유저를 제거하고 방에서도 제거 >> 방에서 제거하는 것은 어떻게 하지?, 방도 추가를 해주어야 하나? 싶은데
+
+    this.room.getAllRoom().forEach(element => {
+      this.room.deleteUserBysocketId(client.id, element.name);
+    this.room.roomHowManyPeople(element.name);  
+    });
+  
     this.room.deleteUser(client.id);
     this.user.removeUser(client.id);
     console.log('Dissconnected');
   }
+
+
+  // get > 놉
+  // crea > 방생성
+  // chat room getchatroom
 
   // // 방 정보 호출
   // 방 생성
@@ -90,15 +102,27 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
   getChatRoomInfo(client: Socket) {
     // const extraToken = this.auth.extractToken(client, 'ws');
     // const intra = this.auth.getIntra(extraToken);
+
+    // todo 방에서 탈출 시키기? 썅?
+
+    //방에서 나가는 로직이 없으니까
+
+    // if
+    // this.room.getAllRoom().forEach(element => {
+    //   this.room.deleteUserBysocketId(client.id, element.name);
+    // this.room.roomHowManyPeople(element.name);  
+    // });
+
+
     const intra = this.room.getIntraAtToken(client);
     this.logger.log(`Function Name : getChatRoomInfo Intra : ${intra}, clientid : ${client.id}`);
     
-    let returnRoom : {roomName: string, isPublic: boolean, cuurrNum : number}[] = [];
+    let returnRoom : {roomName: string, isPublic: boolean, currNum : number}[] = [];
 
     this.room.getAllRoom().forEach((value, element, _) => {
 
-      let temp :{roomName: string, isPublic: boolean, cuurrNum : number};
-      temp = {roomName: value.name, isPublic: value.isPublic, cuurrNum : value.users.size};
+      let temp :{roomName: string, isPublic: boolean, currNum : number};
+      temp = {roomName: value.name, isPublic: value.isPublic, currNum : value.users.size};
       returnRoom.push(temp);
 
     });
