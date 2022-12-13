@@ -33,7 +33,7 @@ import { AuthService } from '../auth/auth.service';
   namespace: 'api/socket',
 })
 export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
-  constructor(private room: RoomService, private user: SUserService, private auth: AuthService,
+  constructor(private room: RoomService, private user: SUserService,
     @Inject(Logger) private readonly logger: LoggerService
     ) {}
   @WebSocketServer()
@@ -44,8 +44,7 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
     this.server.on('connection', (socket) => {
       console.log('onModuleInit');
   
-      const extraToken = this.auth.extractToken(socket, 'ws');
-      const intra = this.auth.getIntra(extraToken);
+      const intra = this.room.getIntraAtToken(socket);
 
       const avatar = 'avatar_copy';
       const nickname = intra;
@@ -69,8 +68,7 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
 
   handleDisconnect(client: any) {
 
-    const extraToken = this.auth.extractToken(client, 'ws');
-    const intra = this.auth.getIntra(extraToken);
+    const intra = this.room.getIntraAtToken(client);
     this.logger.log(`Function Name : handleDisconnect Intra : ${intra}, clientid : ${client.id}`);
     //유저를 제거하고 방에서도 제거 >> 방에서 제거하는 것은 어떻게 하지?, 방도 추가를 해주어야 하나? 싶은데
     this.room.deleteUser(client.id);
@@ -94,8 +92,7 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
   // 방 생성
   @SubscribeMessage('create-room')
   createroom(client: Socket, roomInfo: { room :string, isPublic :boolean, pwd? : string}) { // roomname public 유무, 비밀번호,
-    const extraToken = this.auth.extractToken(client, 'ws');
-    const intra = this.auth.getIntra(extraToken);
+    const intra = this.room.getIntraAtToken(client);
     this.logger.log(`Function Name : create-room room :${roomInfo.room}, Intra : ${intra} clientid : ${client.id}`);
 
     const id = 0;
@@ -140,7 +137,8 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
     socket: Socket,
     newMsgObj: { room: string; user: string; msg: string },
   ) {
-    this.logger.log(`Function Name : newMsg room :${newMsgObj.room}, Intra : ??? clientid : ${socket.id}, ${newMsgObj.user} : ${newMsgObj.msg}`);
+    const intra = this.room.getIntraAtToken(socket);
+    this.logger.log(`Function Name : newMsg room :${newMsgObj.room}, Intra : ${intra} clientid : ${socket.id}, ${newMsgObj.user} : ${newMsgObj.msg}`);
     socket.to(newMsgObj.room).emit('newMsg', newMsgObj);
     return {};
   }
@@ -149,7 +147,8 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
   @SubscribeMessage('enterRoom') // 비밀번호유무
   enterRoom(client: Socket, joinInfo: { name: string; room: string }) {
     client.join(joinInfo.room);
-    this.logger.log(`Function Name : enterRoom room :${joinInfo.room}, intra : ??? clientid : ${client.id} name : ${joinInfo.name} `);
+    const intra = this.room.getIntraAtToken(client);
+    this.logger.log(`Function Name : enterRoom room :${joinInfo.room}, intra : ${intra} clientid : ${client.id} name : ${joinInfo.name} `);
     
 
     // 여기는 상상으로 짜봄
