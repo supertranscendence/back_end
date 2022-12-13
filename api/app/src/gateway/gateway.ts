@@ -86,18 +86,20 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
     const intra = this.room.getIntraAtToken(client);
     this.logger.log(`Function Name : getChatRoomInfo Intra : ${intra}, clientid : ${client.id}`);
     
-    let returnRoom : {roomName: string, isPublic: boolean, cuurrNum : number}[] = [];
+    // let returnRoom : {roomName: string, isPublic: boolean, cuurrNum : number}[] = [];
 
-    this.room.getAllRoom().forEach((value, element, _) => {
-      // value.name;
-      // value.isPublic,
-      // value.users.size
-      let temp :{roomName: string, isPublic: boolean, cuurrNum : number};
-      temp = {roomName: value.name, isPublic: value.isPublic, cuurrNum : value.users.size};
+    // this.room.getAllRoom().forEach((value, element, _) => {
+    //   // value.name;
+    //   // value.isPublic,
+    //   // value.users.size
+    //   let temp :{roomName: string, isPublic: boolean, cuurrNum : number};
+    //   temp = {roomName: value.name, isPublic: value.isPublic, cuurrNum : value.users.size};
 
-      returnRoom.push(temp);
+    //   returnRoom.push(temp);
 
-    });
+    // });
+
+    
     // this.room.getPublicRooms(client).forEach((str:string) => {
     //   returnRoom.push({roomName:str, a.idPublic, a.users.size})
     //   this.room.
@@ -110,8 +112,8 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
 
     // }) // return이 callback이다 fx를 보낼 필요가 없다!
 
-    // return this.room.getPublicRooms(client); // return이 callback이다 fx를 보낼 필요가 없다!
-    return returnRoom;
+    return this.room.getPublicRooms(client); // return이 callback이다 fx를 보낼 필요가 없다!
+    // return returnRoom;
   }
 
   // 방 생성
