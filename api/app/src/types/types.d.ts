@@ -24,5 +24,6 @@ export interface IChatRoom {
   users: Map<string, IUser>;
   muted: IUser[];
   ban: IUser[];
-  host: string;
+  owner : string; // 방만든 사람
+  admin : string[]// 권한을 준사람
 }

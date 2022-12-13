@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Socket } from 'socket.io';
 import { Client } from 'socket.io/dist/client';
 import { DefaultEventsMap } from 'socket.io/dist/typed-events';
+import { AuthService } from '../auth/auth.service';
 import { IChatRoom, IUser, UserStatus } from '../types/types';
 import { SUserService } from './socketUser.service';
 
@@ -9,7 +10,7 @@ import { SUserService } from './socketUser.service';
 export class RoomService {
   // 내부 변수들도 초기화?
   public readonly rooms: Map<string, IChatRoom>;
-  constructor() {
+  constructor(private auth: AuthService) {
     this.rooms = new Map();
   }
 
@@ -33,39 +34,47 @@ export class RoomService {
   //   return this.rooms; // 배열이 아니라 map으로 리턴
   // }
 
-    addRoom(roomname: string, charRoom : IChatRoom): void {
-      this.rooms.set(roomname, charRoom);
-    } 
-    
-    showRooms() : void {
-      console.log('showRooms............');
-        this.rooms.forEach(a => {
-          console.log('this is room name : ', a.name);
-            // console.log(a.id);
-            // console.log(a.pw);
-            console.log(a.users);
-            // console.log(a.ban);
-            // console.log(a.host);
-        })
-        console.log('showRooms End............');
-      } 
-      
-    getRoom(intra: string): RoomService | null {
-        // console.log('getRoom...');
-        for (const room of this.rooms) {
-            if (this.rooms[intra]) 
-              return room[intra];
-        console.log('getRoom...');
-      }
-      return null;
-    }
+  addRoom(roomname: string, charRoom : IChatRoom): void {
+    this.rooms.set(roomname, charRoom);
+  } 
   
-    getInRoomUser(roomname :string) : void {
-      console.log('getInRoomUser');
-      console.log(this.rooms.get(roomname).users);
-      // return (this.rooms.get(roomname).users);
+  showRooms() : void {
+    console.log('showRooms............');
+      this.rooms.forEach(a => {
+        console.log('this is room name : ', a.name);
+          console.log('id     : ', a.id);
+          console.log('name   : ', a.name);
+          console.log('pw     : ' , a.pw);
+          console.log('Public : ', a.isPublic);
+          console.log('user   : ', a.users);
+          console.log('muted  : ', a.muted);
+          console.log('ban    : ', a.ban);
+          console.log('owner  : ', a.owner);
+          console.log('admin  : ', a.admin);
+      })
+      console.log('showRooms End............');
+  } 
+    
+  getRoom(intra: string): RoomService | null {
+      // console.log('getRoom...');
+      for (const room of this.rooms) {
+          if (this.rooms[intra]) 
+            return room[intra];
+      console.log('getRoom...');
     }
+    return null;
+  }
 
+  getInRoomUser(roomname :string) : void {
+    console.log('getInRoomUser');
+    console.log(this.rooms.get(roomname).users);
+    // return (this.rooms.get(roomname).users);
+  }
+
+  getIntraAtToken(socket: Socket): string {
+    const intra = this.auth.getIntra(this.auth.extractToken(socket, 'ws'));
+    return intra;
+  }
 
   addUser(name: string, user: IUser, client: Socket): void {
     console.log('AddUser');
