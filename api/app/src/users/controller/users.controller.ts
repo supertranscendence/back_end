@@ -36,11 +36,10 @@ export class UsersController {
     return this.users.findAll();
   }
 
-  // @Get(':id')
-  // }
-  // getOne(@Param('id') tid : number) {
-  //     return this.users.findOne(tid);
-
+  @Get(':id')
+  getOne(@Param('id') tid : string) {
+      return this.users.findByIntra(tid);
+  }
   // @Get('')
   // getJoin(@Param('id') tid : number) {
   //     return this.users.findJoin(tid);
