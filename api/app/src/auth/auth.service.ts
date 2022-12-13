@@ -99,6 +99,7 @@ export class AuthService {
   }
 
   getIntra(token: string): string {
+    this.verifyToken(token);
     return token ? jwt.decode(token)['intra'] : null;
   }
 }
