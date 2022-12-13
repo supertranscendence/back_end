@@ -33,10 +33,13 @@ import { AuthService } from '../auth/auth.service';
   namespace: 'api/socket',
 })
 export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
-  constructor(private room: RoomService, private user: SUserService,
+  constructor(
+    private room: RoomService,
+    private user: SUserService,
     // private auth: AuthService,
-    @Inject(Logger) private readonly logger: LoggerService
-    ) {}
+    @Inject(Logger) private readonly logger: LoggerService,
+  ) {}
+
   @WebSocketServer()
   server: Server;
 
@@ -44,15 +47,17 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
   onModuleInit() {
     this.server.on('connection', (socket) => {
       console.log('onModuleInit');
-  
-    //   const extraToken = this.auth.extractToken(socket, 'ws');
-    // const intra = this.auth.getIntra(extraToken);
+
+      //   const extraToken = this.auth.extractToken(socket, 'ws');
+      // const intra = this.auth.getIntra(extraToken);
       const intra = this.room.getIntraAtToken(socket);
       const avatar = 'avatar_copy';
       const nickname = intra;
       const status: UserStatus = 1; // 상태로 추가하면 오류!
-      this.logger.log(`Function Name : connection Intra: ${intra}, clientid : ${socket.id}`);
-      
+      this.logger.log(
+        `Function Name : connection Intra: ${intra}, clientid : ${socket.id}`,
+      );
+
       const user_copy: IUser = {
         client: socket.client,
         avatar,
@@ -61,7 +66,9 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
         status,
       };
 
-      this.logger.log(`Function Name : connection in addUser Intra: ${intra}, clientid : ${socket.id}`);
+      this.logger.log(
+        `Function Name : connection in addUser Intra: ${intra}, clientid : ${socket.id}`,
+      );
       this.user.addUser(socket.id, user_copy); // 사람을 추가해서 user에 넣기
       this.user.getUser(socket.id);
       this.user.getUsers();
@@ -69,24 +76,23 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
   }
 
   handleDisconnect(client: any) {
-
-
     // const extraToken = this.auth.extractToken(client, 'ws');
     // const intra = this.auth.getIntra(extraToken);
     const intra = this.room.getIntraAtToken(client);
-    this.logger.log(`Function Name : handleDisconnect Intra : ${intra}, clientid : ${client.id}`);
+    this.logger.log(
+      `Function Name : handleDisconnect Intra : ${intra}, clientid : ${client.id}`,
+    );
     //유저를 제거하고 방에서도 제거 >> 방에서 제거하는 것은 어떻게 하지?, 방도 추가를 해주어야 하나? 싶은데
 
-    this.room.getAllRoom().forEach(element => {
+    this.room.getAllRoom().forEach((element) => {
       this.room.deleteUserBysocketId(client.id, element.name);
-    this.room.roomHowManyPeople(element.name);  
+      this.room.roomHowManyPeople(element.name);
     });
-  
+
     this.room.deleteUser(client.id);
     this.user.removeUser(client.id);
     console.log('Dissconnected');
   }
-
 
   // get > 놉
   // crea > 방생성
@@ -108,18 +114,25 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
     //방에서 나가는 로직이 없으니까
 
     const intra = this.room.getIntraAtToken(client);
-    this.logger.log(`Function Name : getChatRoomInfo Intra : ${intra}, clientid : ${client.id}`);
-    
-    let returnRoom : {roomName: string, isPublic: boolean, currNum : number}[] = [];
+    this.logger.log(
+      `Function Name : getChatRoomInfo Intra : ${intra}, clientid : ${client.id}`,
+    );
+
+    const returnRoom: {
+      roomName: string;
+      isPublic: boolean;
+      currNum: number;
+    }[] = [];
 
     this.room.getAllRoom().forEach((value, element, _) => {
-
-      let temp :{roomName: string, isPublic: boolean, currNum : number};
-      temp = {roomName: value.name, isPublic: value.isPublic, currNum : value.users.size};
+      let temp: { roomName: string; isPublic: boolean; currNum: number };
+      temp = {
+        roomName: value.name,
+        isPublic: value.isPublic,
+        currNum: value.users.size,
+      };
       returnRoom.push(temp);
-
     });
-
 
     // this.room.getPublicRooms(client).forEach((str:string) => {
     //   returnRoom.push({roomName:str, a.idPublic, a.users.size})
@@ -139,11 +152,17 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
 
   // 방 생성
   @SubscribeMessage('create-room')
-  createroom(client: Socket, roomInfo: { room :string, isPublic :boolean, pwd? : string}) { // roomname public 유무, 비밀번호,
+  createroom(
+    client: Socket,
+    roomInfo: { room: string; isPublic: boolean; pwd?: string },
+  ) {
+    // roomname public 유무, 비밀번호,
     // const extraToken = this.auth.extractToken(client, 'ws');
     // const intra = this.auth.getIntra(extraToken);
     const intra = this.room.getIntraAtToken(client);
-    this.logger.log(`Function Name : create-room room :${roomInfo.room}, Intra : ${intra} clientid : ${client.id}`);
+    this.logger.log(
+      `Function Name : create-room room :${roomInfo.room}, Intra : ${intra} clientid : ${client.id}`,
+    );
 
     const id = 0;
     const name: string = roomInfo.room;
@@ -154,7 +173,7 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
     let ban: IUser[];
     const owner = intra;
     // 방을 만든 사람은 오너 저장
-    const admin : string[] = [];
+    const admin: string[] = [];
 
     const chatRoom_copy: IChatRoom = {
       id,
@@ -165,7 +184,7 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
       muted,
       ban,
       owner,
-      admin
+      admin,
     };
 
     this.room.addRoom(roomInfo.room, chatRoom_copy);
@@ -185,10 +204,11 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('PWDCheck')
-  PWDCheck(client : Socket, roomInfo : {roomName : string, pw : string}) {
-
+  PWDCheck(client: Socket, roomInfo: { roomName: string; pw: string }) {
     if (roomInfo.pw == this.room.getPW(roomInfo.roomName)) {
-      this.logger.log(`Function Name : PWDCheck room :${roomInfo.roomName}, clientid : ${client.id} name : ${roomInfo.roomName} `);
+      this.logger.log(
+        `Function Name : PWDCheck room :${roomInfo.roomName}, clientid : ${client.id} name : ${roomInfo.roomName} `,
+      );
       client.join(roomInfo.roomName);
       const intra = this.room.getIntraAtToken(client);
       // 여기는 상상으로 짜봄
@@ -197,10 +217,9 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
       //room에 참가
       this.room.addUser(roomInfo.roomName, userTemp, client); // 방에 사람 추가하기
       this.room.getInRoomUser(roomInfo.roomName); // 여기서는 방에 사람이 있는지
-  
+
       return true;
-    }
-    else {
+    } else {
       this.logger.log(`Function Name : PWDCheck room false`);
       return false;
     }
@@ -215,7 +234,9 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
     // const extraToken = this.auth.extractToken(socket, 'ws');
     // const intra = this.auth.getIntra(extraToken);
     const intra = this.room.getIntraAtToken(socket);
-    this.logger.log(`Function Name : newMsg room :${newMsgObj.room}, Intra : ${intra} clientid : ${socket.id}, ${newMsgObj.user} : ${newMsgObj.msg}`);
+    this.logger.log(
+      `Function Name : newMsg room :${newMsgObj.room}, Intra : ${intra} clientid : ${socket.id}, ${newMsgObj.user} : ${newMsgObj.msg}`,
+    );
     socket.to(newMsgObj.room).emit('newMsg', newMsgObj);
     return {};
   }
@@ -227,8 +248,9 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
     // const extraToken = this.auth.extractToken(client, 'ws');
     // const intra = this.auth.getIntra(extraToken);
     const intra = this.room.getIntraAtToken(client);
-    this.logger.log(`Function Name : enterRoom room :${joinInfo.room}, intra : ${intra} clientid : ${client.id} name : ${joinInfo.name} `);
-    
+    this.logger.log(
+      `Function Name : enterRoom room :${joinInfo.room}, intra : ${intra} clientid : ${client.id} name : ${joinInfo.name} `,
+    );
 
     // 여기는 상상으로 짜봄
     // 자신의 아이디로 유저정보 뽑고, 그 유저로 있는 방에 참가! 방의 user에도 인원을 추가 해 주어야함!
@@ -243,7 +265,9 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
   // 방 나가기 버튼
   @SubscribeMessage('leaveRoom')
   leaveRoom(socket: Socket, roomInfo: { room: string }) {
-    this.logger.log(`Function Name : leaveRoom room :${roomInfo.room}, intra : ??? clientid : ${socket.id}`);
+    this.logger.log(
+      `Function Name : leaveRoom room :${roomInfo.room}, intra : ??? clientid : ${socket.id}`,
+    );
     socket.leave(roomInfo.room);
 
     // this.logger.log('leaveRoom Before');
@@ -256,7 +280,6 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
 
     // 방에 아무도 없으면 방제거
     this.room.roomHowManyPeople(roomInfo.room);
-
 
     // this.logger.log('leaveRoom After');
     // console.log('leaveRoom After')
@@ -279,8 +302,6 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
         this.room.deleteUserBysocketId(socket.id, ele);
         // 방에 아무도 없으면 방제거
         this.room.roomHowManyPeople(ele);
-
-
       }
       // this.logger.log('clearRoom After');
       // console.log('clearRoom After')
