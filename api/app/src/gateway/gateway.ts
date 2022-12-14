@@ -248,7 +248,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
         }
       }
     }
-
+    return;
   }
 
   // admin설정
