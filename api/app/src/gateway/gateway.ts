@@ -265,16 +265,15 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
 kickUser(client: Socket, roomInfo: {roomName:string , kickUser :string})
 {
   const intra = this.room.getIntraAtToken(client); //이사람이 어드민이나 오너이면 //muteuser를 할 수 있게, 어드민이나 오너는 뮤트 할 수 없게
-  let test = "x1";
+  let ret = "";
   if (roomInfo.kickUser == this.room.getOwenr(roomInfo.roomName) || this.room.checkAdmin(roomInfo.roomName, roomInfo.kickUser))
-    return "x2";
+    return ret;
   if (intra == this.room.getOwenr(roomInfo.roomName) || this.room.checkAdmin(roomInfo.roomName, intra)){
     this.room.rmRoomUser(roomInfo.roomName, roomInfo.kickUser);
-    // test = this.room.findIDbyIntraId(roomInfo.roomName, roomInfo.kickUser);
     this.room.getRoom(roomInfo.roomName).users.forEach((ele)=>{if (ele.intra === intra)
-      test =  ele.client_id;
+      ret =  ele.client_id;
   })
-    client.to(test).emit('kicked');
+    client.to(ret).emit('kicked');
   }
   return test;
 }
@@ -287,18 +286,17 @@ kickUser(client: Socket, roomInfo: {roomName:string , kickUser :string})
 @SubscribeMessage('banUser')
 banUser(client:Socket, roomInfo: {roomName:string , banUser :string})
 {
-  let test = "x1";
+  let ret = "";
   const intra = this.room.getIntraAtToken(client); //이사람이 어드민이나 오너이면 //muteuser를 할 수 있게, 어드민이나 오너는 뮤트 할 수 없게
   if (roomInfo.banUser == this.room.getOwenr(roomInfo.roomName) || this.room.checkAdmin(roomInfo.roomName, roomInfo.banUser))
-    return ;
-
+    return ret;
   // 오너랑 어드민은 뮤트 할 수 있게
   if (intra == this.room.getOwenr(roomInfo.roomName) || this.room.checkAdmin(roomInfo.roomName, intra)){
     this.room.addBanUser(roomInfo.roomName, roomInfo.banUser);
     this.room.getRoom(roomInfo.roomName).users.forEach((ele)=>{if (ele.intra === intra)
-      test =  ele.client_id;
+      ret =  ele.client_id;
     });
-    client.to(test).emit('kicked');
+    client.to(ret).emit('kicked');
   }
   return {};
 }
@@ -333,7 +331,11 @@ banUser(client:Socket, roomInfo: {roomName:string , banUser :string})
     const intra = this.room.getIntraAtToken(client); // 인트라 아이디가 나온다
     // 오너는 admin에 추가하면 안됨
     if (intra != this.room.getOwenr(roomInfo.roomName)) {
-      this.room.setAdmin(roomInfo.roomName, roomInfo.adminUser);
+      this.room.getRoom(roomInfo.roomName).admin.forEach(element => {
+        if (element == intra) // 있는 사람은 추가 x
+          return ;
+      });
+      this.room.getRoom(roomInfo.roomName).admin.push(intra);
     }
     return ;
   }
