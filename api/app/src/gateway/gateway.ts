@@ -87,6 +87,8 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       this.room.roomHowManyPeople(element.name);
     });
 
+    // 방에서 제거 하고, mute에 있으면 제거하고, block에 있으면 제거하고, admin에서 제거하고, ban에서 제거하고
+
     this.room.deleteUser(client.id);
     this.user.removeUser(client.id);
     console.log('Dissconnected');
@@ -301,7 +303,7 @@ banUser(client:Socket, roomInfo: {roomName:string , banUser :string})
     if (this.room.checkMute(roomInfo.roomName, roomInfo.muteUser)) {
       //방의 오너 어드민이 뮤트의 대상? 불가능
       if (roomInfo.muteUser == this.room.getOwenr(roomInfo.roomName) || this.room.checkAdmin(roomInfo.roomName, roomInfo.muteUser))
-        return ;
+        return [];
 
       // 오너랑 어드민은 뮤트 할 수 있게
       if (intra == this.room.getOwenr(roomInfo.roomName) || this.room.checkAdmin(roomInfo.roomName, intra)){
@@ -313,7 +315,7 @@ banUser(client:Socket, roomInfo: {roomName:string , banUser :string})
     }
     // 다른 사람들은 불가능
     
-    return ;
+    return this.room.getAllRoom().get(roomInfo.roomName).muted;
   }
 
   @SubscribeMessage('setAdmin') // 해당 방에서 adminUser 목록에 추가
