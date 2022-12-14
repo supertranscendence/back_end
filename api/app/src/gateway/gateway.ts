@@ -298,24 +298,23 @@ banUser(client:Socket, roomInfo: {roomName:string , banUser :string})
   muteUser(client: Socket, roomInfo: {roomName:string , muteUser :string})
   {
     this.logger.log(`Function Name : muteUser room :${roomInfo.roomName}, clientid : ${client.id}, roomInfo ${roomInfo.muteUser}`);
+    //관리자랑 주인은 뮤트 못시키게
     const intra = this.room.getIntraAtToken(client); //이사람이 어드민이나 오너이면 //muteuser를 할 수 있게, 어드민이나 오너는 뮤트 할 수 없게
-
-    if (this.room.checkMute(roomInfo.roomName, roomInfo.muteUser)) {
-      //방의 오너 어드민이 뮤트의 대상? 불가능
-      if (roomInfo.muteUser == this.room.getOwenr(roomInfo.roomName) || this.room.checkAdmin(roomInfo.roomName, roomInfo.muteUser))
-        return [];
-
-      // 오너랑 어드민은 뮤트 할 수 있게
-      if (intra == this.room.getOwenr(roomInfo.roomName) || this.room.checkAdmin(roomInfo.roomName, intra)){
+    if (roomInfo.muteUser == this.room.getOwenr(roomInfo.roomName) || this.room.checkAdmin(roomInfo.roomName, roomInfo.muteUser))
+      return [];
+    if (intra == this.room.getOwenr(roomInfo.roomName) || this.room.checkAdmin(roomInfo.roomName, intra)){
+      if (this.room.checkMute(roomInfo.roomName, roomInfo.muteUser)) {
+        //방의 오너 어드민이 뮤트의 대상? 불가능
+        // 오너랑 어드민은 뮤트 할 수 있게
         this.room.addMuteUser(roomInfo.roomName, roomInfo.muteUser);
       }
+      else
+      {
+        this.room.rmMuteUser(roomInfo.roomName, roomInfo.muteUser);
+      }
     }
-    else {
-      this.room.rmMuteUser(roomInfo.roomName, roomInfo.muteUser);
-    }
+      return this.room.getAllRoom().get(roomInfo.roomName).muted;
     // 다른 사람들은 불가능
-    
-    return this.room.getAllRoom().get(roomInfo.roomName).muted;
   }
 
   @SubscribeMessage('setAdmin') // 해당 방에서 adminUser 목록에 추가
