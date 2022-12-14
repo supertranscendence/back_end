@@ -269,21 +269,25 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
 // 반환 : return ;
 // 추가사항: 백엔드에서 sendMsg emit 할때 뮤트된 유저는 걸러서 보낼것 // sendMsg에 추가하기
 
-  @SubscribeMessage('muteUser')
+  @SubscribeMessage('muteUser') // 방 나갔다가 들어와도 mute가 된 상태
   muteUser(client: Socket, roomInfo: {roomName:string , muteUser :string})
   {
     this.logger.log(`Function Name : muteUser room :${roomInfo.roomName}, clientid : ${client.id}, roomInfo ${roomInfo.muteUser}`);
     const intra = this.room.getIntraAtToken(client); //이사람이 어드민이나 오너이면 //muteuser를 할 수 있게, 어드민이나 오너는 뮤트 할 수 없게
 
-    //방의 오너 어드민이 뮤트의 대상? 불가능
-    if (roomInfo.muteUser == this.room.getOwenr(roomInfo.roomName) || this.room.checkAdmin(roomInfo.roomName, roomInfo.muteUser))
-      return ;
+    if (this.room.checkMute(roomInfo.roomName, roomInfo.muteUser)) {
+      //방의 오너 어드민이 뮤트의 대상? 불가능
+      if (roomInfo.muteUser == this.room.getOwenr(roomInfo.roomName) || this.room.checkAdmin(roomInfo.roomName, roomInfo.muteUser))
+        return ;
 
-    // 오너랑 어드민은 뮤트 할 수 있게
-    if (intra == this.room.getOwenr(roomInfo.roomName) || this.room.checkAdmin(roomInfo.roomName, intra)){
-      this.room.addMuteUser(roomInfo.roomName, roomInfo.muteUser);
+      // 오너랑 어드민은 뮤트 할 수 있게
+      if (intra == this.room.getOwenr(roomInfo.roomName) || this.room.checkAdmin(roomInfo.roomName, intra)){
+        this.room.addMuteUser(roomInfo.roomName, roomInfo.muteUser);
+      }
     }
-
+    else {
+      this.room.rmMuteUser(roomInfo.roomName, roomInfo.muteUser);
+    }
     // 다른 사람들은 불가능
     
     return ;

@@ -94,12 +94,30 @@ export class RoomService {
     this.rooms.get(roomName).admin.push(intra);
   }
 
+  checkMute(roomName: string, intra : string) : boolean {
+    this.rooms.get(roomName).muted.forEach(element => {
+      if (element == intra) // 있는 사람은 추가 x
+        return false;
+    });
+    return true;
+  }
+
   addMuteUser(roomName: string, intra : string) : void {
     this.rooms.get(roomName).muted.forEach(element => {
       if (element == intra) // 있는 사람은 추가 x
         return ;
     });
     this.rooms.get(roomName).muted.push(intra);
+  }
+
+  rmMuteUser(roomName: string, intra : string) : void {
+    for (let i = 0; i < this.rooms.get(roomName).muted.length; i++) {
+      if(this.rooms.get(roomName).muted[i] === intra)  {
+        this.rooms.get(roomName).muted.splice(i, 1);
+        return ;
+      }
+    }
+    return ;
   }
 
   getPublic(roomName : string) : boolean{
