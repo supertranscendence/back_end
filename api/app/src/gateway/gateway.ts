@@ -264,11 +264,16 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
 @SubscribeMessage('kickUser') // 방 쫓아내기
 kickUser(client: Socket, roomInfo: {roomName:string , kickUser :string})
 {
+  const intra = this.room.getIntraAtToken(client); //이사람이 어드민이나 오너이면 //muteuser를 할 수 있게, 어드민이나 오너는 뮤트 할 수 없게
+  let test = "x1";
   if (roomInfo.kickUser == this.room.getOwenr(roomInfo.roomName) || this.room.checkAdmin(roomInfo.roomName, roomInfo.kickUser))
-    return ;
-  
-  this.room.rmRoomUser(roomInfo.roomName, roomInfo.kickUser);
-  client.to(this.room.findIDbyIntraId(roomInfo.roomName, roomInfo.kickUser)).emit('kicked');
+    return "x2";
+  if (intra == this.room.getOwenr(roomInfo.roomName) || this.room.checkAdmin(roomInfo.roomName, intra)){
+    this.room.rmRoomUser(roomInfo.roomName, roomInfo.kickUser);
+    test = this.room.findIDbyIntraId(roomInfo.roomName, roomInfo.kickUser);
+    client.to(test).emit('kicked');
+  }
+  return test;
 }
 
 // banUser : {roomName:string , banUser :string}
@@ -302,7 +307,6 @@ banUser(client:Socket, roomInfo: {roomName:string , banUser :string})
     if (roomInfo.muteUser == this.room.getOwenr(roomInfo.roomName) || this.room.checkAdmin(roomInfo.roomName, roomInfo.muteUser))
       return [];
     if (intra == this.room.getOwenr(roomInfo.roomName) || this.room.checkAdmin(roomInfo.roomName, intra)){
-      // if (this.room.checkMute(roomInfo.roomName, roomInfo.muteUser)) {
       if (!this.room.getRoom(roomInfo.roomName).muted.includes(roomInfo.muteUser)) {
         //방의 오너 어드민이 뮤트의 대상? 불가능
         // 오너랑 어드민은 뮤트 할 수 있게
