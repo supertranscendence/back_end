@@ -315,7 +315,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const temp : { room: string; user: string; msg: string } = {room : newMsgObj.room, user : intra, msg : newMsgObj.msg};
 
     //여기서 밴 된 대상 제외하고!
-    socket.to(newMsgObj.room).emit('newMsg', newMsgObj); 
+    socket.to(newMsgObj.room).emit('newMsg', temp); 
     return {};
   }
 
