@@ -106,17 +106,20 @@ export class RoomService {
     return (this.rooms.get(roomName).isPublic);
   }
 
-  getRoom(intra: string): RoomService | null {
+  getRoom(roomName: string): IChatRoom {
     // console.log('getRoom...');
-    for (const room of this.rooms) {
-      if (this.rooms[intra]) return room[intra];
-      console.log('getRoom...');
-    }
-    return null;
+    // for (const room of this.rooms) {
+    //   if (this.rooms[intra]) return room[intra];
+    //   console.log('getRoom...');
+    // }
+    // return null;
+
+    return (this.rooms.get(roomName));
+    // return ()
   }
 
   getInRoomUser(roomname: string): void {
-    console.log('getInRoomUser');
+    // console.log('getInRoomUser');
     console.log(this.rooms.get(roomname).users);
     // return (this.rooms.get(roomname).users);
   }

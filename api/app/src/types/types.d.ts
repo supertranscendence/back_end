@@ -10,6 +10,7 @@ export enum UserStatus {
 
 export interface IUser {
   client: Client<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>;
+  client_id: string;
   intra: string;
   nickname?: string;
   avatar?: string;

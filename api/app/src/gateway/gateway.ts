@@ -48,6 +48,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   //  socket 객체는 개별 클라이언트와의 interacting을 위한 기본적인 객체
   handleConnection(client: any) {
     const intra = this.room.getIntraAtToken(client);
+    const client_id = client.id;
     const avatar = 'avatar_copy';
     const nickname = intra;
     const status: UserStatus = 1; // 상태로 추가하면 오류!
@@ -57,6 +58,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     const user_copy: IUser = {
       client: client,
+      client_id,
       avatar,
       nickname,
       intra,
@@ -314,9 +316,11 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     
     const temp : { room: string; user: string; msg: string } = {room : newMsgObj.room, user : intra, msg : newMsgObj.msg};
 
-    //여기서 밴 된 대상 제외하고!
-    socket.to(newMsgObj.room.)
-    // socket.
+      // 밴 된 대상은 제외
+    this.room.getRoom(newMsgObj.room).users.forEach((userEle) => {
+      if (!this.room.getRoom(newMsgObj.room).muted.includes(userEle.intra))
+        socket.to(userEle.client_id).emit('newMsg', temp);
+    })
     return {};
   }
 
