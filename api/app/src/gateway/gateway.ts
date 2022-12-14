@@ -275,7 +275,7 @@ kickUser(client: Socket, roomInfo: {roomName:string , kickUser :string})
   })
     client.to(ret).emit('kicked');
   }
-  return test;
+  return ret;
 }
 
 // banUser : {roomName:string , banUser :string}
@@ -332,7 +332,7 @@ banUser(client:Socket, roomInfo: {roomName:string , banUser :string})
     // 오너는 admin에 추가하면 안됨
     if (intra != this.room.getOwenr(roomInfo.roomName)) {
       this.room.getRoom(roomInfo.roomName).admin.forEach(element => {
-        if (element == intra) // 있는 사람은 추가 x
+        if (element == roomInfo.adminUser) // 있는 사람은 추가 x
           return ;
       });
       this.room.getRoom(roomInfo.roomName).admin.push(intra);
