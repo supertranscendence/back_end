@@ -120,6 +120,24 @@ export class RoomService {
     return ;
   }
 
+
+  findIDbyIntraId(roomName : string, intra : string) : string {
+    for (let [key, value] of  this.rooms.get(roomName).users.entries()) {
+      if (value.intra === intra) {
+        return (key);
+      }
+    }
+  }
+
+  rmRoomUser(roomName: string, kickUser : string) : void {
+    for (let [key, value] of  this.rooms.get(roomName).users.entries()) {
+      if (value.intra === kickUser) {
+        this.rooms.get(roomName).users.delete(key);
+      }
+    }
+    return ;
+  }
+
   getPublic(roomName : string) : boolean{
     return (this.rooms.get(roomName).isPublic);
   }
