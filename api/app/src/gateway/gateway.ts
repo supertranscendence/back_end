@@ -317,10 +317,17 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const temp : { room: string; user: string; msg: string } = {room : newMsgObj.room, user : intra, msg : newMsgObj.msg};
 
       // 밴 된 대상은 제외
-    this.room.getRoom(newMsgObj.room).users.forEach((userEle) => {
-      if (!this.room.getRoom(newMsgObj.room).muted.includes(userEle.intra))
-        socket.to(userEle.client_id).emit('newMsg', temp);
-    })
+    // this.room.getRoom(newMsgObj.room).users.forEach((userEle) => {
+    //   if (this.room.getRoom(newMsgObj.room).muted.includes(userEle.intra)) {
+
+    //     socket.to(userEle.client_id).emit('newMsg', temp);
+    //   }
+    // })
+
+    if (!this.room.getRoom(newMsgObj.room).muted.includes(intra)) {
+          socket.to(newMsgObj.room).emit('newMsg', temp);
+        }
+
     return {};
   }
 
