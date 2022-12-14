@@ -164,8 +164,8 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const isPublic = roomInfo.isPublic;
     const pw = roomInfo.pwd;
     const users: Map<string, IUser> = new Map();
-    let muted: IUser[];
-    let ban: IUser[];
+    let muted: string[] = [];
+    let ban: string[] = [];
     const owner = intra;
     // 방을 만든 사람은 오너 저장
     const admin: string[] = [];
@@ -251,6 +251,54 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     return;
   }
 
+
+//   kickUser
+// 주는 객체: {roomName:string , kickUser :string}
+// 내부 동작 : 해당 방에서 kickUser가 어드민이나 오너가 아니면 방에서 내보냄
+// 반환 : return ;
+
+// banUser : {roomName:string , banUser :string}
+// 내부 동작 : 해당 방에서 banUser가 어드민이나 오너가 아니면 방에서 내보냄 + 해당 방의 밴 유저목록에 저장
+// 반환 : return ;
+// 추가사항: 엔터룸 : 해당 방 밴 목록확인 후 밴이면 못들어오게 false반환 조인 됐다면 true 반환
+
+// muteUser:{roomName:string , muteUser :string}
+// 내부 동작 : 해당 방에서 muteUser가 어드민이나 오너가 아니면 해당 방의 뮤트 유저 목록에 저장
+// 반환 : return ;
+// 추가사항: 백엔드에서 sendMsg emit 할때 뮤트된 유저는 걸러서 보낼것 // sendMsg에 추가하기
+
+  @SubscribeMessage('muteUser')
+  muteUser(client: Socket, roomInfo: {roomName:string , muteUser :string})
+  {
+    this.logger.log(`Function Name : muteUser room :${roomInfo.roomName}, clientid : ${client.id}, roomInfo ${roomInfo.muteUser}`);
+    const intra = this.room.getIntraAtToken(client); //이사람이 어드민이나 오너이면 //muteuser를 할 수 있게, 어드민이나 오너는 뮤트 할 수 없게
+
+    //방의 오너 어드민이 뮤트의 대상? 불가능
+    if (roomInfo.muteUser == this.room.getOwenr(roomInfo.roomName) || this.room.checkAdmin(roomInfo.roomName, roomInfo.muteUser))
+      return ;
+
+    // 오너랑 어드민은 뮤트 할 수 있게
+    if (intra == this.room.getOwenr(roomInfo.roomName) || this.room.checkAdmin(roomInfo.roomName, intra)){
+      this.room.addMuteUser(roomInfo.roomName, roomInfo.muteUser);
+    }
+
+    // 다른 사람들은 불가능
+    
+    return ;
+  }
+
+  @SubscribeMessage('setAdmin') // 해당 방에서 adminUser 목록에 추가
+  setAdmin(client: Socket, roomInfo : {roomName:string , adminUser :string})
+  {
+    this.logger.log(`Function Name : setAdmin room :${roomInfo.roomName}, clientid : ${client.id}, roomInfo ${roomInfo.adminUser}`);
+    const intra = this.room.getIntraAtToken(client); // 인트라 아이디가 나온다
+    // 오너는 admin에 추가하면 안됨
+    if (intra != this.room.getOwenr(roomInfo.roomName)) {
+      this.room.setAdmin(roomInfo.roomName, intra);
+    }
+    return ;
+  }
+
   // admin설정
   @SubscribeMessage('newMsg')
   newmsg(
@@ -263,7 +311,11 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.logger.log(
       `Function Name : newMsg room :${newMsgObj.room}, Intra : ${intra} clientid : ${socket.id}, ${newMsgObj.user} : ${newMsgObj.msg}`,
     );
-    socket.to(newMsgObj.room).emit('newMsg', newMsgObj);
+    
+    const temp : { room: string; user: string; msg: string } = {room : newMsgObj.room, user : intra, msg : newMsgObj.msg};
+
+    //여기서 밴 된 대상 제외하고!
+    socket.to(newMsgObj.room).emit('newMsg', newMsgObj); 
     return {};
   }
 

@@ -79,11 +79,27 @@ export class RoomService {
 
   checkAdmin(roomName: string, intraName: string) : boolean {
     
-    this.rooms.get(roomName).users.forEach(element => {
-      if (element.intra == intraName)
+    this.rooms.get(roomName).admin.forEach(element => {
+      if (element == intraName)
         return true;
     });
     return false;
+  }
+
+  setAdmin(roomName: string, intra : string) : void {
+    this.rooms.get(roomName).admin.forEach(element => {
+      if (element == intra) // 있는 사람은 추가 x
+        return ;
+    });
+    this.rooms.get(roomName).admin.push(intra);
+  }
+
+  addMuteUser(roomName: string, intra : string) : void {
+    this.rooms.get(roomName).muted.forEach(element => {
+      if (element == intra) // 있는 사람은 추가 x
+        return ;
+    });
+    this.rooms.get(roomName).muted.push(intra);
   }
 
   getPublic(roomName : string) : boolean{
