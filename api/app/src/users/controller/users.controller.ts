@@ -8,19 +8,21 @@ import {
   Param,
   Post,
   Put,
+  Req,
   SetMetadata,
-  UseFilters,
   UseGuards,
 } from '@nestjs/common';
 import { UsersService } from '../services/users.service';
 import { AuthGuardLocal } from '../../auth/auth.guard';
 import { JWTExceptionFilter } from '../../exception/jwt.filter';
+import { AuthService } from '../../auth/auth.service';
 
 @UseGuards(AuthGuardLocal)
 @SetMetadata('roles', ['admin'])
 @Controller('api/users')
 export class UsersController {
-  constructor(private users: UsersService) {}
+  constructor(private users: UsersService,
+    private auth: AuthService) {}
 
   @Get()
   findOne() {
@@ -42,9 +44,11 @@ export class UsersController {
   @HttpCode(200)
   @Header('Access-Control-Allow-Origin', 'https://gilee.click')
   @Header('Access-Control-Allow-Credentials', 'true')
-  getOne(@Param('id') tid : string) {
-      return this.users.findByIntra(tid);
+  getOne(@Req() request : Request, @Param('id') tid : string) {
+    const intra = this.auth.getIntra(this.auth.extractToken(request, 'http'));
+    return this.users.findByIntra(intra);
   }
+  
   // @Get('')
   // getJoin(@Param('id') tid : number) {
   //     return this.users.findJoin(tid);
