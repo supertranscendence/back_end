@@ -294,7 +294,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const intra = this.room.getIntraAtToken(client); // 인트라 아이디가 나온다
     // 오너는 admin에 추가하면 안됨
     if (intra != this.room.getOwenr(roomInfo.roomName)) {
-      this.room.setAdmin(roomInfo.roomName, intra);
+      this.room.setAdmin(roomInfo.roomName, roomInfo.adminUser);
     }
     return ;
   }
@@ -315,7 +315,8 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const temp : { room: string; user: string; msg: string } = {room : newMsgObj.room, user : intra, msg : newMsgObj.msg};
 
     //여기서 밴 된 대상 제외하고!
-    socket.to(newMsgObj.room).emit('newMsg', temp); 
+    socket.to(newMsgObj.room.)
+    // socket.
     return {};
   }
 
