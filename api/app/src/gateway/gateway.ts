@@ -24,7 +24,7 @@ import { RoomService } from './room.service';
 import { SUserService } from './socketUser.service';
 import { IChatRoom, IUser, UserStatus } from '../types/types';
 import { IsUppercase } from 'class-validator';
-import { throwIfEmpty } from 'rxjs';
+import { map, throwIfEmpty } from 'rxjs';
 import { LoggingInterceptor } from '../logger.Interceptor';
 import { AuthService } from '../auth/auth.service';
 
@@ -122,13 +122,17 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       roomName: string;
       isPublic: boolean;
       currNum: number;
+      member: string[];
     }[] = [];
 
     this.room.getAllRoom().forEach((value, element, _) => {
-      const temp: { roomName: string; isPublic: boolean; currNum: number } = {
+      let arrr :string [];
+       value.users.forEach((e)=>{arrr.push( e.intra)})
+      const temp: { roomName: string; isPublic: boolean; currNum: number; member: string[] } = {
         roomName: value.name,
         isPublic: value.isPublic,
         currNum: value.users.size,
+        member: arrr
       };
       returnRoom.push(temp);
     });
@@ -270,8 +274,9 @@ kickUser(client: Socket, roomInfo: {roomName:string , kickUser :string})
     return ret;
   if (intra == this.room.getOwenr(roomInfo.roomName) || this.room.checkAdmin(roomInfo.roomName, intra)){
     this.room.rmRoomUser(roomInfo.roomName, roomInfo.kickUser);
-    this.room.getRoom(roomInfo.roomName).users.forEach((ele)=>{if (ele.intra === roomInfo.kickUser )
-      ret =  ele.client_id;
+    this.room.getRoom(roomInfo.roomName).users.forEach((ele)=>{
+      if (ele.intra === roomInfo.kickUser )
+        ret =  ele.client_id;
   })
     client.to(ret).emit('kicked');
   }
@@ -381,7 +386,7 @@ banUser(client:Socket, roomInfo: {roomName:string , banUser :string})
 
     const intra = this.room.getIntraAtToken(client);
     if (this.room.getRoom(joinInfo.room).ban.includes(intra)) // 
-    client.emit('kicked'); // intra));
+      client.emit('kicked'); // intra));
 
     this.logger.log(
       `Function Name : enterRoom room :${joinInfo.room}, intra : ${intra} clientid : ${client.id} name : ${joinInfo.name} `,
