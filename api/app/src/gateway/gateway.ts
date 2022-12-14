@@ -234,7 +234,7 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
         }
       }
     }
-
+    return;
   }
 
   // admin설정
