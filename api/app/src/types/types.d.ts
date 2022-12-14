@@ -22,8 +22,8 @@ export interface IChatRoom {
   pw?: string;
   isPublic: boolean;
   users: Map<string, IUser>;
-  muted: IUser[];
-  ban: IUser[];
-  owner : string; // 방만든 사람
-  admin : string[]// 권한을 준사람
+  muted: string[];
+  ban: string[];
+  owner : string; // 방만든 사람 킥, 밴(킥하고 다시 못들어오게), 뮤트 다른사람에게 
+  admin : string[]// 권한을 준사람 킥 밴 뮤트 가능, 오너대상으로는 불가능
 }
