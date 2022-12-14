@@ -206,6 +206,37 @@ export class MyGateway implements OnModuleInit, OnGatewayDisconnect {
     }
   }
 
+  @SubscribeMessage('SetPWD')
+  SetPWD(client : Socket, roomInfo : {roomName : string, pw : string, gottaPublic : boolean}) {
+
+    this.logger.log(`Function Name : SetPWD room :${roomInfo.roomName}, clientid : ${client.id}, name : ${roomInfo.pw} , public : ${roomInfo.gottaPublic}`)
+    const intra = this.room.getIntraAtToken(client);
+    // client가 두명에 해당이 되는지
+    if (intra == this.room.getOwenr(roomInfo.roomName) || this.room.checkAdmin(roomInfo.roomName, intra)) {
+      if (roomInfo.gottaPublic == true) { // 공개 방으로 해주세요
+        if (this.room.getPublic(roomInfo.roomName)) { // 공개방 아무것도 안해도 됨
+        }
+        else { // 비번방을 공개방으로 > 비번 지우고, pulic true
+          this.logger.log(' 비번방을 공개방으로 ');
+          this.room.setPublic(roomInfo.roomName, true);
+          this.room.setPW(roomInfo.roomName, null);
+        }
+      }
+      else { // 비번방으로 해주세요
+        if (this.room.getPublic(roomInfo.roomName)) { // 공개방을 비번방, 비번 생성
+          this.logger.log(' 공개방을 비번방으로 ');
+          this.room.setPublic(roomInfo.roomName, false);
+          this.room.setPW(roomInfo.roomName, roomInfo.pw);
+        }
+        else { // 비번방을 비번방으로 > 비번 change
+          this.logger.log(' 비번방을 비번방으로 ');
+          this.room.setPW(roomInfo.roomName, roomInfo.pw);
+        }
+      }
+    }
+
+  }
+
   // admin설정
   @SubscribeMessage('newMsg')
   newmsg(

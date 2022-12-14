@@ -60,10 +60,34 @@ export class RoomService {
       console.log('showRooms End............');
   }
 
+  setPublic(roomName : string, isPublic :boolean) : void{
+    this.rooms.get(roomName).isPublic = isPublic;
+  }
+
+  setPW(roomName : string, ps : string) : void{
+    this.rooms.get(roomName).pw = ps;
+  }
+
   getPW(roomName : string) : string{
     return (this.rooms.get(roomName).pw);
   }
+   
+  getOwenr(roomName: string) : string {
+    return (this.rooms.get(roomName).owner);
+  }
+
+  checkAdmin(roomName: string, intraName: string) : boolean {
     
+    this.rooms.get(roomName).users.forEach(element => {
+      if (element.intra == intraName)
+        return true;
+    });
+    return false;
+  }
+
+  getPublic(roomName : string) : boolean{
+    return (this.rooms.get(roomName).isPublic);
+  }
   getRoom(intra: string): RoomService | null {
       // console.log('getRoom...');
       for (const room of this.rooms) {
