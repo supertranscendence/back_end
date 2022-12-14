@@ -288,9 +288,8 @@ banUser(client:Socket, roomInfo: {roomName:string , banUser :string})
     // 오너랑 어드민은 뮤트 할 수 있게
     if (intra == this.room.getOwenr(roomInfo.roomName) || this.room.checkAdmin(roomInfo.roomName, intra)){
       this.room.addBanUser(roomInfo.roomName, roomInfo.banUser);
+      client.to(this.room.findIDbyIntraId(roomInfo.roomName, roomInfo.banUser)).emit('kicked');
     }
-
-    client.to(this.room.findIDbyIntraId(roomInfo.roomName, roomInfo.banUser)).emit('kicked');
   return {};
 }
 
@@ -303,7 +302,8 @@ banUser(client:Socket, roomInfo: {roomName:string , banUser :string})
     if (roomInfo.muteUser == this.room.getOwenr(roomInfo.roomName) || this.room.checkAdmin(roomInfo.roomName, roomInfo.muteUser))
       return [];
     if (intra == this.room.getOwenr(roomInfo.roomName) || this.room.checkAdmin(roomInfo.roomName, intra)){
-      if (this.room.checkMute(roomInfo.roomName, roomInfo.muteUser)) {
+      // if (this.room.checkMute(roomInfo.roomName, roomInfo.muteUser)) {
+      if (!this.room.getRoom(roomInfo.roomName).ban.includes(roomInfo.muteUser)) {
         //방의 오너 어드민이 뮤트의 대상? 불가능
         // 오너랑 어드민은 뮤트 할 수 있게
         this.room.addMuteUser(roomInfo.roomName, roomInfo.muteUser);
