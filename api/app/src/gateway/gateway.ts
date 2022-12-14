@@ -270,7 +270,10 @@ kickUser(client: Socket, roomInfo: {roomName:string , kickUser :string})
     return "x2";
   if (intra == this.room.getOwenr(roomInfo.roomName) || this.room.checkAdmin(roomInfo.roomName, intra)){
     this.room.rmRoomUser(roomInfo.roomName, roomInfo.kickUser);
-    test = this.room.findIDbyIntraId(roomInfo.roomName, roomInfo.kickUser);
+    // test = this.room.findIDbyIntraId(roomInfo.roomName, roomInfo.kickUser);
+    this.room.getRoom(roomInfo.roomName).users.forEach((ele)=>{if (ele.intra === intra)
+      test =  ele.client_id;
+  })
     client.to(test).emit('kicked');
   }
   return test;
@@ -284,17 +287,19 @@ kickUser(client: Socket, roomInfo: {roomName:string , kickUser :string})
 @SubscribeMessage('banUser')
 banUser(client:Socket, roomInfo: {roomName:string , banUser :string})
 {
+  let test = "x1";
   const intra = this.room.getIntraAtToken(client); //이사람이 어드민이나 오너이면 //muteuser를 할 수 있게, 어드민이나 오너는 뮤트 할 수 없게
+  if (roomInfo.banUser == this.room.getOwenr(roomInfo.roomName) || this.room.checkAdmin(roomInfo.roomName, roomInfo.banUser))
+    return ;
 
-
-    if (roomInfo.banUser == this.room.getOwenr(roomInfo.roomName) || this.room.checkAdmin(roomInfo.roomName, roomInfo.banUser))
-      return ;
-
-    // 오너랑 어드민은 뮤트 할 수 있게
-    if (intra == this.room.getOwenr(roomInfo.roomName) || this.room.checkAdmin(roomInfo.roomName, intra)){
-      this.room.addBanUser(roomInfo.roomName, roomInfo.banUser);
-      client.to(this.room.findIDbyIntraId(roomInfo.roomName, roomInfo.banUser)).emit('kicked');
-    }
+  // 오너랑 어드민은 뮤트 할 수 있게
+  if (intra == this.room.getOwenr(roomInfo.roomName) || this.room.checkAdmin(roomInfo.roomName, intra)){
+    this.room.addBanUser(roomInfo.roomName, roomInfo.banUser);
+    this.room.getRoom(roomInfo.roomName).users.forEach((ele)=>{if (ele.intra === intra)
+      test =  ele.client_id;
+    });
+    client.to(test).emit('kicked');
+  }
   return {};
 }
 
