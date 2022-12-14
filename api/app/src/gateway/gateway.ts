@@ -270,7 +270,7 @@ kickUser(client: Socket, roomInfo: {roomName:string , kickUser :string})
     return ret;
   if (intra == this.room.getOwenr(roomInfo.roomName) || this.room.checkAdmin(roomInfo.roomName, intra)){
     this.room.rmRoomUser(roomInfo.roomName, roomInfo.kickUser);
-    this.room.getRoom(roomInfo.roomName).users.forEach((ele)=>{if (ele.intra === intra)
+    this.room.getRoom(roomInfo.roomName).users.forEach((ele)=>{if (ele.intra === roomInfo.kickUser )
       ret =  ele.client_id;
   })
     client.to(ret).emit('kicked');
@@ -293,7 +293,7 @@ banUser(client:Socket, roomInfo: {roomName:string , banUser :string})
   // 오너랑 어드민은 뮤트 할 수 있게
   if (intra == this.room.getOwenr(roomInfo.roomName) || this.room.checkAdmin(roomInfo.roomName, intra)){
     this.room.addBanUser(roomInfo.roomName, roomInfo.banUser);
-    this.room.getRoom(roomInfo.roomName).users.forEach((ele)=>{if (ele.intra === intra)
+    this.room.getRoom(roomInfo.roomName).users.forEach((ele)=>{if (ele.intra === roomInfo.banUser)
       ret =  ele.client_id;
     });
     client.to(ret).emit('kicked');
@@ -335,7 +335,7 @@ banUser(client:Socket, roomInfo: {roomName:string , banUser :string})
         if (element == roomInfo.adminUser) // 있는 사람은 추가 x
           return ;
       });
-      this.room.getRoom(roomInfo.roomName).admin.push(intra);
+      this.room.getRoom(roomInfo.roomName).admin.push(roomInfo.adminUser);
     }
     return ;
   }
