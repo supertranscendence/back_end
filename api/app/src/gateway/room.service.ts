@@ -138,6 +138,14 @@ export class RoomService {
     return ;
   }
 
+  addBanUser(roomName: string, intra : string) : void {
+    this.rooms.get(roomName).ban.forEach(element => {
+      if (element == intra) // 있는 사람은 추가 x
+        return ;
+    });
+    this.rooms.get(roomName).ban.push(intra);
+  }
+
   getPublic(roomName : string) : boolean{
     return (this.rooms.get(roomName).isPublic);
   }

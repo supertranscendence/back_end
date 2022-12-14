@@ -266,13 +266,31 @@ kickUser(client: Socket, roomInfo: {roomName:string , kickUser :string})
     return ;
   
   this.room.rmRoomUser(roomInfo.roomName, roomInfo.kickUser);
-  client.emit('kicked', this.room.findIDbyIntraId(roomInfo.roomName, client.id));
+  client.to(this.room.findIDbyIntraId(roomInfo.roomName, roomInfo.kickUser)).emit('kicked');
 }
 
 // banUser : {roomName:string , banUser :string}
 // 내부 동작 : 해당 방에서 banUser가 어드민이나 오너가 아니면 방에서 내보냄 + 해당 방의 밴 유저목록에 저장
 // 반환 : return ;
 // 추가사항: 엔터룸 : 해당 방 밴 목록확인 후 밴이면 못들어오게 false반환 조인 됐다면 true 반환
+
+@SubscribeMessage('banUser')
+banUser(client:Socket, roomInfo: {roomName:string , banUser :string})
+{
+  const intra = this.room.getIntraAtToken(client); //이사람이 어드민이나 오너이면 //muteuser를 할 수 있게, 어드민이나 오너는 뮤트 할 수 없게
+
+
+    if (roomInfo.banUser == this.room.getOwenr(roomInfo.roomName) || this.room.checkAdmin(roomInfo.roomName, roomInfo.banUser))
+      return ;
+
+    // 오너랑 어드민은 뮤트 할 수 있게
+    if (intra == this.room.getOwenr(roomInfo.roomName) || this.room.checkAdmin(roomInfo.roomName, intra)){
+      this.room.addBanUser(roomInfo.roomName, roomInfo.banUser);
+    }
+
+    client.to(this.room.findIDbyIntraId(roomInfo.roomName, roomInfo.banUser)).emit('kicked');
+  return {};
+}
 
   @SubscribeMessage('muteUser') // 방 나갔다가 들어와도 mute가 된 상태
   muteUser(client: Socket, roomInfo: {roomName:string , muteUser :string})
@@ -346,7 +364,13 @@ kickUser(client: Socket, roomInfo: {roomName:string , kickUser :string})
     client.join(joinInfo.room);
     // const extraToken = this.auth.extractToken(client, 'ws');
     // const intra = this.auth.getIntra(extraToken);
+
+    // 클라이언트가 벤유저면 emit kick
+
     const intra = this.room.getIntraAtToken(client);
+    if (this.room.getRoom(joinInfo.room).ban.includes(intra)) // 
+    client.emit('kicked'); // intra));
+
     this.logger.log(
       `Function Name : enterRoom room :${joinInfo.room}, intra : ${intra} clientid : ${client.id} name : ${joinInfo.name} `,
     );
