@@ -3,6 +3,8 @@ import {
   Controller,
   Delete,
   Get,
+  Header,
+  HttpCode,
   Param,
   Post,
   Put,
@@ -37,6 +39,9 @@ export class UsersController {
   }
 
   @Get(':id')
+  @HttpCode(200)
+  @Header('Access-Control-Allow-Origin', 'https://gilee.click')
+  @Header('Access-Control-Allow-Credentials', 'true')
   getOne(@Param('id') tid : string) {
       return this.users.findByIntra(tid);
   }
