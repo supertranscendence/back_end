@@ -111,12 +111,15 @@ export class RoomService {
   }
 
   rmMuteUser(roomName: string, intra : string) : void {
-    for (let i = 0; i < this.rooms.get(roomName).muted.length; i++) {
-      if(this.rooms.get(roomName).muted[i] === intra)  {
-        this.rooms.get(roomName).muted.splice(i, 1);
-        return ;
-      }
-    }
+    // for (let i = 0; i < this.rooms.get(roomName).muted.length; i++) {
+    //   if(this.rooms.get(roomName).muted[i] === intra)  {
+    //     this.rooms.get(roomName).muted.splice(i, 1);
+    //     return ;
+    //   }
+    // }
+    const idx = this.rooms.get(roomName).muted.indexOf(intra);
+    if (idx > -1)
+      this.rooms.get(roomName).muted.splice(idx, 1);
     return ;
   }
 
