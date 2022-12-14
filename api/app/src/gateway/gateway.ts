@@ -303,7 +303,7 @@ banUser(client:Socket, roomInfo: {roomName:string , banUser :string})
       return [];
     if (intra == this.room.getOwenr(roomInfo.roomName) || this.room.checkAdmin(roomInfo.roomName, intra)){
       // if (this.room.checkMute(roomInfo.roomName, roomInfo.muteUser)) {
-      if (!this.room.getRoom(roomInfo.roomName).ban.includes(roomInfo.muteUser)) {
+      if (!this.room.getRoom(roomInfo.roomName).muted.includes(roomInfo.muteUser)) {
         //방의 오너 어드민이 뮤트의 대상? 불가능
         // 오너랑 어드민은 뮤트 할 수 있게
         this.room.addMuteUser(roomInfo.roomName, roomInfo.muteUser);
