@@ -561,8 +561,8 @@ goDm(socket: Socket, roomInfo: {roomName :string, user:string}) {
 
   socket.join(roomName);
 
-  socket.to(sendClientid).emit('joinedRoom');
-  socket.to(socket.id).emit('joinedRoom');
+  socket.to(sendClientid).emit('joinedRoom', {roomName: roomName, roomType:'Dm'});
+  socket.to(socket.id).emit('joinedRoom', {roomName: roomName, roomType:'Dm'});
   // 채팅방으로 보낸다
 
   //방에서 제거하는 로직
