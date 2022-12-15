@@ -497,6 +497,26 @@ banUser(client:Socket, roomInfo: {roomName:string , banUser :string})
     });
   }
 
+
+  // 내부동작: shellWeDmUser에게 shellWeDm 이벤트 emit날림 ({user1:string, user2:string}
+// 넣어서 보내주기 user1 : shellWeDm이벤트 보낸사람, user2:보내준 shellWeDmUser)
+
+  @SubscribeMessage('shellWeDm')
+  shellWeDm(socket: Socket, roomInfo : {roomName:string , shellWeDmUser :string})
+  {
+    const sendIntraId = this.room.getIntraAtToken(socket); // 내가 보내꺼야 shellWeDmUser에게
+
+    // 방에 있으면 그 사람 뽑아내기
+    if (this.room.isInRoomUser(roomInfo.roomName, roomInfo.shellWeDmUser)) {
+      socket.emit('shellWeDm', {sendIntraId,  recvIntraId: roomInfo.shellWeDmUser});
+      return {};
+    }
+    return {};
+  }
+
+
+
+
   // // // @SubscribeMessage('newMsg')
   // // // sentMsg(client : Socket, room: string) {
   // // //     // console.log(typeof(fx));
