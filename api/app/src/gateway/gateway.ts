@@ -555,7 +555,7 @@ goDm(socket: Socket, roomInfo: {roomName :string, user:string}) {
     }
   }
 
-  let roomName = roomInfo.user + ' ' + recvUser;
+  let roomName : string = roomInfo.user + ' ' + recvUser;
 
   this.room.roomHowManyPeople(roomInfo.roomName);
 
@@ -566,7 +566,7 @@ goDm(socket: Socket, roomInfo: {roomName :string, user:string}) {
   // 채팅방으로 보낸다
 
   //방에서 제거하는 로직
-  return (roomName);
+  return roomName;
 }
 
 
