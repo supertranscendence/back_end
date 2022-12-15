@@ -259,6 +259,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     return;
   }
 
+  ///////////////////////////////
 
 //   kickUser
 // 주는 객체: {roomName:string , kickUser :string}
@@ -273,12 +274,13 @@ kickUser(client: Socket, roomInfo: {roomName:string , kickUser :string})
   if (roomInfo.kickUser == this.room.getOwenr(roomInfo.roomName) || this.room.checkAdmin(roomInfo.roomName, roomInfo.kickUser))
     return ret;
   if (intra == this.room.getOwenr(roomInfo.roomName) || this.room.checkAdmin(roomInfo.roomName, intra)){
-    this.room.rmRoomUser(roomInfo.roomName, roomInfo.kickUser);
     this.room.getRoom(roomInfo.roomName).users.forEach((ele)=>{
-      if (ele.intra === roomInfo.kickUser )
+      if (ele.intra === roomInfo.kickUser ) {
+        this.room.rmRoomUser(roomInfo.roomName, roomInfo.kickUser);
         ret =  ele.client_id;
+      }
     })
-    client.to(ret).emit('kicked');
+    client.to(ret).emit('kicked'); // 다르게 유저객체에서 getuser kick대상을 찾아서 
   }
   console.log('function kickUser');
   this.room.showRooms();
@@ -307,7 +309,7 @@ banUser(client:Socket, roomInfo: {roomName:string , banUser :string})
   }
   console.log('function banUser');
   this.room.showRooms();
-  return {};
+  return this.room.getAllRoom().get(roomInfo.roomName).ban;
 }
 
   @SubscribeMessage('muteUser') // 방 나갔다가 들어와도 mute가 된 상태
@@ -356,7 +358,7 @@ banUser(client:Socket, roomInfo: {roomName:string , banUser :string})
     }
     console.log('function setAdmin');
     this.room.showRooms();
-    return ;
+    return this.room.getAllRoom().get(roomInfo.roomName).admin;
   }
 
   // admin설정
@@ -417,6 +419,11 @@ banUser(client:Socket, roomInfo: {roomName:string , banUser :string})
     this.room.showRooms();
     return {};
   }
+
+
+
+
+
 
   // 방 나가기 버튼
   @SubscribeMessage('leaveRoom')
