@@ -522,9 +522,9 @@ banUser(client:Socket, roomInfo: {roomName:string , banUser :string})
           ret = value.client_id;
         }
       }
-      
+
       socket.to(ret).emit('shellWeDm', {recvIntraId: roomInfo.shellWeDmUser, sendIntraId:sendIntraId});
-      return {};
+      // return {};
     }
     return {};
   }
