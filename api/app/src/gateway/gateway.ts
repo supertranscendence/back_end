@@ -506,9 +506,24 @@ banUser(client:Socket, roomInfo: {roomName:string , banUser :string})
   {
     const sendIntraId : string= this.room.getIntraAtToken(socket); // 내가 보내꺼야 shellWeDmUser에게
 
+    let ret = "";
     // 방에 있으면 그 사람 뽑아내기
     if (this.room.isInRoomUser(roomInfo.roomName, roomInfo.shellWeDmUser)) {
-      socket.to(roomInfo.shellWeDmUser).emit('shellWeDm', {recvIntraId: roomInfo.shellWeDmUser, sendIntraId:sendIntraId});
+      
+      // this.room.getRoom(roomInfo.roomName).users.forEach((ele)=>{
+      //   if (ele.intra === roomInfo.shellWeDmUser ) {
+      //     this.room.rmRoomUser(roomInfo.roomName, roomInfo.shellWeDmUser);
+      //     ret =  ele.client_id;
+      //   }
+      // })
+
+      for (let [key, value] of  this.room.getRoom(roomInfo.roomName).users.entries()) {
+        if (value.intra === roomInfo.shellWeDmUser) {
+          ret = value.client_id;
+        }
+      }
+      
+      socket.to(ret).emit('shellWeDm', {recvIntraId: roomInfo.shellWeDmUser, sendIntraId:sendIntraId});
       return {};
     }
     return {};
