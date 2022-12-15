@@ -285,7 +285,7 @@ kickUser(client: Socket, roomInfo: {roomName:string , kickUser :string})
   console.log('function kickUser');
 
   // user이름으로 socketid 찾기
-  this.room.deleteUserBysocketId(this.room.findIDbyIntraId(roomInfo.roomName, roomInfo.kickUser), roomInfo.roomName);
+  // this.room.deleteUserBysocketId(this.room.findIDbyIntraId(roomInfo.roomName, roomInfo.kickUser), roomInfo.roomName);
   this.room.showRooms();
   return ret;
 }
@@ -308,12 +308,13 @@ banUser(client:Socket, roomInfo: {roomName:string , banUser :string})
   if (intra == this.room.getOwenr(roomInfo.roomName) || this.room.checkAdmin(roomInfo.roomName, intra)){
     this.room.addBanUser(roomInfo.roomName, roomInfo.banUser);
     this.room.getRoom(roomInfo.roomName).users.forEach((ele)=>{if (ele.intra === roomInfo.banUser)
+      this.room.rmRoomUser(roomInfo.roomName, roomInfo.banUser);
       ret =  ele.client_id;
     });
     client.to(ret).emit('kicked');
   }
   console.log('function banUser');
-  this.room.deleteUserBysocketId(this.room.findIDbyIntraId(roomInfo.roomName, roomInfo.banUser), roomInfo.roomName);
+  // this.room.deleteUserBysocketId(this.room.findIDbyIntraId(roomInfo.roomName, roomInfo.banUser), roomInfo.roomName);
   this.room.showRooms();
   return this.room.getAllRoom().get(roomInfo.roomName).ban;
 }
