@@ -501,7 +501,7 @@ banUser(client:Socket, roomInfo: {roomName:string , banUser :string})
   // 내부동작: shellWeDmUser에게 shellWeDm 이벤트 emit날림 ({user1:string, user2:string}
 // 넣어서 보내주기 user1 : shellWeDm이벤트 보낸사람, user2:보내준 shellWeDmUser)
 
-  @SubscribeMessage('shellWeDm')
+  @SubscribeMessage('shellWeDm') // 초대를 한사람
   shellWeDm(socket: Socket, roomInfo : {roomName:string , shellWeDmUser :string})
   {
     const sendIntraId : string= this.room.getIntraAtToken(socket); // 내가 보내꺼야 shellWeDmUser에게
@@ -523,13 +523,51 @@ banUser(client:Socket, roomInfo: {roomName:string , banUser :string})
         }
       }
 
+      let roomName = sendIntraId + ' ' + roomInfo.shellWeDmUser;
+      socket.join(roomName);
       socket.to(ret).emit('shellWeDm', {recvIntraId: roomInfo.shellWeDmUser, sendIntraId:sendIntraId});
       // return {};
     }
     return {};
   }
 
+//   goDm
+// 주는 객체: {user1:string, user2:string}
+// 내부동작: 유저 1, 2 각각 방에 들어가있으면 각각 방에서 조인된거 풀기 + (킥할필요?) + 둘에게만 goDm 이벤트 emit (조인된 방 이름 (아마도 유저가 가지고있는 고유 방이름일거임 해쉬로 도있는 ))+ 서로 쪼인
+// 반환 return;
+@SubscribeMessage('goDm') // 최종 수락을 해서 채팅으로간다 초대 받은사람 // 초대 한사람
+goDm(socket: Socket, roomInfo: {roomName :string, user:string}) {
+  //join된거 풀기
+  const sendClientid = this.room.findIDbyIntraId(roomInfo.roomName, roomInfo.user);
+  const recvUser = this.room.getAllRoom().get(socket.id).users.get(socket.id).intra;
+  // const user2Clientid = this.room.getAllRoom().get(socket.id).users.get(socket.id).client_id;
 
+
+  // join된 방에서 조인 풀기
+  for (let [key, value] of  this.room.getRoom(roomInfo.roomName).users.entries()) {
+    if (key == sendClientid) {
+      // this.room.deleteUserBysocketId(user1Clientid, roomInfo.roomName);
+      this.room.rmRoomUser(roomInfo.roomName, roomInfo.user);
+    }
+    else if (key == recvUser) {
+      // this.room.deleteUserBysocketId(user2Clientid, roomInfo.roomName); // 방에서 제거
+      this.room.rmRoomUser(roomInfo.roomName, recvUser); // 방에서 제거
+    }
+  }
+
+  let roomName = roomInfo.user + ' ' + recvUser;
+
+  this.room.roomHowManyPeople(roomInfo.roomName);
+
+  socket.join(roomName);
+
+  socket.to(sendClientid).emit('joinedRoom');
+  socket.to(socket.id).emit('joinedRoom');
+  // 채팅방으로 보낸다
+
+  //방에서 제거하는 로직
+  return (roomName);
+}
 
 
   // // // @SubscribeMessage('newMsg')

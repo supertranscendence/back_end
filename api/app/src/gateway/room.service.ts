@@ -148,11 +148,12 @@ export class RoomService {
 
 
   findIDbyIntraId(roomName : string, intra : string) : string {
-    // for (let [key, value] of  this.rooms.get(roomName).users.entries()) {
-    //   if (value.intra === intra) {
-    //     return (key);
-    //   }
-    // }
+    for (let [key, value] of  this.rooms.get(roomName).users.entries()) {
+      if (value.intra === intra) {
+        return (key);
+      }
+    }
+    return "";
 
     // for (var user of this.rooms.get(roomName).users)
     // {
@@ -162,11 +163,11 @@ export class RoomService {
     // }
     // return "";
 
-    this.rooms.get(roomName).users.forEach((ele )=>{
-      if (ele.intra === intra)
-        return ele.client_id;
-    })
-    return "";
+    // this.rooms.get(roomName).users.forEach((ele )=>{
+    //   if (ele.intra === intra)
+    //     return ele.client_id;
+    // })
+    // return "";
 
   }
 
