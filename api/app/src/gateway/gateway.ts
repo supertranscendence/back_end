@@ -312,6 +312,14 @@ banUser(client:Socket, roomInfo: {roomName:string , banUser :string})
   return this.room.getAllRoom().get(roomInfo.roomName).ban;
 }
 
+
+// 관리자에 들어가 있는데 ban 이랑 관리자인데 kick mute
+
+// ban에 계속들어가
+
+// 관리자 권한에도 계속 들어가
+
+
   @SubscribeMessage('muteUser') // 방 나갔다가 들어와도 mute가 된 상태
   muteUser(client: Socket, roomInfo: {roomName:string , muteUser :string})
   {
@@ -350,11 +358,20 @@ banUser(client:Socket, roomInfo: {roomName:string , banUser :string})
 
     this.room.getAllRoom()
     if (intra == this.room.getOwenr(roomInfo.roomName)) {
-      this.room.getRoom(roomInfo.roomName).admin.forEach(element => {
-        if (element == roomInfo.adminUser) // 있는 사람은 추가 x
+
+      for (var admin of this.room.getRoom(roomInfo.roomName).admin)
+      {
+        if (admin == roomInfo.adminUser) // 있는 사람은 추가 x
           return ;
-      });
+      }
+      // this.room.getRoom(roomInfo.roomName).admin.push(roomInfo.adminUser);
+      // }
+      // this.room.getRoom(roomInfo.roomName).admin.forof(element => {
+      //   if (element == roomInfo.adminUser) // 있는 사람은 추가 x
+      //     return f;
+      // });
       this.room.getRoom(roomInfo.roomName).admin.push(roomInfo.adminUser);
+
     }
     console.log('function setAdmin');
     this.room.showRooms();
