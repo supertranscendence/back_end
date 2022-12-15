@@ -80,10 +80,17 @@ export class RoomService {
 
   checkAdmin(roomName: string, intraName: string) : boolean {
     
-    this.rooms.get(roomName).admin.forEach(element => {
-      if (element == intraName)
+    // this.rooms.get(roomName).admin.forEach(element => {
+    //   if (element == intraName)
+    //     return true;
+    // });
+    // return false;
+
+    for (var admin of this.rooms.get(roomName).admin)
+    {
+      if (admin == intraName) // 있는 사람은 추가 x
         return true;
-    });
+    };
     return false;
   }
 
@@ -108,6 +115,11 @@ export class RoomService {
     //   if (element == intra) // 있는 사람은 추가 x
     //     return ;
     // });
+    for (var mutedId of this.rooms.get(roomName).muted)
+    {
+      if (mutedId == intra) // 있는 사람은 추가 x
+        return ;
+    };
     this.rooms.get(roomName).muted.push(intra);
   }
 
@@ -131,11 +143,21 @@ export class RoomService {
     //     return (key);
     //   }
     // }
+
+    // for (var user of this.rooms.get(roomName).users)
+    // {
+    //   for (var userIntra of user.values())
+    //   if (user === intra)
+    //   return user.client_id;
+    // }
+    // return "";
+
     this.rooms.get(roomName).users.forEach((ele )=>{
       if (ele.intra === intra)
         return ele.client_id;
     })
     return "";
+
   }
 
   rmRoomUser(roomName: string, kickUser : string) : void {
@@ -148,10 +170,17 @@ export class RoomService {
   }
 
   addBanUser(roomName: string, intra : string) : void {
-    this.rooms.get(roomName).ban.forEach(element => {
-      if (element == intra) // 있는 사람은 추가 x
+    // this.rooms.get(roomName).ban.forEach(element => {
+    //   if (element == intra) // 있는 사람은 추가 x
+    //     return ;
+    // });
+    // this.rooms.get(roomName).ban.push(intra);
+
+    for (var admin of this.rooms.get(roomName).ban)
+    {
+      if (admin == intra) // 있는 사람은 추가 x
         return ;
-    });
+    };
     this.rooms.get(roomName).ban.push(intra);
   }
 
