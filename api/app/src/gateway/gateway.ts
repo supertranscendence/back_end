@@ -283,9 +283,14 @@ kickUser(client: Socket, roomInfo: {roomName:string , kickUser :string})
     client.to(ret).emit('kicked'); // 다르게 유저객체에서 getuser kick대상을 찾아서 
   }
   console.log('function kickUser');
+
+  // user이름으로 socketid 찾기
+  this.room.deleteUserBysocketId(this.room.findIDbyIntraId(roomInfo.roomName, roomInfo.kickUser), roomInfo.roomName);
   this.room.showRooms();
   return ret;
 }
+
+// kick이랑 ban
 
 // banUser : {roomName:string , banUser :string}
 // 내부 동작 : 해당 방에서 banUser가 어드민이나 오너가 아니면 방에서 내보냄 + 해당 방의 밴 유저목록에 저장
@@ -308,6 +313,7 @@ banUser(client:Socket, roomInfo: {roomName:string , banUser :string})
     client.to(ret).emit('kicked');
   }
   console.log('function banUser');
+  this.room.deleteUserBysocketId(this.room.findIDbyIntraId(roomInfo.roomName, roomInfo.banUser), roomInfo.roomName);
   this.room.showRooms();
   return this.room.getAllRoom().get(roomInfo.roomName).ban;
 }
