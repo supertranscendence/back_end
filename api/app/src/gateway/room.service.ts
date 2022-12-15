@@ -44,19 +44,20 @@ export class RoomService {
   }
 
   showRooms(): void {
-    console.log('showRooms............');
+    console.log('showRooms start............');
     this.rooms.forEach((a) => {
       console.log('this is room name : ', a.name);
-      console.log('id     : ', a.id);
-      console.log('name   : ', a.name);
-      console.log('pw     : ', a.pw);
-      console.log('Public : ', a.isPublic);
-      console.log('user   : ', a.users);
-      console.log('user.size   : ', a.users.size);
-      console.log('muted  : ', a.muted);
-      console.log('ban    : ', a.ban);
-      console.log('owner  : ', a.owner);
-      console.log('admin  : ', a.admin);
+      console.log(a);
+      // console.log('id     : ', a.id);
+      // console.log('name   : ', a.name);
+      // console.log('pw     : ', a.pw);
+      // console.log('Public : ', a.isPublic);
+      // console.log('user   : ', a.users);
+      // console.log('user.size   : ', a.users.size);
+      // console.log('muted  : ', a.muted);
+      // console.log('ban    : ', a.ban);
+      // console.log('owner  : ', a.owner);
+      // console.log('admin  : ', a.admin);
     });
     console.log('showRooms End............');
   }
