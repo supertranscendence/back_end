@@ -508,7 +508,7 @@ banUser(client:Socket, roomInfo: {roomName:string , banUser :string})
 
     // 방에 있으면 그 사람 뽑아내기
     if (this.room.isInRoomUser(roomInfo.roomName, roomInfo.shellWeDmUser)) {
-      socket.emit('shellWeDm', {sendIntraId:sendIntraId,  recvIntraId: roomInfo.shellWeDmUser});
+      socket.to(roomInfo.shellWeDmUser).emit('shellWeDm', {recvIntraId: roomInfo.shellWeDmUser, sendIntraId:sendIntraId});
       return {};
     }
     return {};
