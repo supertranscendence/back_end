@@ -38,7 +38,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     private room: RoomService,
     private user: SUserService,
-    // private auth: AuthService,
+    private auth: AuthService,
     @Inject(Logger) private readonly logger: LoggerService,
   ) {}
 
@@ -47,7 +47,9 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   //  socket 객체는 개별 클라이언트와의 interacting을 위한 기본적인 객체
   handleConnection(client: any) {
-    const intra = this.room.getIntraAtToken(client);
+    const intra = this.auth.getIntra(this.auth.extractToken(client, 'ws'));
+    // console.log(intra);
+    // console.log(this.room.getIntraAtToken(client));
     const client_id = client.id;
     const avatar = 'avatar_copy';
     const nickname = intra;
@@ -122,17 +124,15 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       roomName: string;
       isPublic: boolean;
       currNum: number;
-      member: string[];
+      // member: string[];
     }[] = [];
 
     this.room.getAllRoom().forEach((value, element, _) => {
-      let arrr :string [];
-       value.users.forEach((e)=>{arrr.push( e.intra)})
-      const temp: { roomName: string; isPublic: boolean; currNum: number; member: string[] } = {
+      const temp: { roomName: string; isPublic: boolean; currNum: number;} = {
         roomName: value.name,
         isPublic: value.isPublic,
         currNum: value.users.size,
-        member: arrr
+        // member: arrr
       };
       returnRoom.push(temp);
     });
@@ -143,7 +143,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     // })
 
     // roomName : string, isPublic : boolean, currNum : number
-    // this.room.showRooms();
+    this.room.showRooms();
     // this.room.getPublicRooms(client).forEach((str :string )=>{
     //   [{},{}]
 
@@ -277,9 +277,11 @@ kickUser(client: Socket, roomInfo: {roomName:string , kickUser :string})
     this.room.getRoom(roomInfo.roomName).users.forEach((ele)=>{
       if (ele.intra === roomInfo.kickUser )
         ret =  ele.client_id;
-  })
+    })
     client.to(ret).emit('kicked');
   }
+  console.log('function kickUser');
+  this.room.showRooms();
   return ret;
 }
 
@@ -303,6 +305,8 @@ banUser(client:Socket, roomInfo: {roomName:string , banUser :string})
     });
     client.to(ret).emit('kicked');
   }
+  console.log('function banUser');
+  this.room.showRooms();
   return {};
 }
 
@@ -312,6 +316,11 @@ banUser(client:Socket, roomInfo: {roomName:string , banUser :string})
     this.logger.log(`Function Name : muteUser room :${roomInfo.roomName}, clientid : ${client.id}, roomInfo ${roomInfo.muteUser}`);
     //관리자랑 주인은 뮤트 못시키게
     const intra = this.room.getIntraAtToken(client); //이사람이 어드민이나 오너이면 //muteuser를 할 수 있게, 어드민이나 오너는 뮤트 할 수 없게
+    // 여기서 undefined가 될수가 있네?
+    console.log('dkfalfjdaslfkjasd');
+    console.log(this.room.getOwenr(roomInfo.roomName));
+    console.log(this.room.getAllRoom().get(roomInfo.roomName).owner);
+    console.log('dkfalfjdaslfkjasd');
     if (roomInfo.muteUser == this.room.getOwenr(roomInfo.roomName) || this.room.checkAdmin(roomInfo.roomName, roomInfo.muteUser))
       return [];
     if (intra == this.room.getOwenr(roomInfo.roomName) || this.room.checkAdmin(roomInfo.roomName, intra)){
@@ -325,6 +334,7 @@ banUser(client:Socket, roomInfo: {roomName:string , banUser :string})
         this.room.rmMuteUser(roomInfo.roomName, roomInfo.muteUser);
       }
     }
+    this.room.showRooms();
       return this.room.getAllRoom().get(roomInfo.roomName).muted;
     // 다른 사람들은 불가능
   }
@@ -335,13 +345,17 @@ banUser(client:Socket, roomInfo: {roomName:string , banUser :string})
     this.logger.log(`Function Name : setAdmin room :${roomInfo.roomName}, clientid : ${client.id}, roomInfo ${roomInfo.adminUser}`);
     const intra = this.room.getIntraAtToken(client); // 인트라 아이디가 나온다
     // 오너는 admin에 추가하면 안됨
-    if (intra != this.room.getOwenr(roomInfo.roomName)) {
+
+    this.room.getAllRoom()
+    if (intra == this.room.getOwenr(roomInfo.roomName)) {
       this.room.getRoom(roomInfo.roomName).admin.forEach(element => {
         if (element == roomInfo.adminUser) // 있는 사람은 추가 x
           return ;
       });
       this.room.getRoom(roomInfo.roomName).admin.push(roomInfo.adminUser);
     }
+    console.log('function setAdmin');
+    this.room.showRooms();
     return ;
   }
 
@@ -399,6 +413,8 @@ banUser(client:Socket, roomInfo: {roomName:string , banUser :string})
     this.room.addUser(joinInfo.room, userTemp, client); // 방에 사람 추가하기
     this.room.getInRoomUser(joinInfo.room); // 여기서는 방에 사람이 있는지
 
+    console.log('function enterRoom');
+    this.room.showRooms();
     return {};
   }
 
