@@ -313,9 +313,10 @@ banUser(client:Socket, roomInfo: {roomName:string , banUser :string})
 }
 
 
-// 관리자에 들어가 있는데 ban 이랑 관리자인데 kick mute
+// 관리자인데 들어가 있는데 ban kick mute 다됨
+// ban에 사람이 있는데 계속들어가
 
-// ban에 계속들어가
+
 
 // 관리자 권한에도 계속 들어가
 
