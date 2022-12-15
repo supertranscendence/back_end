@@ -94,6 +94,16 @@ export class RoomService {
     return false;
   }
 
+  isInRoomUser(roomName : string, User: string) : boolean{
+
+    for (let [key, value] of  this.rooms.get(roomName).users.entries()) {
+      if (value.intra === User) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   setAdmin(roomName: string, intra : string) : void {
     this.rooms.get(roomName).admin.forEach(element => {
       if (element == intra) // 있는 사람은 추가 x
