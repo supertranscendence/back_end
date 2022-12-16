@@ -552,6 +552,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
         }
       }
 
+      //                보내는 사람             받는 사람
       const roomName = sendIntraId + ' ' + roomInfo.shellWeDmUser;
       socket.join(roomName);
       socket.to(ret).emit('shellWeDm', {
@@ -606,6 +607,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     this.logger.log(`Function Name goDm join unlock success`);
 
+    //              초대한 사람                 받는 사람
     const roomName = roomInfo.user + ' ' + recvUser;
 
     this.logger.log(`Function Name goDm End : ${roomName}`);

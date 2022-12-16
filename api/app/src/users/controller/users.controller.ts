@@ -70,6 +70,24 @@ export class UsersController {
     return this.users.create(body);
   }
 
+  @Get('/friends')
+  @HttpCode(200)
+  @Header('Access-Control-Allow-Origin', 'https://gilee.click')
+  @Header('Access-Control-Allow-Credentials', 'true')
+  findFriend(@Req() request : Request) {
+    const intra = this.auth.getIntra(this.auth.extractToken(request, 'http'));
+    return this.users.findFriend(intra);
+  }
+
+  @Post()
+  @HttpCode(200)
+  @Header('Access-Control-Allow-Origin', 'https://gilee.click')
+  @Header('Access-Control-Allow-Credentials', 'true')
+  addFriend(@Body() body: any) {
+  
+  }
+
+
   @Put(':id')
   update(@Param('id') tid: number, @Body() body: any) {
     // return body;

@@ -2,8 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
 
-import { getManager, Repository } from 'typeorm';
+import { getManager, Repository, SelectQueryBuilder } from 'typeorm';
 import { Users } from '../../entities/Users';
+import { FriendsRepository } from '../../friends/repository/friends.repository';
 import { UsersRepository } from '../repository/users.repository';
 
 
@@ -12,7 +13,8 @@ export class UsersService {
     constructor(
         // @InjectRepository(Users)
         // private usersRepository : Repository<Users>,
-        private usersRepository : UsersRepository
+        private usersRepository : UsersRepository,
+        private friendsRepository : FriendsRepository
     ) {}
 
     findAll() {
@@ -29,6 +31,49 @@ export class UsersService {
     async findByIntra(intra: string): Promise<Users> {
         return await this.usersRepository.findOneBy({intra: intra});
     }
+
+    public async findFriend(intra: string): Promise<SelectQueryBuilder<Users> > {
+        
+        // First check if account exist
+        const account = await this.usersRepository.createQueryBuilder("users")
+        .leftJoinAndSelect("friends.metadata", "metadata")
+        .select("user")
+        .from(Users, "user")
+        .where("user.intra = :name", { name: intra })
+
+
+        
+
+        // const account = await this.friendsRepository.createQueryBuilder()
+        // .whereInIds(intra).getOne();
+
+        return account;
+    }
+
+    // public async register(intra: string): Promise<Users> {
+    //     // First check if account exist
+    //     const account = await this.usersRepository.createQueryBuilder()
+    //     .whereInIds(intra).getOne();
+
+    //     return account;
+
+    //     if (isNil(account)) {
+    //         const accountToSave = this.accountRepository.create({
+    //             name: dto.accountName,
+    //         });
+    //         accountToSaveWithUser = await this.accountRepository.save(accountToSave);
+    //     } else {
+    //         accountToSaveWithUser = account;
+    //     }
+
+    //     await this.friendsRepository.save({
+            
+    //         email: dto.email,
+    //         password: hash(dto.password), // Use your package for hash password
+    //         name: accountToSaveWithUser.name,
+    //     });
+    // }
+
 
     // async findJoin() {
     //     const entityManager = getManager();
