@@ -571,26 +571,26 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   goDm(socket: Socket, roomInfo: { roomName: string; user: string }) {
     //join된거 풀기
     this.logger.log(`Function Name goDm ${roomInfo.roomName}, ${roomInfo.user}`);
-    const sendClientid = this.room.findIDbyIntraId(
-      roomInfo.roomName,
-      roomInfo.user,
-    );
+    const sendClientid = this.room.getAllRoom().get(roomInfo.roomName).users.get(roomInfo.user).client_id;
 
     const recvUser = this.room
-      .getAllRoom()
-      .get(socket.id)
-      .users.get(socket.id).intra;
+    .getAllRoom()
+    .get(socket.id)
+    .users.get(socket.id).intra;
+    this.logger.log(`Function Name recv ${recvUser}`);
     // const user2Clientid = this.room.getAllRoom().get(socket.id).users.get(socket.id).client_id;
 
     this.logger.log(`Function Name goDm join unlock`);
     // join된 방에서 조인 풀기
     for (const [key, value] of this.room
-      .getRoom(roomInfo.roomName)
-      .users.entries()) {
+      .getAllRoom()
+      .get(roomInfo.roomName).users) {
       if (key == sendClientid) {
+        this.logger.log(`Function Name goDm join unlock ${key}, ${sendClientid}`);
         // this.room.deleteUserBysocketId(user1Clientid, roomInfo.roomName);
         this.room.rmRoomUser(roomInfo.roomName, roomInfo.user);
       } else if (key == recvUser) {
+        this.logger.log(`Function Name goDm join unlock ${key}, ${recvUser}`);
         // this.room.deleteUserBysocketId(user2Clientid, roomInfo.roomName); // 방에서 제거
         this.room.rmRoomUser(roomInfo.roomName, recvUser); // 방에서 제거
       }
