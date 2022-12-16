@@ -30,5 +30,5 @@ export class Friends {
 
   @ManyToOne(() => Users, (users) => users.friends) // 여기랑 도 맞춰 줘야됨
   @JoinColumn([{ name: 'id', referencedColumnName: 'id' }])
-  userid: Users;
+  id: number;
 }

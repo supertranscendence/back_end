@@ -7,34 +7,33 @@ import { FriendsRepository } from '../repository/friends.repository';
 
 @Injectable()
 export class FriendsService {
-    constructor(
-        // @InjectRepository(Friends)
-        // private friendsRepository : Repository<Friends>,
-        private friendsRepository: FriendsRepository
-    ) {}
+  constructor(
+    // @InjectRepository(Friends)
+    // private friendsRepository : Repository<Friends>,
+    private friendsRepository: FriendsRepository,
+  ) {}
 
-    findAll() {
-        return this.friendsRepository.find();
-    }
+  findAll() {
+    return this.friendsRepository.find();
+  }
 
+  // findOne(id : number) {
+  //     return this.friendsRepository.findOne(id);
+  // }
 
-    // findOne(id : number) {
-    //     return this.friendsRepository.findOne(id);
-    // }
+  create(body: any) {
+    const newTest = this.friendsRepository.create(body);
+    return this.friendsRepository.save(newTest);
+  }
 
-    create(body: any) {
-        const newTest = this.friendsRepository.create(body);
-        return this.friendsRepository.save(newTest);
-    }
+  // async update(id: number, body: any) {
+  //     const test = await this.friendsRepository.findOne(id);
+  //     this.friendsRepository.merge(test, body);
+  //     return this.friendsRepository.save(test);
+  // }
 
-    // async update(id: number, body: any) {
-    //     const test = await this.friendsRepository.findOne(id);
-    //     this.friendsRepository.merge(test, body);
-    //     return this.friendsRepository.save(test);
-    // }
-
-    async delete(id: number) {
-        await this.friendsRepository.delete(id);
-        return true;
-    }
+  async delete(id: number) {
+    await this.friendsRepository.delete(id);
+    return true;
+  }
 }

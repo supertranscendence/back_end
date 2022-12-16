@@ -22,8 +22,7 @@ import { add } from 'winston';
 @SetMetadata('roles', ['admin'])
 @Controller('api/users')
 export class UsersController {
-  constructor(private users: UsersService,
-    private auth: AuthService) {}
+  constructor(private users: UsersService, private auth: AuthService) {}
 
   @Get()
   findOne() {
@@ -46,7 +45,7 @@ export class UsersController {
   @HttpCode(200)
   @Header('Access-Control-Allow-Origin', 'https://gilee.click')
   @Header('Access-Control-Allow-Credentials', 'true')
-  getOne(@Req() request : Request, @Param('id') tid : string) {
+  getOne(@Req() request: Request, @Param('id') tid: string) {
     const intra = this.auth.getIntra(this.auth.extractToken(request, 'http'));
     // + achievement;
     return this.users.findByIntra(intra);
@@ -56,7 +55,7 @@ export class UsersController {
   @HttpCode(200)
   @Header('Access-Control-Allow-Origin', 'https://gilee.click')
   @Header('Access-Control-Allow-Credentials', 'true')
-  findFriend(@Req() request : Request) {
+  findFriend(@Req() request: Request) {
     const intra = this.auth.getIntra(this.auth.extractToken(request, 'http'));
     // return this.users.findByIntra(intra);
     return this.users.findFriend(intra);
@@ -67,10 +66,10 @@ export class UsersController {
   @HttpCode(201)
   @Header('Access-Control-Allow-Origin', 'https://gilee.click')
   @Header('Access-Control-Allow-Credentials', 'true')
-  IsFriend(@Body('intra') addIntra: string, @Req() request : Request) : string{
+  IsFriend(@Body('intra') addIntra: string, @Req() request: Request): string {
     const intra = this.auth.getIntra(this.auth.extractToken(request, 'http'));
     // return this.users.findByIntra(intra);
-    this.users.addmyfriend(intra, addIntra )
+    this.users.addmyfriend(intra, addIntra);
     return addIntra;
   }
 
@@ -84,13 +83,11 @@ export class UsersController {
   //   return this.users.addfriend(intra, body);
   // }
 
-
-
   @Get('/:id')
   @HttpCode(200)
   @Header('Access-Control-Allow-Origin', 'https://gilee.click')
   @Header('Access-Control-Allow-Credentials', 'true')
-  getOther( @Param('id') tid : string) {
+  getOther(@Param('id') tid: string) {
     // const intra = this.auth.getIntra(this.auth.extractToken(request, 'http'));
     return this.users.findByIntra(tid);
   }
@@ -105,7 +102,6 @@ export class UsersController {
   //   // return body;
   //   return this.users.create(body);
   // }
-
 
   // @Put(':id')
   // update(@Param('id') tid: number, @Body() body: any) {

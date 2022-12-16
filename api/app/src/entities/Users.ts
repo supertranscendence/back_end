@@ -1,42 +1,46 @@
-import {Column,Entity,Index,OneToMany,PrimaryGeneratedColumn, CreateDateColumn} from "typeorm";
-import {Achievements} from './Achievements'
-import {Friends} from './Friends'
-import {Auth} from "./Auth";
+import {
+  Column,
+  Entity,
+  Index,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+} from 'typeorm';
+import { Achievements } from './Achievements';
+import { Friends } from './Friends';
+import { Auth } from './Auth';
 
+@Entity('users', { schema: 'pong' })
+export class Users {
+  @Index(['id'], { unique: true })
+  @PrimaryGeneratedColumn({ type: 'integer', name: 'id' })
+  id: number;
 
-@Entity("users" ,{schema:"pong" } )
-export  class Users {
-    
-@Index(["id",],{ unique:true })
-@PrimaryGeneratedColumn({ type:"integer", name:"id" })
-id:number;
+  @Column('character varying', { name: 'intra', nullable: true, length: 20 })
+  intra: string | null;
 
-@Column("character varying",{ name:"intra",nullable:true,length:20 })
-intra:string | null;
+  @Column('character varying', { name: 'nickname', nullable: true, length: 20 })
+  nickname: string | null;
 
-@Column("character varying",{ name:"nickname",nullable:true,length:20 })
-nickname:string | null;
+  @Column('character varying', { name: 'avatar', nullable: true, length: 500 })
+  avatar: string | null;
 
-@Column("character varying",{ name:"avatar",nullable:true,length:500 })
-avatar:string | null;
+  @Column('integer', { name: 'level', nullable: true })
+  level: number | null;
 
-@Column("integer",{ name:"level",nullable:true })
-level:number | null;
+  @CreateDateColumn()
+  created: Date;
 
-@CreateDateColumn()
-created:Date;
+  @Column('timestamp without time zone', { name: 'updated', nullable: true })
+  updated: Date | null;
 
-@Column("timestamp without time zone",{ name:"updated",nullable:true })
-updated:Date | null;
+  @OneToMany(() => Achievements, (achievements) => achievements.userid)
+  achievements: Achievements[];
 
-@OneToMany(()=>Achievements,achievements=>achievements.userid)
-achievements:Achievements[];
+  @OneToMany(() => Friends, (friends) => friends.id)
+  friends: Friends[];
+  // 여기
 
-@OneToMany(()=>Friends,friends=>friends.userid)
-friends:Friends[];
-// 여기
-
-@OneToMany(()=>Auth,auths=>auths.id)
-auths:Auth[];
-
+  @OneToMany(() => Auth, (auths) => auths.id)
+  auths: Auth[];
 }
