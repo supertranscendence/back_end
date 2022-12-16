@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { stringify } from 'querystring';
 
 
 import { getManager, Repository, SelectQueryBuilder } from 'typeorm';
@@ -32,31 +33,14 @@ export class UsersService {
         return await this.usersRepository.findOneBy({intra: intra});
     }
 
-    public async findFriend(intra: string): Promise<Users[]> {
-        
-        // First check if account exist
-        // const account = await this.usersRepository.createQueryBuilder("users")
-        // .leftJoinAndSelect("friends.metadata", "metadata")
-        // .select("user")
-        // .from(Users, "user")
-        // .where("user.intra = :name", { name: intra })
+    public async findFriend(intra: string): Promise<Users> {
 
-
-        const data = this.usersRepository.find({
-            join: {
-                alias: "friends",
-                leftJoinAndSelect: {
-                    friends: "friends.friends",
-                    abc : "friends.intra"
-                },
-            }
-        });
-        
-
-        // const account = await this.friendsRepository.createQueryBuilder()
-        // .whereInIds(intra).getOne();
-
-        return data;
+        const id =  await (await this.usersRepository.findOneBy({intra: intra})).id;
+        const member = await this.usersRepository.createQueryBuilder('m')
+        .leftJoinAndSelect('m.friends', 't')
+        .where('m.id = :id', { id: id })
+        .getOne();
+        return member;
     }
 
     // public async register(intra: string): Promise<Users> {
