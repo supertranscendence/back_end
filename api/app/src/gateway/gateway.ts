@@ -207,6 +207,9 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     client.join(roomInfo.room);
     client.emit('new-room-created', roomInfo.room); // 다른 이벤트 보내기!
+    client.emit('roomInfo', this.room.getAllRoom().get(roomInfo.room).users); // join leave할때
+
+    client.emit('countInRoom', this.room.getAllRoom().get(roomInfo.room).users);
     return {}; // 인자 없는 콜백
   }
 
@@ -217,6 +220,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
         `Function Name : PWDCheck room :${roomInfo.roomName}, clientid : ${client.id} name : ${roomInfo.roomName} `,
       );
       client.join(roomInfo.roomName);
+      client.emit('roomInfo', this.room.getAllRoom().get(roomInfo.roomName).users); // join leave할때
       const intra = this.room.getIntraAtToken(client);
       // 여기는 상상으로 짜봄
       // 자신의 아이디로 유저정보 뽑고, 그 유저로 있는 방에 참가! 방의 user에도 인원을 추가 해 주어야함!
@@ -299,6 +303,8 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
           ret = ele.client_id;
         }
       });
+      client.leave(roomInfo.roomName);
+      client.emit('roomInfo', this.room.getAllRoom().get(roomInfo.roomName).users); // join leave할때
       client.to(ret).emit('kicked'); // 다르게 유저객체에서 getuser kick대상을 찾아서
     }
     console.log('function kickUser');
@@ -336,6 +342,8 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
           this.room.rmRoomUser(roomInfo.roomName, roomInfo.banUser);
         ret = ele.client_id;
       });
+      client.leave(roomInfo.roomName);
+      client.emit('roomInfo', this.room.getAllRoom().get(roomInfo.roomName).users); // join leave할때
       client.to(ret).emit('kicked');
     }
     console.log('function banUser');
@@ -454,6 +462,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('enterRoom') // 비밀번호유무
   enterRoom(client: Socket, joinInfo: { name: string; room: string }) {
     client.join(joinInfo.room);
+    client.emit('roomInfo', this.room.getAllRoom().get(joinInfo.room).users); // join leave할때
     // const extraToken = this.auth.extractToken(client, 'ws');
     // const intra = this.auth.getIntra(extraToken);
 
@@ -476,6 +485,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.room.getInRoomUser(joinInfo.room); // 여기서는 방에 사람이 있는지
 
     console.log('function enterRoom');
+    client.emit('roomInfo', this.room.getAllRoom().get(joinInfo.room).users); // join leave할때
     this.room.showRooms();
     return {};
   }
@@ -487,6 +497,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       `Function Name : leaveRoom room :${roomInfo.room}, intra : ??? clientid : ${socket.id}`,
     );
     socket.leave(roomInfo.room);
+    socket.emit('roomInfo', this.room.getAllRoom().get(roomInfo.room).users); // join leave할때
 
     // this.logger.log('leaveRoom Before');
     // console.log('leaveRoom Before')
@@ -517,6 +528,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     socket.rooms.forEach((ele: any) => {
       if (ele != socket.id) {
         socket.leave(ele);
+        socket.emit('roomInfo', this.room.getAllRoom().get(ele.room).users); // join leave할때
         this.room.deleteUserBysocketId(socket.id, ele);
         // 방에 아무도 없으면 방제거
         this.room.roomHowManyPeople(ele);
@@ -556,10 +568,12 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       }
 
       socket.leave(roomInfo.roomName);
+      socket.emit('roomInfo', this.room.getAllRoom().get(roomInfo.roomName).users); // join leave할때
 
       //                보내는 사람             받는 사람
       const roomName = sendIntraId + ' ' + roomInfo.shellWeDmUser;
       socket.join(roomName);
+      socket.emit('roomInfo', this.room.getAllRoom().get(roomInfo.roomName).users); // join leave할때
       socket.to(ret).emit('shellWeDm', {
         recvIntraId: roomInfo.shellWeDmUser,
         sendIntraId: sendIntraId,
@@ -574,6 +588,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('reJoin')
   reJoinRoom(socket: Socket, roomInfo :string) {
     socket.join(roomInfo);
+    socket.emit('roomInfo', this.room.getAllRoom().get(roomInfo).users); // join leave할때
   }
 
   //   goDm
@@ -618,6 +633,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
         // this.room.deleteUserBysocketId(user2Clientid, roomInfo.roomName); // 방에서 제거
         this.room.rmRoomUser(roomInfo.roomName, recvUser); // 방에서 제거
         socket.leave(roomInfo.roomName);
+        socket.emit('roomInfo', this.room.getAllRoom().get(roomInfo.roomName).users); // join leave할때
       }
     }
 
@@ -630,6 +646,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.room.roomHowManyPeople(roomInfo.roomName);
 
     socket.join(roomName);
+    // socket.emit('roomInfo', this.room.getAllRoom().get(joinInfo.room).users); // join leave할때
 
 
     socket.to(sendClientid).emit('joinedRoom', {roomName:roomName, roomType: "Dm"});
