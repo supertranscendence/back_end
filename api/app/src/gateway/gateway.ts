@@ -516,6 +516,15 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     return {};
   }
 
+  @SubscribeMessage('roomInfo')
+  roomInfo(socket: Socket,roomInfo:{roomName:string} ){
+    let tmpArr:string[] =[];
+    this.room.getAllRoom().get(roomInfo.roomName).users.forEach((ele)=>{
+      tmpArr.push(ele.intra);
+    })
+    return tmpArr;
+  }
+  
   // 방 나가기 버튼
   @SubscribeMessage('leaveRoom')
   leaveRoom(socket: Socket, roomInfo: { room: string }) {
