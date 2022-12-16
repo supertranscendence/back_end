@@ -593,11 +593,14 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       }
     }
 
+
     const roomName = roomInfo.user + ' ' + recvUser;
+
 
     this.room.roomHowManyPeople(roomInfo.roomName);
 
     socket.join(roomName);
+
 
     socket.to(sendClientid).emit('joinedRoom');
     socket.to(socket.id).emit('joinedRoom');
@@ -611,6 +614,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   createGameRoom(client: Socket, gameInfo: { owner: string }) {
     this.gameroom.createGameRoom(gameInfo.owner, client);
   }
+
 
   @SubscribeMessage('setPlayer')
   setPlayer(client: Socket, gameInfo: { owner: string }) {
