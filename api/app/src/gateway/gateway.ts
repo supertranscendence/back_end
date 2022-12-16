@@ -307,7 +307,12 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     ) {
       this.room.getRoom(roomInfo.roomName).users.forEach((ele) => {
         if (ele.intra === roomInfo.kickUser) {
-          this.room.rmRoomUser(roomInfo.roomName, roomInfo.kickUser);
+          // this.room.rmRoomUser(roomInfo.roomName, roomInfo.kickUser);
+          for (let [key, value] of  this.room.getAllRoom().get(roomInfo.roomName).users.entries()) {
+            if (value.intra === roomInfo.kickUser) {
+              this.room.getAllRoom().get(roomInfo.roomName).users.delete(key);
+            }
+          }
           ret = ele.client_id;
         }
       });
@@ -350,8 +355,14 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     ) {
       this.room.addBanUser(roomInfo.roomName, roomInfo.banUser);
       this.room.getRoom(roomInfo.roomName).users.forEach((ele) => {
-        if (ele.intra === roomInfo.banUser)
-          this.room.rmRoomUser(roomInfo.roomName, roomInfo.banUser);
+        if (ele.intra === roomInfo.banUser) {
+          for (let [key, value] of  this.room.getAllRoom().get(roomInfo.roomName).users.entries()) {
+            if (value.intra === roomInfo.banUser) {
+              this.room.getAllRoom().get(roomInfo.roomName).users.delete(key);
+            }
+          }
+        }
+          // this.room.rmRoomUser(roomInfo.roomName, roomInfo.banUser);
         ret = ele.client_id;
       });
       client.leave(roomInfo.roomName);
@@ -676,14 +687,25 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       if (key == sendClientid) {
         this.logger.log(`Function Name goDm join unlock sendClientId ${key}, ${sendClientid} ${value.intra}`);
         // this.room.deleteUserBysocketId(user1Clientid, roomInfo.roomName);
-        this.room.rmRoomUser(roomInfo.roomName, roomInfo.user);
+        // this.room.rmRoomUser(roomInfo.roomName, roomInfo.user);
+        for (let [key, value] of  this.room.getAllRoom().get(roomInfo.roomName).users.entries()) {
+          if (value.intra === roomInfo.user) {
+            this.room.getAllRoom().get(roomInfo.roomName).users.delete(key);
+          }
+        }
         
         //방에서 연결을 끊어주는 역할을 하는게 필요하다
 
       } else if (key == socket.id) {
         this.logger.log(`Function Name goDm join unlock recvUser ${key}, ${socket.id} ${value.intra}`);
         // this.room.deleteUserBysocketId(user2Clientid, roomInfo.roomName); // 방에서 제거
-        this.room.rmRoomUser(roomInfo.roomName, recvUser); // 방에서 제거
+        // this.room.rmRoomUser(roomInfo.roomName, recvUser); // 방에서 제거
+
+        for (let [key, value] of  this.room.getAllRoom().get(roomInfo.roomName).users.entries()) {
+          if (value.intra === roomInfo.user) {
+            this.room.getAllRoom().get(roomInfo.roomName).users.delete(key);
+          }
+        }
         socket.leave(roomInfo.roomName);
         let tmpArr:string[] =[];
         this.room.getAllRoom().get(roomInfo.roomName).users.forEach((ele)=>{
