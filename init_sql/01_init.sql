@@ -27,12 +27,14 @@ CREATE TABLE pong.GAME
 CREATE TABLE pong.FRIENDS
 (
  "id"      int NOT NULL,
+ tid serial4 NOT NULL,
  intra   varchar(20) NOT NULL,
  friend  varchar(20) NOT NULL,
  block   boolean NOT NULL,
  created  TIMESTAMP not null default now(),
  updated  TIMESTAMP,
  CONSTRAINT FK_FRIENDS FOREIGN KEY ( "id" ) REFERENCES pong.USERS ( "id" )
+ CONSTRAINT PK_FRIENDS PRIMARY KEY (tid)
 );
 
 CREATE INDEX FK_FRIENDS ON pong.FRIENDS
