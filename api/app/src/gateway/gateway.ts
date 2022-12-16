@@ -2,14 +2,11 @@ import {
   Inject,
   LoggerService,
   Logger,
-  OnModuleInit,
   UseFilters,
   UseGuards,
   UseInterceptors,
-  InternalServerErrorException,
 } from '@nestjs/common';
 import {
-  MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
   SubscribeMessage,
@@ -18,17 +15,16 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { AuthGuardLocal } from '../auth/auth.guard';
-import { UsersService } from '../users/services/users.service';
 import { JWTExceptionFilter } from '../exception/jwt.filter';
 import { RoomService } from './room.service';
 import { SUserService } from './socketUser.service';
 import { IChatRoom, IUser, UserStatus } from '../types/types';
-import { IsUppercase } from 'class-validator';
-import { map, throwIfEmpty } from 'rxjs';
 import { LoggingInterceptor } from '../logger.Interceptor';
 import { AuthService } from '../auth/auth.service';
 import { SGameService } from './sgame.service';
 import { GameroomService } from './gameroom.service';
+import { Room } from './Room';
+import { User } from './User';
 
 @UseInterceptors(LoggingInterceptor)
 @UseGuards(AuthGuardLocal)
@@ -52,168 +48,43 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   //  socket 객체는 개별 클라이언트와의 interacting을 위한 기본적인 객체
   handleConnection(client: any) {
     const intra = this.auth.getIntra(this.auth.extractToken(client, 'ws'));
-    // console.log(intra);
-    // console.log(this.room.getIntraAtToken(client));
-    const client_id = client.id;
-    const avatar = 'avatar_copy';
-    const nickname = intra;
-    const status: UserStatus = 1; // 상태로 추가하면 오류!
-    this.logger.log(
-      `Function Name : connection Intra: ${intra}, clientid : ${client.id}`,
-    );
-
-    const user_copy: IUser = {
-      client: client,
-      client_id,
-      avatar,
-      nickname,
-      intra,
-      status,
-    };
-
-    this.logger.log(
-      `Function Name : connection in addUser Intra: ${intra}, clientid : ${client.id}`,
-    );
-    this.user.addUser(client.id, user_copy); // 사람을 추가해서 user에 넣기
-    this.user.getUser(client.id);
-    this.user.getUsers();
+    this.user.addUser(client.id, new User(client, intra)); // 사람을 추가해서 user에 넣기
+    this.logger.log(this.user.getUsers());
   }
 
   handleDisconnect(client: any) {
-    // const extraToken = this.auth.extractToken(client, 'ws');
-    // const intra = this.auth.getIntra(extraToken);
-    const intra = this.room.getIntraAtToken(client);
-    this.logger.log(
-      `Function Name : handleDisconnect Intra : ${intra}, clientid : ${client.id}`,
-    );
-    //유저를 제거하고 방에서도 제거 >> 방에서 제거하는 것은 어떻게 하지?, 방도 추가를 해주어야 하나? 싶은데
-
     this.room.getAllRoom().forEach((element) => {
       this.room.deleteUserBysocketId(client.id, element.name);
-      this.room.roomHowManyPeople(element.name);
+      this.room.deleteEmptyRoom(element.name);
     });
-
-    // 방에서 제거 하고, mute에 있으면 제거하고, block에 있으면 제거하고, admin에서 제거하고, ban에서 제거하고
-
     this.room.deleteUser(client.id);
-    this.user.removeUser(client.id);
-    console.log('Dissconnected');
+    this.user.removeUser(client.id); // TODO 방 나가기 콜백 보내기
   }
 
-  // get > 놉
-  // crea > 방생성
-  // chat room getchatroom
-
-  // // 방 정보 호출
-  // 방 생성
-
-  // sids와 room과의 비교를 통해 퍼블릭 룸 나타내기! 임의의 chatroomlist
-
-  // 방 정보 호출 roomType(public) 현재 인원,
   @SubscribeMessage('getChatRoomInfo')
-  getChatRoomInfo(client: Socket) {
-    // const extraToken = this.auth.extractToken(client, 'ws');
-    // const intra = this.auth.getIntra(extraToken);
-
-    // todo 방에서 탈출 시키기? 썅?
-
-    //방에서 나가는 로직이 없으니까
-
-    const intra = this.room.getIntraAtToken(client);
-    this.logger.log(
-      `Function Name : getChatRoomInfo Intra : ${intra}, clientid : ${client.id}`,
-    );
-
-    const returnRoom: {
-      roomName: string;
-      isPublic: boolean;
-      currNum: number;
-      // member: string[];
-    }[] = [];
-
-    this.room.getAllRoom().forEach((value, element, _) => {
-      const temp: { roomName: string; isPublic: boolean; currNum: number } = {
-        roomName: value.name,
-        isPublic: value.isPublic,
-        currNum: value.users.size,
-        // member: arrr
-      };
-      returnRoom.push(temp);
-    });
-
-    // this.room.getPublicRooms(client).forEach((str:string) => {
-    //   returnRoom.push({roomName:str, a.idPublic, a.users.size})
-    //   this.room.
-    // })
-
-    // roomName : string, isPublic : boolean, currNum : number
-    this.room.showRooms();
-    // this.room.getPublicRooms(client).forEach((str :string )=>{
-    //   [{},{}]
-
-    // }) // return이 callback이다 fx를 보낼 필요가 없다!
-
-    // return this.room.getPublicRooms(client); // return이 callback이다 fx를 보낼 필요가 없다!
-    return returnRoom;
+  getChatRoomInfo() {
+    return this.room.getChatRooms();
   }
 
-  // 방 생성
   @SubscribeMessage('create-room')
-  createroom(
+  createRoom(
     client: Socket,
     roomInfo: { room: string; isPublic: boolean; pwd?: string },
   ) {
-    // roomname public 유무, 비밀번호,
-    // const extraToken = this.auth.extractToken(client, 'ws');
-    // const intra = this.auth.getIntra(extraToken);
     const intra = this.room.getIntraAtToken(client);
-    this.logger.log(
-      `Function Name : create-room room :${roomInfo.room}, Intra : ${intra} clientid : ${client.id}`,
+    this.room.addRoom(
+      roomInfo.room,
+      new Room(roomInfo.room, intra, roomInfo.pwd),
     );
-
-    const id = 0;
-    const name: string = roomInfo.room;
-    const isPublic = roomInfo.isPublic;
-    const pw = roomInfo.pwd;
-    const users: Map<string, IUser> = new Map();
-    const muted: string[] = [];
-    const ban: string[] = [];
-    const owner = intra;
-    // 방을 만든 사람은 오너 저장
-    const admin: string[] = [];
-
-    const chatRoom_copy: IChatRoom = {
-      id,
-      name,
-      pw,
-      isPublic,
-      users,
-      muted,
-      ban,
-      owner,
-      admin,
-    };
-
-    this.room.addRoom(roomInfo.room, chatRoom_copy);
-    this.room.showRooms();
+    //this.room.showRooms();  //TODO 간단하게 보여주기
 
     const userTemp: IUser = this.user.getUser(client.id); // 현재 클라이언트와 같은 사람 찾아와
-    this.logger.log(`Add User socket id : ${client.id}, intra :${intra}`);
-
     this.room.addUser(roomInfo.room, userTemp, client); // 방에 사람 추가
-    this.room.getInRoomUser(roomInfo.room); // 여기서는 방에 사람이 있는지
-
-    this.room.showRooms(); // 사람 몇명있는지 확인
-
     client.join(roomInfo.room);
     client.emit('new-room-created', roomInfo.room); // 다른 이벤트 보내기!
-    let tmpArr:string[] =[];
-    this.room.getAllRoom().get(roomInfo.room).users.forEach((ele)=>{
-      tmpArr.push(ele.intra);
-    })
-    client.emit('roomInfo',tmpArr); // join leave할때
-
-    client.emit('countInRoom', this.room.getAllRoom().get(roomInfo.room).users);
+    const chatRoomInfo = this.room.getChatRoomInfo(roomInfo.room);
+    client.emit('roomInfo', chatRoomInfo); // join leave할때
+    client.emit('countInRoom', chatRoomInfo.length);
     return {}; // 인자 없는 콜백
   }
 
@@ -224,10 +95,13 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
         `Function Name : PWDCheck room :${roomInfo.roomName}, clientid : ${client.id} name : ${roomInfo.roomName} `,
       );
       client.join(roomInfo.roomName);
-      let tmpArr:string[] =[];
-      this.room.getAllRoom().get(roomInfo.roomName).users.forEach((ele)=>{
-        tmpArr.push(ele.intra);
-      })
+      let tmpArr: string[] = [];
+      this.room
+        .getAllRoom()
+        .get(roomInfo.roomName)
+        .users.forEach((ele) => {
+          tmpArr.push(ele.intra);
+        });
       client.emit('roomInfo', tmpArr); // join leave할때
       const intra = this.room.getIntraAtToken(client);
       // 여기는 상상으로 짜봄
@@ -305,25 +179,17 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       intra == this.room.getOwenr(roomInfo.roomName) ||
       this.room.checkAdmin(roomInfo.roomName, intra)
     ) {
-      this.room.getRoom(roomInfo.roomName).users.forEach((ele) => {
-        if (ele.intra === roomInfo.kickUser) {
+      for (const [clientId, user] of this.room.getRoom(roomInfo.roomName)
+        .users) {
+        if (user.intra == roomInfo.kickUser) {
           this.room.rmRoomUser(roomInfo.roomName, roomInfo.kickUser);
-          ret = ele.client_id;
+          ret = clientId;
         }
-      });
-      client.leave(roomInfo.roomName);
-      let tmpArr:string[] = [];
-      this.room.getAllRoom().get(roomInfo.roomName).users.forEach((ele)=>{
-        tmpArr.push(ele.intra);
-      })
-      client.emit('roomInfo', tmpArr); // join leave할때
+      }
+      //client.leave(roomInfo.roomName);
       client.to(ret).emit('kicked'); // 다르게 유저객체에서 getuser kick대상을 찾아서
+      client.emit('roomInfo', this.room.getChatRoomInfo(roomInfo.roomName)); // join leave할때
     }
-    console.log('function kickUser');
-
-    // user이름으로 socketid 찾기
-    // this.room.deleteUserBysocketId(this.room.findIDbyIntraId(roomInfo.roomName, roomInfo.kickUser), roomInfo.roomName);
-    this.room.showRooms();
     return ret;
   }
 
@@ -349,22 +215,17 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       this.room.checkAdmin(roomInfo.roomName, intra)
     ) {
       this.room.addBanUser(roomInfo.roomName, roomInfo.banUser);
-      this.room.getRoom(roomInfo.roomName).users.forEach((ele) => {
-        if (ele.intra === roomInfo.banUser)
+      for (const [clientId, user] of this.room.getRoom(roomInfo.roomName)
+        .users) {
+        if (user.intra == roomInfo.banUser) {
           this.room.rmRoomUser(roomInfo.roomName, roomInfo.banUser);
-        ret = ele.client_id;
-      });
-      client.leave(roomInfo.roomName);
-      let tmpArr:string[] = [];
-      this.room.getAllRoom().get(roomInfo.roomName).users.forEach((ele)=>{
-        tmpArr.push(ele.intra);
-      })
-      client.emit('roomInfo',tmpArr); // join leave할때
+          ret = clientId;
+        }
+      }
+      //client.leave(roomInfo.roomName);
       client.to(ret).emit('kicked');
+      client.emit('roomInfo', this.room.getChatRoomInfo(roomInfo.roomName)); // join leave할때
     }
-    console.log('function banUser');
-    // this.room.deleteUserBysocketId(this.room.findIDbyIntraId(roomInfo.roomName, roomInfo.banUser), roomInfo.roomName);
-    this.room.showRooms();
     return this.room.getAllRoom().get(roomInfo.roomName).ban;
   }
 
@@ -441,7 +302,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('newMsg')
   newmsg(
     socket: Socket,
-    newMsgObj: { room: string; user: string; msg: string; msgType?: string},
+    newMsgObj: { room: string; user: string; msg: string; msgType?: string },
   ) {
     // const extraToken = this.auth.extractToken(socket, 'ws');
     // const intra = this.auth.getIntra(extraToken);
@@ -478,7 +339,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('enterRoom') // 비밀번호유무
   enterRoom(client: Socket, joinInfo: { name: string; room: string }) {
     client.join(joinInfo.room);
-    
+
     // let tmpArr:string[] =[];
     // this.room.getAllRoom().get(joinInfo.room).users.forEach((ele)=>{
     //   tmpArr.push(ele.intra);
@@ -507,52 +368,39 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.room.getInRoomUser(joinInfo.room); // 여기서는 방에 사람이 있는지
 
     console.log('function enterRoom');
-    let tmpArr:string[] =[];
-    this.room.getAllRoom().get(joinInfo.room).users.forEach((ele)=>{
-      tmpArr.push(ele.intra);
-    })
+    let tmpArr: string[] = [];
+    this.room
+      .getAllRoom()
+      .get(joinInfo.room)
+      .users.forEach((ele) => {
+        tmpArr.push(ele.intra);
+      });
     client.to(joinInfo.room).emit('roomInfo', tmpArr); // join leave할때
     this.room.showRooms();
     return {};
   }
 
   @SubscribeMessage('roomInfo')
-  roomInfo(socket: Socket,roomInfo:{roomName:string} ){
-    let tmpArr:string[] =[];
-    this.room.getAllRoom().get(roomInfo.roomName).users.forEach((ele)=>{
-      tmpArr.push(ele.intra);
-    })
+  roomInfo(socket: Socket, roomInfo: { roomName: string }) {
+    let tmpArr: string[] = [];
+    this.room
+      .getAllRoom()
+      .get(roomInfo.roomName)
+      .users.forEach((ele) => {
+        tmpArr.push(ele.intra);
+      });
     return tmpArr;
   }
-  
+
   // 방 나가기 버튼
   @SubscribeMessage('leaveRoom')
   leaveRoom(socket: Socket, roomInfo: { room: string }) {
-    this.logger.log(
-      `Function Name : leaveRoom room :${roomInfo.room}, intra : ??? clientid : ${socket.id}`,
-    );
-    socket.leave(roomInfo.room);
-    let tmpArr:string[] =[];
-    this.room.getAllRoom().get(roomInfo.room).users.forEach((ele)=>{
-      tmpArr.push(ele.intra);
-    })
-    socket.emit('roomInfo', tmpArr); // join leave할때
-
-    // this.logger.log('leaveRoom Before');
-    // console.log('leaveRoom Before')
-    // this.room.showRooms();
-
-    // 여기는 추가
     this.room.deleteUserBysocketId(socket.id, roomInfo.room);
-    this.room.showRooms();
-
-    // 방에 아무도 없으면 방제거
-    this.room.roomHowManyPeople(roomInfo.room);
-
-    // this.logger.log('leaveRoom After');
-    // console.log('leaveRoom After')
-    // this.room.showRooms();
-
+    socket.leave(roomInfo.room);
+    socket
+      .to(roomInfo.room)
+      .emit('roomInfo', this.room.getChatRoomInfo(roomInfo.room)); // join leave할때
+    this.room.deleteEmptyRoom(roomInfo.room);
     return {};
   }
 
@@ -567,14 +415,17 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     socket.rooms.forEach((ele: any) => {
       if (ele != socket.id) {
         socket.leave(ele);
-        let tmpArr:string[] =[];
-        this.room.getAllRoom().get(ele.room).users.forEach((ele)=>{
-          tmpArr.push(ele.intra);
-        })
+        let tmpArr: string[] = [];
+        this.room
+          .getAllRoom()
+          .get(ele.room)
+          .users.forEach((ele) => {
+            tmpArr.push(ele.intra);
+          });
         socket.emit('roomInfo', tmpArr); // join leave할때
         this.room.deleteUserBysocketId(socket.id, ele);
         // 방에 아무도 없으면 방제거
-        this.room.roomHowManyPeople(ele);
+        this.room.deleteEmptyRoom(ele);
       }
       // this.logger.log('clearRoom After');
       // console.log('clearRoom After')
@@ -602,24 +453,27 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       //   }
       // })
 
-      for (let [key, value] of this.room
+      for (const [key, value] of this.room
         .getRoom(roomInfo.roomName)
         .users.entries()) {
         if (value.intra === roomInfo.shellWeDmUser) {
-          ret = value.client_id;
+          ret = key;
         }
       }
 
       socket.leave(roomInfo.roomName);
-      let tmpArr:string[] =[];
-      this.room.getAllRoom().get(roomInfo.roomName).users.forEach((ele)=>{
-        tmpArr.push(ele.intra);
-      })
+      let tmpArr: string[] = [];
+      this.room
+        .getAllRoom()
+        .get(roomInfo.roomName)
+        .users.forEach((ele) => {
+          tmpArr.push(ele.intra);
+        });
       socket.emit('roomInfo', tmpArr); // join leave할때
 
       //                보내는 사람             받는 사람
       const roomName = sendIntraId + ' ' + roomInfo.shellWeDmUser;
-      
+
       socket.join(roomName);
       // socket.emit('roomInfo', this.room.getAllRoom().get(roomInfo.roomName).users); // join leave할때
       socket.to(ret).emit('shellWeDm', {
@@ -634,12 +488,15 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   // reJoin이면 다시 연결하기
 
   @SubscribeMessage('reJoin')
-  reJoinRoom(socket: Socket, roomInfo :string) {
+  reJoinRoom(socket: Socket, roomInfo: string) {
     socket.join(roomInfo);
-    let tmpArr:string[] =[];
-    this.room.getAllRoom().get(roomInfo).users.forEach((ele)=>{
-      tmpArr.push(ele.intra);
-    })
+    let tmpArr: string[] = [];
+    this.room
+      .getAllRoom()
+      .get(roomInfo)
+      .users.forEach((ele) => {
+        tmpArr.push(ele.intra);
+      });
     socket.emit('roomInfo', tmpArr); // join leave할때
   }
 
@@ -650,10 +507,13 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('goDm') // 최종 수락을 해서 채팅으로간다 초대 받은사람 // 초대 한사람
   goDm(socket: Socket, roomInfo: { roomName: string; user: string }) {
     //join된거 풀기
-    this.logger.log(`Function Name goDm ${roomInfo.roomName}, ${roomInfo.user}`);
+    this.logger.log(
+      `Function Name goDm ${roomInfo.roomName}, ${roomInfo.user}`,
+    );
 
     let sendClientid;
-    for (let [key, value] of  this.room.getAllRoom().get(roomInfo.roomName).users) {
+    for (let [key, value] of this.room.getAllRoom().get(roomInfo.roomName)
+      .users) {
       if (value.intra === roomInfo.user) {
         sendClientid = key;
       }
@@ -662,33 +522,38 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.logger.log(`Function Name recv ${sendClientid}`);
 
     const recvUser = this.room
-    .getAllRoom()
-    .get(roomInfo.roomName)
-    .users.get(socket.id).intra;
+      .getAllRoom()
+      .get(roomInfo.roomName)
+      .users.get(socket.id).intra;
     this.logger.log(`Function Name recv ${recvUser}`);
     // const user2Clientid = this.room.getAllRoom().get(socket.id).users.get(socket.id).client_id;
 
     this.logger.log(`Function Name goDm join unlock`);
     // join된 방에서 조인 풀기
-    for (const [key, value] of this.room
-      .getAllRoom()
-      .get(roomInfo.roomName).users) {
+    for (const [key, value] of this.room.getAllRoom().get(roomInfo.roomName)
+      .users) {
       if (key == sendClientid) {
-        this.logger.log(`Function Name goDm join unlock sendClientId ${key}, ${sendClientid} ${value.intra}`);
+        this.logger.log(
+          `Function Name goDm join unlock sendClientId ${key}, ${sendClientid} ${value.intra}`,
+        );
         // this.room.deleteUserBysocketId(user1Clientid, roomInfo.roomName);
         this.room.rmRoomUser(roomInfo.roomName, roomInfo.user);
-        
-        //방에서 연결을 끊어주는 역할을 하는게 필요하다
 
+        //방에서 연결을 끊어주는 역할을 하는게 필요하다
       } else if (key == socket.id) {
-        this.logger.log(`Function Name goDm join unlock recvUser ${key}, ${socket.id} ${value.intra}`);
+        this.logger.log(
+          `Function Name goDm join unlock recvUser ${key}, ${socket.id} ${value.intra}`,
+        );
         // this.room.deleteUserBysocketId(user2Clientid, roomInfo.roomName); // 방에서 제거
         this.room.rmRoomUser(roomInfo.roomName, recvUser); // 방에서 제거
         socket.leave(roomInfo.roomName);
-        let tmpArr:string[] =[];
-        this.room.getAllRoom().get(roomInfo.roomName).users.forEach((ele)=>{
-          tmpArr.push(ele.intra);
-        })
+        let tmpArr: string[] = [];
+        this.room
+          .getAllRoom()
+          .get(roomInfo.roomName)
+          .users.forEach((ele) => {
+            tmpArr.push(ele.intra);
+          });
         socket.emit('roomInfo', tmpArr); // join leave할때
       }
     }
@@ -699,18 +564,21 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const roomName = roomInfo.user + ' ' + recvUser;
 
     this.logger.log(`Function Name goDm End : ${roomName}`);
-    this.room.roomHowManyPeople(roomInfo.roomName);
+    this.room.deleteEmptyRoom(roomInfo.roomName);
 
     socket.join(roomName);
     // socket.emit('roomInfo', this.room.getAllRoom().get(joinInfo.room).users); // join leave할때
 
-
-    socket.to(sendClientid).emit('joinedRoom', {roomName:roomName, roomType: "Dm"});
-    socket.emit('joinedRoom',{roomName:roomName, roomType: "Dm"});
+    socket
+      .to(sendClientid)
+      .emit('joinedRoom', { roomName: roomName, roomType: 'Dm' });
+    socket.emit('joinedRoom', { roomName: roomName, roomType: 'Dm' });
     // 채팅방으로 보낸다
 
     //방에서 제거하는 로직
-    this.logger.log(`Function Name goDm sendid : ${roomInfo.user}, ${sendClientid} socket.id : ${recvUser}, ${socket.id}`);
+    this.logger.log(
+      `Function Name goDm sendid : ${roomInfo.user}, ${sendClientid} socket.id : ${recvUser}, ${socket.id}`,
+    );
     return roomName;
   }
 
@@ -718,7 +586,6 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   createGameRoom(client: Socket, gameInfo: { owner: string }) {
     this.gameroom.createGameRoom(gameInfo.owner, client);
   }
-
 
   @SubscribeMessage('setPlayer')
   setPlayer(client: Socket, gameInfo: { owner: string }) {
