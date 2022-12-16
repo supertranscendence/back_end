@@ -597,8 +597,8 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
         this.logger.log(`Function Name goDm join unlock sendClientId ${key}, ${sendClientid} ${value.intra}`);
         // this.room.deleteUserBysocketId(user1Clientid, roomInfo.roomName);
         this.room.rmRoomUser(roomInfo.roomName, roomInfo.user);
-      } else if (key == recvUser) {
-        this.logger.log(`Function Name goDm join unlock recvUser ${key}, ${recvUser} ${value.intra}`);
+      } else if (key == socket.id) {
+        this.logger.log(`Function Name goDm join unlock recvUser ${key}, ${socket.id} ${value.intra}`);
         // this.room.deleteUserBysocketId(user2Clientid, roomInfo.roomName); // 방에서 제거
         this.room.rmRoomUser(roomInfo.roomName, recvUser); // 방에서 제거
       }
@@ -608,7 +608,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     const roomName = roomInfo.user + ' ' + recvUser;
 
-    this.logger.log(`Function Name goDm ${roomName}`);
+    this.logger.log(`Function Name goDm End : ${roomName}`);
     this.room.roomHowManyPeople(roomInfo.roomName);
 
     socket.join(roomName);
