@@ -1,27 +1,29 @@
-
 // import { EntityRepository, Repository } from "typeorm";
-import { Friends } from "../../entities/Friends";
+import { Friends } from '../../entities/Friends';
 
-import { Injectable } from "@nestjs/common";
-import { DataSource, Repository } from "typeorm";
-
+import { Injectable } from '@nestjs/common';
+import { DataSource, Repository } from 'typeorm';
 
 // @EntityRepository(Friends)
-// export class FriendsRepository extends Repository<Friends> 
-// {} 
+// export class FriendsRepository extends Repository<Friends>
+// {}
 
 // base repository > custom repository
 
 @Injectable()
 export class FriendsRepository extends Repository<Friends> {
-    constructor(private readonly datasource: DataSource) {
-        super(Friends, datasource.createEntityManager(), datasource.createQueryRunner());
-    }
+  constructor(private readonly datasource: DataSource) {
+    super(
+      Friends,
+      datasource.createEntityManager(),
+      datasource.createQueryRunner(),
+    );
+  }
 
-    // 비동기 처리를 위한 미래에 무언가 데이터가 올것이다! Promise
-    async getById(id: number): Promise<Friends>{
-        return await this.datasource.createEntityManager().findOneById(Friends, id)
-    }
+  // 비동기 처리를 위한 미래에 무언가 데이터가 올것이다! Promise
+  async getById(id: number): Promise<Friends> {
+    return await this.datasource.createEntityManager().findOneById(Friends, id);
+  }
 }
 
 // datasource란 typeorm.config에서 설정을 해주었던 설정내용을 저장한 객체
