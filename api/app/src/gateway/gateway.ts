@@ -417,7 +417,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('newMsg')
   newmsg(
     socket: Socket,
-    newMsgObj: { room: string; user: string; msg: string },
+    newMsgObj: { room: string; user: string; msg: string; msgType?: string},
   ) {
     // const extraToken = this.auth.extractToken(socket, 'ws');
     // const intra = this.auth.getIntra(extraToken);
@@ -439,9 +439,12 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     //     socket.to(userEle.client_id).emit('newMsg', temp);
     //   }
     // })
-
-    if (!this.room.getRoom(newMsgObj.room).muted.includes(intra)) {
+    if (newMsgObj.msgType && newMsgObj.msgType == 'Dm')
       socket.to(newMsgObj.room).emit('newMsg', temp);
+    else {
+      if (!this.room.getRoom(newMsgObj.room).muted.includes(intra)) {
+        socket.to(newMsgObj.room).emit('newMsg', temp);
+      }
     }
 
     return {};
@@ -552,6 +555,8 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
         }
       }
 
+      socket.leave(roomInfo.roomName);
+
       //                보내는 사람             받는 사람
       const roomName = sendIntraId + ' ' + roomInfo.shellWeDmUser;
       socket.join(roomName);
@@ -562,6 +567,13 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       // return {};
     }
     return {};
+  }
+
+  // reJoin이면 다시 연결하기
+
+  @SubscribeMessage('reJoin')
+  reJoinRoom(socket: Socket, roomInfo :string) {
+    socket.join(roomInfo);
   }
 
   //   goDm
@@ -598,10 +610,14 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
         this.logger.log(`Function Name goDm join unlock sendClientId ${key}, ${sendClientid} ${value.intra}`);
         // this.room.deleteUserBysocketId(user1Clientid, roomInfo.roomName);
         this.room.rmRoomUser(roomInfo.roomName, roomInfo.user);
+        
+        //방에서 연결을 끊어주는 역할을 하는게 필요하다
+
       } else if (key == socket.id) {
         this.logger.log(`Function Name goDm join unlock recvUser ${key}, ${socket.id} ${value.intra}`);
         // this.room.deleteUserBysocketId(user2Clientid, roomInfo.roomName); // 방에서 제거
         this.room.rmRoomUser(roomInfo.roomName, recvUser); // 방에서 제거
+        socket.leave(roomInfo.roomName);
       }
     }
 
