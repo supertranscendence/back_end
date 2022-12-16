@@ -511,7 +511,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.room.getAllRoom().get(joinInfo.room).users.forEach((ele)=>{
       tmpArr.push(ele.intra);
     })
-    client.emit('roomInfo', tmpArr); // join leave할때
+    client.to(joinInfo.room).emit('roomInfo', tmpArr); // join leave할때
     this.room.showRooms();
     return {};
   }
