@@ -570,16 +570,19 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('goDm') // 최종 수락을 해서 채팅으로간다 초대 받은사람 // 초대 한사람
   goDm(socket: Socket, roomInfo: { roomName: string; user: string }) {
     //join된거 풀기
+    this.logger.log(`Function Name goDm ${roomInfo.roomName}, ${roomInfo.user}`);
     const sendClientid = this.room.findIDbyIntraId(
       roomInfo.roomName,
       roomInfo.user,
     );
+
     const recvUser = this.room
       .getAllRoom()
       .get(socket.id)
       .users.get(socket.id).intra;
     // const user2Clientid = this.room.getAllRoom().get(socket.id).users.get(socket.id).client_id;
 
+    this.logger.log(`Function Name goDm join unlock`);
     // join된 방에서 조인 풀기
     for (const [key, value] of this.room
       .getRoom(roomInfo.roomName)
@@ -593,10 +596,11 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       }
     }
 
+    this.logger.log(`Function Name goDm join unlock success`);
 
     const roomName = roomInfo.user + ' ' + recvUser;
 
-
+    this.logger.log(`Function Name goDm ${roomName}`);
     this.room.roomHowManyPeople(roomInfo.roomName);
 
     socket.join(roomName);
@@ -607,6 +611,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     // 채팅방으로 보낸다
 
     //방에서 제거하는 로직
+    this.logger.log(`Function Name goDm sendid : ${roomInfo.user}, ${sendClientid} socket.id : ${recvUser}, ${socket.id}`);
     return roomName;
   }
 
