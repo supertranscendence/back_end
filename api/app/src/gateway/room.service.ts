@@ -148,7 +148,7 @@ export class RoomService {
 
 
   findIDbyIntraId(roomName : string, intra : string) : string {
-    for (let [key, value] of  this.rooms.get(roomName).users.entries()) {
+    for (let [key, value] of  this.rooms.get(roomName).users) {
       if (value.intra === intra) {
         return (key);
       }
