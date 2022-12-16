@@ -615,7 +615,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
 
     socket.to(sendClientid).emit('joinedRoom', {roomName:roomName, roomType: "Dm"});
-    socket.to(socket.id).emit('joinedRoom',{roomName:roomName, roomType: "Dm"});
+    socket.emit('joinedRoom',{roomName:roomName, roomType: "Dm"});
     // 채팅방으로 보낸다
 
     //방에서 제거하는 로직
