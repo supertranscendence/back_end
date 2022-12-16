@@ -6,28 +6,28 @@ import { IUser, UserStatus } from '../types/types';
 @Injectable()
 export class SUserService {
   private readonly users: Map<string, IUser>;
+
   constructor() {
     this.users = new Map();
   }
 
-  addUser(socketid: string, user: IUser): void {
-    this.users.set(socketid, user);
+  addUser(socketId: string, user: IUser): void {
+    this.users.set(socketId, user);
   }
 
-  getUsers(): void {
-    console.log('getUsers');
-    this.users.forEach((value, id) => {
-      console.log(`user : ${value.intra}, id: ${id} 입니다`);
-      //console.log(value);
-    });
-    console.log('getUsers End');
+  getUsers(): Map<string, IUser> {
+    return this.users;
   }
 
-  getUser(socketid: string): IUser {
-    console.log('getUser............');
-    // console.log(this.users.get(socketid));
-    console.log('getUser............');
-    return this.users.get(socketid);
+  getUser(socketId: string): IUser {
+    return this.users.get(socketId);
+  }
+
+  isUser(socketId: string): boolean {
+    for (const [key, _] of this.users) {
+      if (socketId == key) return true;
+    }
+    return false;
   }
 
   removeUser(id: string) {
