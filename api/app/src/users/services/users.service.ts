@@ -4,6 +4,7 @@ import { stringify } from 'querystring';
 
 
 import { getManager, Repository, SelectQueryBuilder } from 'typeorm';
+import { Friends } from '../../entities/Friends';
 import { Users } from '../../entities/Users';
 import { FriendsRepository } from '../../friends/repository/friends.repository';
 import { UsersRepository } from '../repository/users.repository';
@@ -41,6 +42,65 @@ export class UsersService {
         .where('m.id = :id', { id: id })
         .getOne();
         return member;
+    }
+
+    public async addmyfriend(intra: string, addFriend : string): Promise<void>{
+        // let accountToSaveWithUser: Account;
+        // First check if account exist
+
+    // 있는지 확인하고, 없으면 추가, 있으면 무시하기
+    const myid =  await (await this.usersRepository.findOneBy({intra: intra})).id;
+    // const add =  await (await this.usersRepository.findOneBy({intra: addFriend}));
+
+    const member = await this.friendsRepository.createQueryBuilder('m')
+        .where("m.id = :id AND m.friend = :friend", { id: myid, friend: addFriend })
+        .getMany();
+    if (member.length == 0) {
+        // const user = this.friendsRepository.create({});
+        
+        // *** 여기 부분이에오*** //
+        // await this.friendsRepository.save({
+        //     id : myid,
+        //     // userid : myid,
+        //     intra: intra,
+        //     friend: addFriend,
+        //     block : false
+        // });
+
+        // const myPhoto = await this.usersRepository
+        // .createQueryBuilder()
+        // .insert()
+        // .into(Friends)
+        // .values({
+        //     id :
+        //     // user:{
+        //     //     id: data.userId
+        //     // }
+
+        // })
+        // .execute();
+    }
+
+    //     const account = await this.friendsRepository.findOneBy({intra: intra}).id
+    //         where: {
+    //             friend: dto.accountName,
+    //         },
+    //     });
+
+        // if (isNil(account)) {
+        //     const accountToSave = this.accountRepository.create({
+        //         name: dto.accountName,
+        //     });
+        //     accountToSaveWithUser = await this.accountRepository.save(accountToSave);
+        // } else {
+        //     accountToSaveWithUser = account;
+        // }
+
+        // await this.userRepository.save({
+        //     email: dto.email,
+        //     password: hash(dto.password), // Use your package for hash password
+        //     name: accountToSaveWithUser.name,
+        // });
     }
 
     // public async register(intra: string): Promise<Users> {

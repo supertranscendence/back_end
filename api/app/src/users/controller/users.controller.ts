@@ -16,6 +16,7 @@ import { UsersService } from '../services/users.service';
 import { AuthGuardLocal } from '../../auth/auth.guard';
 import { JWTExceptionFilter } from '../../exception/jwt.filter';
 import { AuthService } from '../../auth/auth.service';
+import { add } from 'winston';
 
 @UseGuards(AuthGuardLocal)
 @SetMetadata('roles', ['admin'])
@@ -61,7 +62,29 @@ export class UsersController {
     return this.users.findFriend(intra);
   }
 
-  
+  // @Get('/my/Isfriends') // Post
+  @Post()
+  @HttpCode(201)
+  @Header('Access-Control-Allow-Origin', 'https://gilee.click')
+  @Header('Access-Control-Allow-Credentials', 'true')
+  IsFriend(@Body('intra') addIntra: string, @Req() request : Request) : string{
+    const intra = this.auth.getIntra(this.auth.extractToken(request, 'http'));
+    // return this.users.findByIntra(intra);
+    this.users.addmyfriend(intra, addIntra )
+    return addIntra;
+  }
+
+  // @Post()
+  // @HttpCode(200)
+  // @Header('Access-Control-Allow-Origin', 'https://gilee.click')
+  // @Header('Access-Control-Allow-Credentials', 'true')
+  // addFriend(@Body() body, @Req() request : Request) {
+  //   const intra = this.auth.getIntra(this.auth.extractToken(request, 'http'));
+  //   // + achievement;
+  //   return this.users.addfriend(intra, body);
+  // }
+
+
 
   @Get('/:id')
   @HttpCode(200)
@@ -77,32 +100,22 @@ export class UsersController {
   //     return this.users.findJoin(tid);
   // }
 
-  @Post()
-  create(@Body() body: any) {
-    // return body;
-    return this.users.create(body);
-  }
+  // @Post()
+  // create(@Body() body: any) {
+  //   // return body;
+  //   return this.users.create(body);
+  // }
 
 
+  // @Put(':id')
+  // update(@Param('id') tid: number, @Body() body: any) {
+  //   // return body;
+  //   return this.users.update(tid, body);
+  // }
 
-  @Post()
-  @HttpCode(200)
-  @Header('Access-Control-Allow-Origin', 'https://gilee.click')
-  @Header('Access-Control-Allow-Credentials', 'true')
-  addFriend(@Body() body: any) {
-  
-  }
-
-
-  @Put(':id')
-  update(@Param('id') tid: number, @Body() body: any) {
-    // return body;
-    return this.users.update(tid, body);
-  }
-
-  @Delete(':id')
-  delete(@Param('id') tid: number) {
-    // return true;
-    return this.users.delete(tid);
-  }
+  // @Delete(':id')
+  // delete(@Param('id') tid: number) {
+  //   // return true;
+  //   return this.users.delete(tid);
+  // }
 }
