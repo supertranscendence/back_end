@@ -8,6 +8,8 @@ import { UsersService } from '../users/services/users.service';
 import { MyGateway } from './gateway';
 import { RoomService } from './room.service';
 import { SUserService } from './socketUser.service';
+import { SGameService } from './sgame.service';
+import { GameroomService } from './gameroom.service';
 
 @Module({
   imports: [PassportModule.register({ defaultStrategy: 'jwt' })],
@@ -19,7 +21,9 @@ import { SUserService } from './socketUser.service';
     AuthRepository,
     FtStrategy,
     RoomService,
+    GameroomService,
     SUserService,
+    SGameService,
     Logger,
   ],
 })
