@@ -338,45 +338,19 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   // 방 생성하지 않고 입장
   @SubscribeMessage('enterRoom') // 비밀번호유무
   enterRoom(client: Socket, joinInfo: { name: string; room: string }) {
-    client.join(joinInfo.room);
-
-    // let tmpArr:string[] =[];
-    // this.room.getAllRoom().get(joinInfo.room).users.forEach((ele)=>{
-    //   tmpArr.push(ele.intra);
-    // })
-    // client.emit('roomInfo', ); // join leave할때
-
-    // const extraToken = this.auth.extractToken(client, 'ws');
-    // const intra = this.auth.getIntra(extraToken);
-
-    // 클라이언트가 벤유저면 emit kick
-
     const intra = this.room.getIntraAtToken(client);
     if (this.room.getRoom(joinInfo.room).ban.includes(intra))
-      //
       client.emit('kicked'); // intra));
+    else {
+      client.join(joinInfo.room);
+      const userTemp: IUser = this.user.getUser(client.id);
+      this.room.addUser(joinInfo.room, userTemp, client); // 방에 사람 추가하기
+      this.room.getInRoomUser(joinInfo.room); // 여기서는 방에 사람이 있는지
+    }
 
-    this.logger.log(
-      `Function Name : enterRoom room :${joinInfo.room}, intra : ${intra} clientid : ${client.id} name : ${joinInfo.name} `,
-    );
-
-    // 여기는 상상으로 짜봄
-    // 자신의 아이디로 유저정보 뽑고, 그 유저로 있는 방에 참가! 방의 user에도 인원을 추가 해 주어야함!
-    const userTemp: IUser = this.user.getUser(client.id);
-    //room에 참가
-    this.room.addUser(joinInfo.room, userTemp, client); // 방에 사람 추가하기
-    this.room.getInRoomUser(joinInfo.room); // 여기서는 방에 사람이 있는지
-
-    console.log('function enterRoom');
-    let tmpArr: string[] = [];
-    this.room
-      .getAllRoom()
-      .get(joinInfo.room)
-      .users.forEach((ele) => {
-        tmpArr.push(ele.intra);
-      });
-    client.to(joinInfo.room).emit('roomInfo', tmpArr); // join leave할때
-    this.room.showRooms();
+    client
+      .to(joinInfo.room)
+      .emit('roomInfo', this.room.getChatRoomInfo(joinInfo.room)); // join leave할때
     return {};
   }
 
