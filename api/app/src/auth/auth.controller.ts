@@ -6,6 +6,7 @@ import {
   UseGuards,
   Req,
   Header,
+  Logger,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthGuard } from '@nestjs/passport';
@@ -19,6 +20,7 @@ import { ApiBearerAuth } from '@nestjs/swagger';
 export class AuthController {
   readonly frontend_url;
   readonly domain;
+  private readonly logger: Logger = new Logger();
 
   constructor(private auth: AuthService, private config: ConfigService) {
     this.frontend_url = this.config.get('FRONTEND_URL');
@@ -31,7 +33,7 @@ export class AuthController {
   @Header('Access-Control-Allow-Origin', 'https://gilee.click')
   @Header('Access-Control-Allow-Credentials', 'true')
   async ftLoginCallback(@Req() req: Request, @Res() res) {
-    console.log(req['user']);
+    this.logger.log(req['user']);
     const date: Date = new Date();
     date.setDate(date.getTime() + 1000 * 10);
     res.cookie('accessToken', req['user']['ac'], {
