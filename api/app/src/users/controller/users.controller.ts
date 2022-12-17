@@ -5,10 +5,12 @@ import {
   Get,
   Header,
   HttpCode,
+  HttpStatus,
   Param,
   Post,
   Put,
   Req,
+  Res,
   SetMetadata,
   UseGuards,
 } from '@nestjs/common';
@@ -77,10 +79,9 @@ export class UsersController {
   @HttpCode(201)
   @Header('Access-Control-Allow-Origin', 'https://gilee.click')
   @Header('Access-Control-Allow-Credentials', 'true')
-  editMyNick(@Body('nick') editNick: string, @Req() req: Request) {
+  editMyNick(@Body('nick') editNick: string, @Req() req: Request, @Res() res: Response) {
     const intra = this.auth.getIntra(this.auth.extractToken(req, 'http'));
-    this.users.editNick(intra, editNick);
-    return (editNick);
+    return (this.users.editNick(intra, editNick));
   }
   // @Post()
   // @HttpCode(200)

@@ -39,7 +39,12 @@ export class UsersService {
     return member;
   }
 
-  public async editNick(intra: string, fixNick: string): Promise<void> {
+  public async editNick(intra: string, fixNick: string): Promise<Users> {
+
+    const IsNick = await this.usersRepository.findOneBy({ nickname: fixNick });
+    if (IsNick != null) {
+      return IsNick;
+    }
     const entity = await this.usersRepository.findOneBy({ intra: intra })
     const newUser = new Users();
     newUser.id = entity.id;
@@ -53,6 +58,7 @@ export class UsersService {
       ...newUser
     }
     await this.usersRepository.save(newEntity)
+    return newUser;
   }
 
   public async addmyfriend(intra: string, addFriend: string): Promise<void> {
