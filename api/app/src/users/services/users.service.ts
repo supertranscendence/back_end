@@ -39,6 +39,22 @@ export class UsersService {
     return member;
   }
 
+  public async editNick(intra: string, fixNick: string): Promise<void> {
+    const entity = await this.usersRepository.findOneBy({ intra: intra })
+    const newUser = new Users();
+    newUser.id = entity.id;
+    newUser.intra = entity.intra;
+    newUser.nickname = fixNick;
+    newUser.avatar = entity.avatar;
+    newUser.level = entity.level;
+
+    const newEntity = {
+      ...entity,
+      ...newUser
+    }
+    await this.usersRepository.save(newEntity)
+  }
+
   public async addmyfriend(intra: string, addFriend: string): Promise<void> {
     // let accountToSaveWithUser: Account;
     // First check if account exist
