@@ -28,6 +28,7 @@ import { add } from 'winston';
 @Controller('api/users')
 export class UsersController {
   private readonly logger: Logger;
+
   constructor(private users: UsersService, private auth: AuthService) {
     this.logger = new Logger();
   }
@@ -94,17 +95,17 @@ export class UsersController {
     return this.users.editNick(intra, editNick);
   }
 
-  @Put('/avatar/:uuid')
+  @Put('/avatar/')
   @HttpCode(204)
   @Header('Access-Control-Allow-Origin', 'https://gilee.click')
   @Header('Access-Control-Allow-Credentials', 'true')
   editMyAvatar(
-    @Param('uuid') uuid: string,
+    @Body('avatar') avatar: string,
     @Req()
     req: Request,
   ) {
     const intra = this.auth.getIntra(this.auth.extractToken(req, 'http'));
-    return this.users.updateAvatarByIntra(intra, uuid);
+    return this.users.updateAvatarByIntra(intra, avatar);
   }
 
   @Get('/avatar')
