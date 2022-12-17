@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  LoggerService,
+} from '@nestjs/common';
 import { Users } from '../../entities/Users';
 import { FriendsRepository } from '../../friends/repository/friends.repository';
 import { UsersRepository } from '../repository/users.repository';
@@ -40,12 +44,11 @@ export class UsersService {
   }
 
   public async editNick(intra: string, fixNick: string): Promise<Users> {
-
     const IsNick = await this.usersRepository.findOneBy({ nickname: fixNick });
     if (IsNick != null) {
       return IsNick;
     }
-    const entity = await this.usersRepository.findOneBy({ intra: intra })
+    const entity = await this.usersRepository.findOneBy({ intra: intra });
     const newUser = new Users();
     newUser.id = entity.id;
     newUser.intra = entity.intra;
@@ -55,9 +58,9 @@ export class UsersService {
 
     const newEntity = {
       ...entity,
-      ...newUser
-    }
-    await this.usersRepository.save(newEntity)
+      ...newUser,
+    };
+    await this.usersRepository.save(newEntity);
     return newUser;
   }
 
@@ -185,12 +188,14 @@ export class UsersService {
     return this.usersRepository.save(user);
   }
 
-  async update(id: number, body: any) {
-    // const test = await this.usersRepository.findOne(id);
-    const test = await this.usersRepository.getById(id);
-    this.usersRepository.merge(test, body);
-    console.log(body);
-    return this.usersRepository.save(test);
+  async updateAvatarByIntra(intra: string, value: string) {
+    await this.usersRepository
+      .update({ intra: intra }, { avatar: value })
+      .then((res) => {
+        if (!res.affected) throw InternalServerErrorException;
+        //this.logger.log(`${intra} avatar updated`);
+      })
+      .catch(/*this.logger.error(`${intra} avatar update failed`)*/);
   }
 
   async delete(id: number) {

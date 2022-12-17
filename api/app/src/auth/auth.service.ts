@@ -1,4 +1,10 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+  LoggerService,
+} from '@nestjs/common';
 import * as jwt from 'jsonwebtoken';
 import { AuthRepository } from './auth.repository';
 import { ConfigService } from '@nestjs/config';
@@ -6,6 +12,7 @@ import { ConfigService } from '@nestjs/config';
 @Injectable()
 export class AuthService {
   readonly JWT_SECRET;
+  private readonly logger: Logger = new Logger();
 
   constructor(
     private authRepository: AuthRepository,
@@ -59,10 +66,10 @@ export class AuthService {
       .delete({ res: res })
       .then((r) => {
         if (!r.affected) throw new InternalServerErrorException();
-        console.log(`revoked ${jwt.decode(res)['intra']}'s refresh token`);
+        this.logger.log(`revoked ${jwt.decode(res)['intra']}'s refresh token`);
       })
       .catch((e) => {
-        console.log(intra + ' revoke failed');
+        this.logger.log(intra + ' revoke failed');
         throw e;
       });
   }
@@ -75,12 +82,12 @@ export class AuthService {
       .update({ res: res }, { act: act })
       .then((r) => {
         if (!r.affected) throw new InternalServerErrorException();
-        console.log(
+        this.logger.log(
           `refreshed ${jwt.decode(res)['intra']}'s access token: ${act}`,
         );
       })
       .catch((e) => {
-        console.log(intra + ' refresh failed');
+        this.logger.log(intra + ' refresh failed');
         throw e;
       });
     return { act };
