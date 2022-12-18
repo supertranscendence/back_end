@@ -18,7 +18,7 @@ import { AuthGuardLocal } from '../auth/auth.guard';
 import { JWTExceptionFilter } from '../exception/jwt.filter';
 import { RoomService } from './room.service';
 import { SUserService } from './socketUser.service';
-import { friends, IChatRoom, IGameRoom, IUser, UserStatus } from '../types/types';
+import { IChatRoom, IGameRoom, IUser, UserStatus } from '../types/types';
 import { LoggingInterceptor } from '../logger.Interceptor';
 import { AuthService } from '../auth/auth.service';
 import { SGameService } from './sgame.service';
@@ -75,10 +75,12 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     roomInfo: { room: string; isPublic: boolean; pwd?: string },
   ) {
     const intra = this.room.getIntraAtToken(client);
-    if (this.room.addRoom(
-      roomInfo.room,
-      new Room(roomInfo.room, intra, roomInfo.isPublic, roomInfo.pwd),
-    ))
+    if (
+      this.room.addRoom(
+        roomInfo.room,
+        new Room(roomInfo.room, intra, roomInfo.isPublic, roomInfo.pwd),
+      )
+    )
       return {};
     //this.room.showRooms();  //TODO 간단하게 보여주기
 
@@ -99,8 +101,8 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       const userTemp: IUser = this.user.getUser(client.id);
       this.room.addUser(roomInfo.roomName, userTemp, client); // 방에 사람 추가하기
       client
-      .to(roomInfo.roomName)
-      .emit('roomInfo', this.room.getChatRoomInfo(roomInfo.roomName)); // join leave할때
+        .to(roomInfo.roomName)
+        .emit('roomInfo', this.room.getChatRoomInfo(roomInfo.roomName)); // join leave할때
       // client.emit('roomInfo', this.room.getChatRoomInfo(roomInfo.roomName)); // 방 안의 사람 정보 갱신
       return true;
     } else {
@@ -164,10 +166,16 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   kickUser(client: Socket, roomInfo: { roomName: string; kickUser: string }) {
     const intra = this.room.getIntraAtToken(client); //이사람이 어드민이나 오너이면 //muteuser를 할 수 있게, 어드민이나 오너는 뮤트 할 수 없게
     let ret = '';
-    if (roomInfo.kickUser == this.room.getOwenr(roomInfo.roomName) || this.room.checkAdmin(roomInfo.roomName, roomInfo.kickUser)) {
-      if ((intra == this.room.getOwenr(roomInfo.roomName)) && this.room.checkAdmin(roomInfo.roomName, roomInfo.kickUser)) {
+    if (
+      roomInfo.kickUser == this.room.getOwenr(roomInfo.roomName) ||
+      this.room.checkAdmin(roomInfo.roomName, roomInfo.kickUser)
+    ) {
+      if (
+        intra == this.room.getOwenr(roomInfo.roomName) &&
+        this.room.checkAdmin(roomInfo.roomName, roomInfo.kickUser)
+      ) {
         for (const [clientId, user] of this.room.getRoom(roomInfo.roomName)
-        .users) {
+          .users) {
           if (user.intra == roomInfo.kickUser) {
             this.room.rmRoomUser(roomInfo.roomName, roomInfo.kickUser);
             ret = clientId;
@@ -177,8 +185,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
         client.emit('roomInfo', this.room.getChatRoomInfo(roomInfo.roomName)); // join leave할때
       }
       return ret;
-    }
-    else if (
+    } else if (
       intra == this.room.getOwenr(roomInfo.roomName) ||
       this.room.checkAdmin(roomInfo.roomName, intra)
     ) {
@@ -207,11 +214,17 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   banUser(client: Socket, roomInfo: { roomName: string; banUser: string }) {
     let ret = '';
     const intra = this.room.getIntraAtToken(client); //이사람이 어드민이나 오너이면 //muteuser를 할 수 있게, 어드민이나 오너는 뮤트 할 수 없게
-    if ( roomInfo.banUser == this.room.getOwenr(roomInfo.roomName) || this.room.checkAdmin(roomInfo.roomName, roomInfo.banUser)) {
-      if ((intra == this.room.getOwenr(roomInfo.roomName)) && this.room.checkAdmin(roomInfo.roomName, roomInfo.banUser)) {
+    if (
+      roomInfo.banUser == this.room.getOwenr(roomInfo.roomName) ||
+      this.room.checkAdmin(roomInfo.roomName, roomInfo.banUser)
+    ) {
+      if (
+        intra == this.room.getOwenr(roomInfo.roomName) &&
+        this.room.checkAdmin(roomInfo.roomName, roomInfo.banUser)
+      ) {
         this.room.addBanUser(roomInfo.roomName, roomInfo.banUser);
         for (const [clientId, user] of this.room.getRoom(roomInfo.roomName)
-        .users) {
+          .users) {
           if (user.intra == roomInfo.banUser) {
             this.room.rmRoomUser(roomInfo.roomName, roomInfo.banUser);
             ret = clientId;
@@ -222,8 +235,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
         return this.room.getAllRoom().get(roomInfo.roomName).ban;
       }
       return ret;
-    }
-    else if (
+    } else if (
       intra == this.room.getOwenr(roomInfo.roomName) ||
       this.room.checkAdmin(roomInfo.roomName, intra)
     ) {
@@ -259,22 +271,29 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     console.log(this.room.getOwenr(roomInfo.roomName));
     console.log(this.room.getAllRoom().get(roomInfo.roomName).owner);
     console.log('dkfalfjdaslfkjasd');
-    if (roomInfo.muteUser == this.room.getOwenr(roomInfo.roomName) || this.room.checkAdmin(roomInfo.roomName, roomInfo.muteUser)) {
-        if ((intra == this.room.getOwenr(roomInfo.roomName)) && this.room.checkAdmin(roomInfo.roomName, roomInfo.muteUser)) {
-          if (
-            !this.room.getRoom(roomInfo.roomName).muted.includes(roomInfo.muteUser)
-          ) {
-            //방의 오너 어드민이 뮤트의 대상? 불가능
-            // 오너랑 어드민은 뮤트 할 수 있게
-            this.room.addMuteUser(roomInfo.roomName, roomInfo.muteUser);
-          } else {
-            this.room.rmMuteUser(roomInfo.roomName, roomInfo.muteUser);
-          }
-          return this.room.getAllRoom().get(roomInfo.roomName).muted;
+    if (
+      roomInfo.muteUser == this.room.getOwenr(roomInfo.roomName) ||
+      this.room.checkAdmin(roomInfo.roomName, roomInfo.muteUser)
+    ) {
+      if (
+        intra == this.room.getOwenr(roomInfo.roomName) &&
+        this.room.checkAdmin(roomInfo.roomName, roomInfo.muteUser)
+      ) {
+        if (
+          !this.room
+            .getRoom(roomInfo.roomName)
+            .muted.includes(roomInfo.muteUser)
+        ) {
+          //방의 오너 어드민이 뮤트의 대상? 불가능
+          // 오너랑 어드민은 뮤트 할 수 있게
+          this.room.addMuteUser(roomInfo.roomName, roomInfo.muteUser);
+        } else {
+          this.room.rmMuteUser(roomInfo.roomName, roomInfo.muteUser);
         }
+        return this.room.getAllRoom().get(roomInfo.roomName).muted;
+      }
       return [];
-    }
-    else if (
+    } else if (
       intra == this.room.getOwenr(roomInfo.roomName) ||
       this.room.checkAdmin(roomInfo.roomName, intra)
     ) {
@@ -403,18 +422,15 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   // 다른방 눌렀다가 오기
   @SubscribeMessage('clearRoom')
   clearRoom(socket: Socket) {
-
     socket.rooms.forEach((ele: any) => {
       if (ele != socket.id) {
         socket.leave(ele);
       }
     });
 
-    for(const [key, value] of this.room.getAllRoom()) {
+    for (const [key, value] of this.room.getAllRoom()) {
       this.room.deleteUserBysocketId(socket.id, key);
-      socket
-      .to(key)
-      .emit('roomInfo', this.room.getChatRoomInfo(key)); // join leave할때
+      socket.to(key).emit('roomInfo', this.room.getChatRoomInfo(key)); // join leave할때
       this.room.deleteEmptyRoom(key);
     }
   }
@@ -436,7 +452,6 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     let ret = '';
     // 방에 있으면 그 사람 뽑아내기
     if (this.room.isInRoomUser(roomInfo.roomName, roomInfo.shellWeDmUser)) {
-
       for (const [key, value] of this.room
         .getRoom(roomInfo.roomName)
         .users.entries()) {
@@ -517,8 +532,9 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
         // this.room.deleteUserBysocketId(user2Clientid, roomInfo.roomName); // 방에서 제거
         this.room.rmRoomUser(roomInfo.roomName, recvUser); // 방에서 제거
         socket.leave(roomInfo.roomName);
-        socket.to(roomInfo.roomName).emit('roomInfo', this.room.getChatRoomInfo(roomInfo.roomName));
-
+        socket
+          .to(roomInfo.roomName)
+          .emit('roomInfo', this.room.getChatRoomInfo(roomInfo.roomName));
       }
     }
 
@@ -557,9 +573,10 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('enterGameRoom')
-  enterGameRoom(client: Socket, room :string) {
+  enterGameRoom(client: Socket, room: string) {
     const userTemp: IUser = this.user.getUser(client.id);
-    if (this.gameroom.setPlayerB(room, userTemp)) // 방에 사람 추가하기
+    if (this.gameroom.setPlayerB(room, userTemp))
+      // 방에 사람 추가하기
       client.join(room);
     // client
     //   .to(room)
@@ -570,50 +587,44 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   //a의 이름
   @SubscribeMessage('getGameRoomInfo')
   getGameRoomInfo(client: Socket) {
-    return  this.gameroom.getGameRooms();
+    return this.gameroom.getGameRooms();
   }
 
   @SubscribeMessage('down') // 이 소켓이 a인지 b인지 observer ,, a면 true, b면 false emit은 room
-  down(client: Socket, room : string) {
-    if (this.gameroom.isPlayerA(client.id, room))
-    {
-      client.emit("down", true);//플레이어 에이인지 아닌지
-      client.to(room).emit("down", true);//플레이어 에이인지 아닌지
+  down(client: Socket, room: string) {
+    if (this.gameroom.isPlayerA(client.id, room)) {
+      client.emit('down', true); //플레이어 에이인지 아닌지
+      client.to(room).emit('down', true); //플레이어 에이인지 아닌지
+    } else {
+      client.emit('down', false);
+      client.to(room).emit('down', false); //플레이어 에이인지 아닌지
     }
-    else
-    {
-      client.emit("down", false);
-      client.to(room).emit("down", false);//플레이어 에이인지 아닌지
-    }
-    return{};
+    return {};
   }
 
   @SubscribeMessage('up')
-  up(client: Socket, room : string) {
-    if (this.gameroom.isPlayerA(client.id, room))
-    {
-      client.emit("up", true);
-      client.to(room).emit("up", true);
+  up(client: Socket, room: string) {
+    if (this.gameroom.isPlayerA(client.id, room)) {
+      client.emit('up', true);
+      client.to(room).emit('up', true);
+    } else {
+      client.emit('up', false);
+      client.to(room).emit('up', false);
     }
-    else
-    {
-      client.emit("up", false);
-      client.to(room).emit("up", false);
-    }
-    return{};
+    return {};
   }
 
   @SubscribeMessage('gameStart')
-  gameStart(client: Socket, room : string) {
+  gameStart(client: Socket, room: string) {
     if (this.gameroom.isPlayerA(client.id, room)) {
       client.to(room).emit('gameStart');
       client.emit('gameStart');
-      return (true);
-    }
-    else {
-      return (false);
+      return true;
+    } else {
+      return false;
     }
   }
+
   //a인지 확인 모든 방에 gamestart
 
   // @SubscribeMessage('setPlayer')
@@ -633,8 +644,6 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   // ) {
   //   this.game.setLocation(gameInfo);
   // }
-
-
 
   // // // @SubscribeMessage('newMsg')
   // // // sentMsg(client : Socket, room: string) {
@@ -692,34 +701,30 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   //   }
 
   @SubscribeMessage('myFriend')
-  myFriend(client : Socket) {
+  myFriend(client: Socket) {
     const intra = this.room.getIntraAtToken(client);
     // const stateFriend : {state : string, name : string}[] = [];
-    const stateFriend : {Friends :friends, state: UserStatus}[] = [];
+    const stateFriend: { Friends: friends; state: UserStatus }[] = [];
     this.users.findFriend(intra).then((res) => {
-        for (const [key, values] of res.friends.entries())
-        {
-          let temp : {Friends :friends, state: UserStatus};
-          temp.Friends = <friends>values;
-          if (this.user.isUserName(values.friend)) {
-            temp.state = 1; //login
-          }
-          else {
-            temp.state = 2; // logout
-          }
-          stateFriend.push(temp); // 친구
+      for (const [key, values] of res.friends.entries()) {
+        let temp: { Friends: friends; state: UserStatus };
+        temp.Friends = <friends>values;
+        if (this.user.isUserName(values.friend)) {
+          temp.state = 1; //login
+        } else {
+          temp.state = 2; // logout
         }
-      })
-      return {stateFriend};
-    };
+        stateFriend.push(temp); // 친구
+      }
+    });
+    return { stateFriend };
+  }
 }
-
 
 // Game
 
 //   getChatRoomInfo
 // ->getGameRoomInfo
-
 
 // enterRoom->
 // enterGameRoom
@@ -730,7 +735,6 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
 // clearRoom->
 // clearGameRoom
 
-
 // player 생성할때 a
 
 // b가 있는 지 없는지
@@ -739,4 +743,4 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
 // 옵저버 입장
 
-// 게임 a 만 실행을 할 수 있게! >> start누르면 a인지 확인 맞으면 
+// 게임 a 만 실행을 할 수 있게! >> start누르면 a인지 확인 맞으면
