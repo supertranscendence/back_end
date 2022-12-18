@@ -65,4 +65,28 @@ export class GameroomService {
     else 
       return false;
   }
+
+  getPlayerBId(room : string) : string {
+    if(this.gameRooms.get(room).playerB == null)
+      return ""
+    else
+      return (this.gameRooms.get(room).playerB.client.id);
+  } 
+
+  isPlayerB(playerB : string, room : string) : boolean {
+    if (this.getPlayerBId(room) == playerB)
+      return true;
+    else 
+      return false;
+  }
+
+  deleteRoom(room : string) : void{
+    this.gameRooms.delete(room);
+  }
+
+
+  deletePlayer(room : string) : void{
+    this.gameRooms.get(room).playerB = null;
+  }
+
 }
