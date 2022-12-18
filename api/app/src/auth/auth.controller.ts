@@ -96,6 +96,6 @@ export class AuthController {
   async ftTakeCode(@Body('code') code: string, @Req() req, @Res() res) {
     const intra = this.auth.getIntra(this.auth.extractToken(req));
     await this.user.updateVerifyByIntra(intra, code);
-    res.status(302).redirect('https://gilee.click/workspace/sleact/intro');
+    res.status(302).redirect('https://server.gilee.click/api/auth/ft/redirect');
   }
 }
