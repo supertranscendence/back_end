@@ -9,6 +9,9 @@ CREATE TABLE pong.USERS
  "level"    int NOT NULL,
  created  TIMESTAMP not null default now(),
  updated  TIMESTAMP,
+ tf bool NULL DEFAULT false,
+ email varchar(50) NULL,
+ verify varchar(200) NULL,
  CONSTRAINT PK_1 PRIMARY KEY ( "id" )
 );
 
