@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  InternalServerErrorException,
-  LoggerService,
-} from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { Users } from '../../entities/Users';
 import { FriendsRepository } from '../../friends/repository/friends.repository';
 import { UsersRepository } from '../repository/users.repository';
@@ -32,15 +28,12 @@ export class UsersService {
   }
 
   public async findFriend(intra: string): Promise<Users> {
-    const id = await (
-      await this.usersRepository.findOneBy({ intra: intra })
-    ).id;
-    const member = await this.usersRepository
+    const id = (await this.usersRepository.findOneBy({ intra: intra })).id;
+    return await this.usersRepository
       .createQueryBuilder('m')
       .leftJoinAndSelect('m.friends', 't')
       .where('m.id = :id', { id: id })
       .getOne();
-    return member;
   }
 
   public async editNick(intra: string, fixNick: string): Promise<Users> {
@@ -69,9 +62,7 @@ export class UsersService {
     // First check if account exist
 
     // 있는지 확인하고, 없으면 추가, 있으면 무시하기
-    const myid = await (
-      await this.usersRepository.findOneBy({ intra: intra })
-    ).id;
+    const myid = (await this.usersRepository.findOneBy({ intra: intra })).id;
     // const add =  await (await this.usersRepository.findOneBy({intra: addFriend}));
 
     const member = await this.friendsRepository
@@ -191,6 +182,26 @@ export class UsersService {
   async updateAvatarByIntra(intra: string, value: string) {
     await this.usersRepository
       .update({ intra: intra }, { avatar: value })
+      .then((res) => {
+        if (!res.affected) throw InternalServerErrorException;
+        //this.logger.log(`${intra} avatar updated`);
+      })
+      .catch(/*this.logger.error(`${intra} avatar update failed`)*/);
+  }
+
+  async updateEmailByIntra(intra: string, value: string) {
+    await this.usersRepository
+      .update({ intra: intra }, { email: value })
+      .then((res) => {
+        if (!res.affected) throw InternalServerErrorException;
+        //this.logger.log(`${intra} avatar updated`);
+      })
+      .catch(/*this.logger.error(`${intra} avatar update failed`)*/);
+  }
+
+  async updateVerifyByIntra(intra: string, value: string) {
+    await this.usersRepository
+      .update({ intra: intra }, { verify: value })
       .then((res) => {
         if (!res.affected) throw InternalServerErrorException;
         //this.logger.log(`${intra} avatar updated`);

@@ -33,23 +33,6 @@ export class UsersController {
     this.logger = new Logger();
   }
 
-  @Get()
-  findOne() {
-    return this.users.findAll();
-  }
-
-  // getJoin() {
-  //     // return [1, 2, 3];
-  //     return this.users.findJoin();
-  // }
-
-  @Get()
-  getAll() {
-    // return [1, 2, 3];
-    return this.users.findAll();
-  }
-
-  //분리 ???
   @Get('/my')
   @HttpCode(200)
   @Header('Access-Control-Allow-Origin', 'https://gilee.click')
@@ -70,7 +53,6 @@ export class UsersController {
     return this.users.findFriend(intra);
   }
 
-  // @Get('/my/Isfriends') // Post
   @Post()
   @HttpCode(201)
   @Header('Access-Control-Allow-Origin', 'https://gilee.click')
@@ -80,6 +62,15 @@ export class UsersController {
     // return this.users.findByIntra(intra);
     this.users.addmyfriend(intra, addIntra);
     return addIntra;
+  }
+
+  @Post('email')
+  @HttpCode(204)
+  @Header('Access-Control-Allow-Origin', 'https://gilee.click')
+  @Header('Access-Control-Allow-Credentials', 'true')
+  setEmail(@Body('email') email: string, @Req() req: Request) {
+    const intra = this.auth.getIntra(this.auth.extractToken(req));
+    return this.users.updateEmailByIntra(intra, email);
   }
 
   @Put()
@@ -95,7 +86,7 @@ export class UsersController {
     return this.users.editNick(intra, editNick);
   }
 
-  @Put('/avatar/')
+  @Put('/avatar')
   @HttpCode(204)
   @Header('Access-Control-Allow-Origin', 'https://gilee.click')
   @Header('Access-Control-Allow-Credentials', 'true')
@@ -127,16 +118,6 @@ export class UsersController {
       });
   }
 
-  // @Post()
-  // @HttpCode(200)
-  // @Header('Access-Control-Allow-Origin', 'https://gilee.click')
-  // @Header('Access-Control-Allow-Credentials', 'true')
-  // addFriend(@Body() body, @Req() request : Request) {
-  //   const intra = this.auth.getIntra(this.auth.extractToken(request, 'http'));
-  //   // + achievement;
-  //   return this.users.addfriend(intra, body);
-  // }
-
   @Get('/:id')
   @HttpCode(200)
   @Header('Access-Control-Allow-Origin', 'https://gilee.click')
@@ -145,27 +126,4 @@ export class UsersController {
     // const intra = this.auth.getIntra(this.auth.extractToken(request, 'http'));
     return this.users.findByIntra(tid);
   }
-
-  // @Get('')
-  // getJoin(@Param('id') tid : number) {
-  //     return this.users.findJoin(tid);
-  // }
-
-  // @Post()
-  // create(@Body() body: any) {
-  //   // return body;
-  //   return this.users.create(body);
-  // }
-
-  // @Put(':id')
-  // update(@Param('id') tid: number, @Body() body: any) {
-  //   // return body;
-  //   return this.users.update(tid, body);
-  // }
-
-  // @Delete(':id')
-  // delete(@Param('id') tid: number) {
-  //   // return true;
-  //   return this.users.delete(tid);
-  // }
 }
