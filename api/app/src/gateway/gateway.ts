@@ -596,7 +596,11 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('findMatch')
   findMatch(client: Socket) {
     const userTemp: IUser = this.user.getUser(client.id);
-    this.gameroom.getQueue().enqueue(userTemp);
+    //유저에서 있으면 아래실행
+    if (this.gameroom.getQueue().equal(userTemp)) {
+      return this.gameroom.getQueue().getSize();
+    }
+    this.gameroom.getQueue().enqueue(userTemp); //소켓 디스커넥트가
 
     if (this.gameroom.getQueue().getSize() >= 2) {
       let userBefore : IUser = this.gameroom.getQueue().dequeue(); // a
@@ -610,7 +614,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       client.to(userBefore.client.id).emit('findMatch', roomName); // a
       client.emit('findMatch', roomName); // b
     }
-    return {};
+    return this.gameroom.getQueue().getSize();
   }
 
 
