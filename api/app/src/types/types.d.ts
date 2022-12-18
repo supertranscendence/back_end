@@ -18,8 +18,9 @@ export interface IUser {
 }
 
 export interface IGameRoom {
-  players: Socket[];
-  observers: Socket[];
+  playerA: IUser;
+  playerB?: IUser;
+  observers: Map<string, IUser>;
 }
 
 export interface IGame {

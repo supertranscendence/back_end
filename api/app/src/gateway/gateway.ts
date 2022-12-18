@@ -544,27 +544,49 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('createGameRoom')
-  createGameRoom(client: Socket, gameInfo: { owner: string }) {
-    this.gameroom.createGameRoom(gameInfo.owner, client);
+  createGameRoom(client: Socket, roomName: string) {
+    const userTemp: IUser = this.user.getUser(client.id); // 현재 클라이언트와 같은 사람 찾아와
+    if (this.gameroom.createGameRoom(roomName, userTemp))
+      return {};
+    client.join(roomName);
+    client.emit('new-room-created', roomName);
+    return {};
   }
 
-  @SubscribeMessage('setPlayer')
-  setPlayer(client: Socket, gameInfo: { owner: string }) {
-    this.gameroom.setPlayer(gameInfo.owner, client);
+  @SubscribeMessage('enterGameRoom')
+  enterGameRoom(client: Socket, room :string) {
+    
+    const userTemp: IUser = this.user.getUser(client.id);
+    if (this.gameroom.setPlayerB(room, userTemp)) // 방에 사람 추가하기
+      client.join(room);
+      
+    // client
+    //   .to(room)
+    //   .emit('roomInfo', this.room.getChatRoomInfo(room)); // join leave할때
+    return {};
   }
 
-  @SubscribeMessage('startGame')
-  startGame(client: Socket, gameInfo: { owner: string }) {
-    this.game.startGame(this.gameroom.getPlayers(gameInfo.owner));
-  }
 
-  @SubscribeMessage('setLocation')
-  setLocation(
-    client: Socket,
-    gameInfo: { gameId: number; player: string; location: number },
-  ) {
-    this.game.setLocation(gameInfo);
-  }
+
+  // @SubscribeMessage('setPlayer')
+  // setPlayer(client: Socket, gameInfo: { owner: string }) {
+  //   this.gameroom.setPlayer(gameInfo.owner, client);
+  // }
+
+  // @SubscribeMessage('startGame')
+  // startGame(client: Socket, gameInfo: { owner: string }) {
+  //   this.game.startGame(this.gameroom.getPlayers(gameInfo.owner));
+  // }
+
+  // @SubscribeMessage('setLocation')
+  // setLocation(
+  //   client: Socket,
+  //   gameInfo: { gameId: number; player: string; location: number },
+  // ) {
+  //   this.game.setLocation(gameInfo);
+  // }
+
+
 
   // // // @SubscribeMessage('newMsg')
   // // // sentMsg(client : Socket, room: string) {
@@ -626,6 +648,8 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
 //   getChatRoomInfo
 // ->getGameRoomInfo
+
+
 // enterRoom->
 // enterGameRoom
 // create-room->
