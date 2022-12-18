@@ -94,6 +94,7 @@ export class AuthController {
   @Header('Access-Control-Allow-Origin', 'https://gilee.click')
   @Header('Access-Control-Allow-Credentials', 'true')
   async ftTakeCode(@Body('code') code: string, @Req() req, @Res() res) {
+    this.logger.log(this.auth.extractToken(req));
     const intra = this.auth.getIntra(this.auth.extractToken(req));
     await this.user.updateVerifyByIntra(intra, code);
     res.status(302).redirect('https://server.gilee.click/api/auth/ft/redirect');
