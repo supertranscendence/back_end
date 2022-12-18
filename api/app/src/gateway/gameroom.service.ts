@@ -18,7 +18,7 @@ export class GameroomService {
       }
       else {
         this.gameRooms.set(
-          roomName = roomName,
+          roomName,
           new (class implements IGameRoom {
             readonly observers: Map<string, IUser>;
             readonly playerA: IUser;
@@ -57,12 +57,17 @@ export class GameroomService {
     return returnGameRoom;
   }
   
+  getPlayerAId(room : string) : string {
+    if(this.gameRooms.get(room).playerA == null)
+      return ""
+    else
+      return (this.gameRooms.get(room).playerA.client.id);
+  } 
+
   isPlayerA(playerA : string, room : string) : boolean {
-    if (this.gameRooms.get(room).playerA.client.id == playerA)
+    if (this.getPlayerAId(room) == playerA)
       return true;
     else 
       return false;
   }
-
-
 }
