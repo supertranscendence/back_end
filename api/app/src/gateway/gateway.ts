@@ -365,29 +365,22 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   // 다른방 눌렀다가 오기
   @SubscribeMessage('clearRoom')
   clearRoom(socket: Socket) {
-    // this.logger.log('clearRoom Before');
-    // console.log('clearRoom Before')
-    // this.room.showRooms();
-    this.logger.log(`Function Name : clearRoom clientid : ${socket.id}`);
 
     socket.rooms.forEach((ele: any) => {
       if (ele != socket.id) {
         socket.leave(ele);
-        let tmpArr: string[] = [];
-        this.room
-          .getAllRoom()
-          .get(ele.room)
-          .users.forEach((ele) => {
-            tmpArr.push(ele.intra);
-          });
-        socket.emit('roomInfo', tmpArr); // join leave할때
-        this.room.deleteUserBysocketId(socket.id, ele);
+        // let tmpArr: string[] = [];
+        // this.room
+        //   .getAllRoom()
+        //   .get(ele.room)
+        //   .users.forEach((ele) => {
+        //     tmpArr.push(ele.intra);
+        //   });
+          this.room.deleteUserBysocketId(socket.id, ele);
         // 방에 아무도 없으면 방제거
+        socket.emit('roomInfo', this.room.getChatRoomInfo(ele.room)); // join leave할때
         this.room.deleteEmptyRoom(ele);
       }
-      // this.logger.log('clearRoom After');
-      // console.log('clearRoom After')
-      // this.room.showRooms();
     });
   }
 
