@@ -72,10 +72,11 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     roomInfo: { room: string; isPublic: boolean; pwd?: string },
   ) {
     const intra = this.room.getIntraAtToken(client);
-    this.room.addRoom(
+    if (this.room.addRoom(
       roomInfo.room,
       new Room(roomInfo.room, intra, roomInfo.isPublic, roomInfo.pwd),
-    );
+    ))
+      return {};
     //this.room.showRooms();  //TODO 간단하게 보여주기
 
     const userTemp: IUser = this.user.getUser(client.id); // 현재 클라이언트와 같은 사람 찾아와
