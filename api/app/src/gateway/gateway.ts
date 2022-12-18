@@ -154,6 +154,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   // 내부 동작 : 해당 방에서 kickUser가 어드민이나 오너가 아니면 방에서 내보냄
   // 반환 : return ;
 
+  // ban mute
 
   //Owner 는 admin을 킥할 수 있어야 한다.
   @SubscribeMessage('kickUser') // 방 쫓아내기
@@ -203,13 +204,23 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   banUser(client: Socket, roomInfo: { roomName: string; banUser: string }) {
     let ret = '';
     const intra = this.room.getIntraAtToken(client); //이사람이 어드민이나 오너이면 //muteuser를 할 수 있게, 어드민이나 오너는 뮤트 할 수 없게
-    if (
-      roomInfo.banUser == this.room.getOwenr(roomInfo.roomName) ||
-      this.room.checkAdmin(roomInfo.roomName, roomInfo.banUser)
-    )
+    if ( roomInfo.banUser == this.room.getOwenr(roomInfo.roomName) || this.room.checkAdmin(roomInfo.roomName, roomInfo.banUser)) {
+      if ((intra == this.room.getOwenr(roomInfo.roomName)) && this.room.checkAdmin(roomInfo.roomName, roomInfo.banUser)) {
+        this.room.addBanUser(roomInfo.roomName, roomInfo.banUser);
+        for (const [clientId, user] of this.room.getRoom(roomInfo.roomName)
+        .users) {
+          if (user.intra == roomInfo.banUser) {
+            this.room.rmRoomUser(roomInfo.roomName, roomInfo.banUser);
+            ret = clientId;
+          }
+        }
+        client.to(ret).emit('kicked'); // 다르게 유저객체에서 getuser kick대상을 찾아서
+        client.emit('roomInfo', this.room.getChatRoomInfo(roomInfo.roomName)); // join leave할때
+        return this.room.getAllRoom().get(roomInfo.roomName).ban;
+      }
       return ret;
-    // 오너랑 어드민은 뮤트 할 수 있게
-    if (
+    }
+    else if (
       intra == this.room.getOwenr(roomInfo.roomName) ||
       this.room.checkAdmin(roomInfo.roomName, intra)
     ) {
@@ -224,8 +235,8 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       //client.leave(roomInfo.roomName);
       client.to(ret).emit('kicked');
       client.emit('roomInfo', this.room.getChatRoomInfo(roomInfo.roomName)); // join leave할때
+      return this.room.getAllRoom().get(roomInfo.roomName).ban;
     }
-    return this.room.getAllRoom().get(roomInfo.roomName).ban;
   }
 
   // 관리자인데 들어가 있는데 ban kick mute 다됨
@@ -245,12 +256,22 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     console.log(this.room.getOwenr(roomInfo.roomName));
     console.log(this.room.getAllRoom().get(roomInfo.roomName).owner);
     console.log('dkfalfjdaslfkjasd');
-    if (
-      roomInfo.muteUser == this.room.getOwenr(roomInfo.roomName) ||
-      this.room.checkAdmin(roomInfo.roomName, roomInfo.muteUser)
-    )
+    if (roomInfo.muteUser == this.room.getOwenr(roomInfo.roomName) || this.room.checkAdmin(roomInfo.roomName, roomInfo.muteUser)) {
+        if ((intra == this.room.getOwenr(roomInfo.roomName)) && this.room.checkAdmin(roomInfo.roomName, roomInfo.muteUser)) {
+          if (
+            !this.room.getRoom(roomInfo.roomName).muted.includes(roomInfo.muteUser)
+          ) {
+            //방의 오너 어드민이 뮤트의 대상? 불가능
+            // 오너랑 어드민은 뮤트 할 수 있게
+            this.room.addMuteUser(roomInfo.roomName, roomInfo.muteUser);
+          } else {
+            this.room.rmMuteUser(roomInfo.roomName, roomInfo.muteUser);
+          }
+          return this.room.getAllRoom().get(roomInfo.roomName).muted;
+        }
       return [];
-    if (
+    }
+    else if (
       intra == this.room.getOwenr(roomInfo.roomName) ||
       this.room.checkAdmin(roomInfo.roomName, intra)
     ) {
@@ -264,7 +285,6 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
         this.room.rmMuteUser(roomInfo.roomName, roomInfo.muteUser);
       }
     }
-    this.room.showRooms();
     return this.room.getAllRoom().get(roomInfo.roomName).muted;
     // 다른 사람들은 불가능
   }
