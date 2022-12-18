@@ -94,7 +94,10 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       client.join(roomInfo.roomName);
       const userTemp: IUser = this.user.getUser(client.id);
       this.room.addUser(roomInfo.roomName, userTemp, client); // 방에 사람 추가하기
-      client.emit('roomInfo', this.room.getChatRoomInfo(roomInfo.roomName)); // 방 안의 사람 정보 갱신
+      client
+      .to(roomInfo.roomName)
+      .emit('roomInfo', this.room.getChatRoomInfo(roomInfo.roomName)); // join leave할때
+      // client.emit('roomInfo', this.room.getChatRoomInfo(roomInfo.roomName)); // 방 안의 사람 정보 갱신
       return true;
     } else {
       this.logger.log(`Function Name : PWDCheck room false`);
@@ -376,9 +379,11 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
         //   .users.forEach((ele) => {
         //     tmpArr.push(ele.intra);
         //   });
-          this.room.deleteUserBysocketId(socket.id, ele);
+          this.room.deleteUserBysocketId(socket.id, ele.room);
         // 방에 아무도 없으면 방제거
-        socket.emit('roomInfo', this.room.getChatRoomInfo(ele.room)); // join leave할때
+        socket
+      .to(ele.rooom)
+      .emit('roomInfo', this.room.getChatRoomInfo(ele.room)); // join leave할때
         this.room.deleteEmptyRoom(ele);
       }
     });
