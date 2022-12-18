@@ -41,6 +41,21 @@ export class GameroomService {
       return false;
   }
 
+  getGameRooms(): { roomName: string; userAname : string }[] {
+    const returnGameRoom: {
+      roomName: string;
+      userAname : string;
+    }[] = [];
+
+    for (const [key, value] of this.gameRooms.entries()) {
+      const tmp = {
+        roomName: key,
+        userAname: value.playerA.intra
+      };
+      returnGameRoom.push(tmp);
+    }
+    return returnGameRoom;
+  }
   // getPlayers(owner: string) {
   //   return this.gameRooms.get(owner).players;
   // }

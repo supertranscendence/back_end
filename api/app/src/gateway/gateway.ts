@@ -566,6 +566,11 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     return {};
   }
 
+  //a의 이름
+  @SubscribeMessage('getGameRoomInfo')
+  getGameRoomInfo(client: Socket) {
+    return  this.gameroom.getGameRooms();
+  }
 
 
   // @SubscribeMessage('setPlayer')
