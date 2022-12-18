@@ -25,6 +25,7 @@ import { SGameService } from './sgame.service';
 import { GameroomService } from './gameroom.service';
 import { Room } from './Room';
 import { User } from './User';
+import { UsersService } from '../users/services/users.service';
 
 @UseInterceptors(LoggingInterceptor)
 @UseGuards(AuthGuardLocal)
@@ -39,6 +40,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     private game: SGameService,
     private auth: AuthService,
     private gameroom: GameroomService,
+    private users: UsersService,
     @Inject(Logger) private readonly logger: LoggerService,
   ) {}
 
@@ -602,6 +604,18 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     return{};
   }
 
+  @SubscribeMessage('gameStart')
+  gameStart(client: Socket, room : string) {
+    if (this.gameroom.isPlayerA(client.id, room)) {
+      client.to(room).emit('gameStart');
+      client.emit('gameStart');
+      return (true);
+    }
+    else
+      return (false);
+  }
+  //a인지 확인 모든 방에 gamestart
+
   // @SubscribeMessage('setPlayer')
   // setPlayer(client: Socket, gameInfo: { owner: string }) {
   //   this.gameroom.setPlayer(gameInfo.owner, client);
@@ -676,6 +690,14 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   //       content: await this.users.findAll(),
   //     });
   //   }
+
+  // @SubscribeMessage('myFriend')
+  // myFriend(client : Socket) {
+  //   const intra = this.room.getIntraAtToken(client);
+  //   let a = this.users.findFriend(intra);
+  //   // a.
+  //   return {};
+  // }
 }
 
 // Game
