@@ -4,13 +4,20 @@ import { Socket } from 'socket.io';
 import { Client } from 'socket.io/dist/client';
 import { DefaultEventsMap } from 'socket.io/dist/typed-events';
 import { gameRoom } from './Room';
+import { Queue } from './Queue';
 
 @Injectable()
 export class GameroomService {
   private readonly gameRooms: Map<string, IGameRoom>;
+  private readonly queue: Queue;
 
   constructor() {
     this.gameRooms = new Map<string, IGameRoom>();
+    this.queue = new Queue();
+  }
+
+  getQueue() : Queue {
+    return this.queue;
   }
 
   allGameRoom() : Map<string, IGameRoom>{
