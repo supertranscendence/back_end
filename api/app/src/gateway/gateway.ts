@@ -581,12 +581,12 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
     else
     {
-      client.emit("down", true);
+      client.emit("down", false);
       client.to(room).emit("down", false);//플레이어 에이인지 아닌지
     }
     return{};
   }
-  
+
   @SubscribeMessage('up')
   up(client: Socket, room : string) {
     if (this.gameroom.isPlayerA(client.id, room))
@@ -596,7 +596,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
     else
     {
-      client.emit("up", true);
+      client.emit("up", false);
       client.to(room).emit("up", false);
     }
     return{};
