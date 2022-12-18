@@ -18,12 +18,12 @@ import { AuthGuardLocal } from '../auth/auth.guard';
 import { JWTExceptionFilter } from '../exception/jwt.filter';
 import { RoomService } from './room.service';
 import { SUserService } from './socketUser.service';
-import { IChatRoom, IUser, UserStatus } from '../types/types';
+import { friends, IChatRoom, IGameRoom, IUser, UserStatus } from '../types/types';
 import { LoggingInterceptor } from '../logger.Interceptor';
 import { AuthService } from '../auth/auth.service';
 import { SGameService } from './sgame.service';
 import { GameroomService } from './gameroom.service';
-import { Room } from './Room';
+import { gameRoom, Room } from './Room';
 import { User } from './User';
 import { UsersService } from '../users/services/users.service';
 import { Friends } from '../entities/Friends';
@@ -549,7 +549,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('createGameRoom')
   createGameRoom(client: Socket, roomName: string) {
     const userTemp: IUser = this.user.getUser(client.id); // 현재 클라이언트와 같은 사람 찾아와
-    if (this.gameroom.createGameRoom(roomName, userTemp))
+    if (this.gameroom.createGameRoom(roomName, new gameRoom(userTemp)))
       return {};
     client.join(roomName);
     client.emit('newGameRoomCreated', roomName);
@@ -577,7 +577,6 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   down(client: Socket, room : string) {
     if (this.gameroom.isPlayerA(client.id, room))
     {
-      // 자기 한테 안보낼거 같다
       client.emit("down", true);//플레이어 에이인지 아닌지
       client.to(room).emit("down", true);//플레이어 에이인지 아닌지
     }
@@ -607,17 +606,13 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('gameStart')
   gameStart(client: Socket, room : string) {
     if (this.gameroom.isPlayerA(client.id, room)) {
-      console.log('a');
       client.to(room).emit('gameStart');
       client.emit('gameStart');
-      console.log('a');
       return (true);
     }
     else {
-      console.log('b');
       return (false);
     }
-      
   }
   //a인지 확인 모든 방에 gamestart
 
@@ -700,12 +695,12 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   myFriend(client : Socket) {
     const intra = this.room.getIntraAtToken(client);
     // const stateFriend : {state : string, name : string}[] = [];
-    const stateFriend : {Friends :Friends, state: UserStatus}[] = [];
+    const stateFriend : {Friends :friends, state: UserStatus}[] = [];
     this.users.findFriend(intra).then((res) => {
         for (const [key, values] of res.friends.entries())
         {
-          let temp : {Friends :Friends, state: UserStatus};
-          temp.Friends = values;
+          let temp : {Friends :friends, state: UserStatus};
+          temp.Friends = <friends>values;
           if (this.user.isUserName(values.friend)) {
             temp.state = 1; //login
           }

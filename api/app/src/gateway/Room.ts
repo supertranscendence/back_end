@@ -1,4 +1,4 @@
-import { IChatRoom, IUser } from '../types/types';
+import { IChatRoom, IGameRoom, IUser } from '../types/types';
 
 export class Room implements IChatRoom {
   admin: string[];
@@ -21,5 +21,16 @@ export class Room implements IChatRoom {
     this.owner = intra;
     this.pw = pwd;
     this.users = new Map<string, IUser>();
+  }
+}
+
+export class gameRoom implements IGameRoom {
+  playerA: IUser;
+  playerB: IUser;
+  observers: Map<string, IUser>;
+
+  constructor(userA : IUser) {
+    this.playerA = userA;
+    observers: new Map<string, IUser>();
   }
 }

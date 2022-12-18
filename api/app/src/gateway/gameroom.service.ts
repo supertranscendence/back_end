@@ -3,6 +3,7 @@ import { IGameRoom, IUser } from '../types/types';
 import { Socket } from 'socket.io';
 import { Client } from 'socket.io/dist/client';
 import { DefaultEventsMap } from 'socket.io/dist/typed-events';
+import { gameRoom } from './Room';
 
 @Injectable()
 export class GameroomService {
@@ -12,22 +13,16 @@ export class GameroomService {
     this.gameRooms = new Map<string, IGameRoom>();
   }
 
-  createGameRoom(roomName: string, userA: IUser) :boolean{
+  allGameRoom() : Map<string, IGameRoom>{
+    return this.gameRooms;
+  }
+
+  createGameRoom(roomName: string, gameRoom : IGameRoom) :boolean{
       if (this.gameRooms.has(roomName)) {
         return (true);
       }
       else {
-        this.gameRooms.set(
-          roomName,
-          new (class implements IGameRoom {
-            readonly observers: Map<string, IUser>;
-            readonly playerA: IUser;
-            constructor() {
-              this.observers = new Map<string, IUser>();
-              this.playerA = userA;
-            }
-          })(), 
-        )
+        this.gameRooms.set(roomName, gameRoom); 
         return (false);
       }
   }
