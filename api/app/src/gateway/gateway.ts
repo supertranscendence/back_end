@@ -26,6 +26,7 @@ import { GameroomService } from './gameroom.service';
 import { gameRoom, Room } from './Room';
 import { User } from './User';
 import { UsersService } from '../users/services/users.service';
+import { InsertValuesMissingError } from 'typeorm';
 
 @UseInterceptors(LoggingInterceptor)
 @UseGuards(AuthGuardLocal)
@@ -41,6 +42,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     private auth: AuthService,
     private gameroom: GameroomService,
     private users: UsersService,
+    
     @Inject(Logger) private readonly logger: LoggerService,
   ) {}
 
@@ -591,6 +593,105 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     return {};
   }
 
+  @SubscribeMessage('findMatch')
+  findMatch(client: Socket) {
+    const userTemp: IUser = this.user.getUser(client.id);
+    this.gameroom.getQueue().enqueue(userTemp);
+
+    if (this.gameroom.getQueue().getSize() >= 2) {
+      let userBefore : IUser = this.gameroom.getQueue().dequeue(); // a
+      let tempAfter : IUser = this.gameroom.getQueue().dequeue(); // b
+
+      let roomName = userBefore + ' ' + tempAfter;
+      this.gameroom.createGameRoom(roomName, new gameRoom(userBefore)); // a
+      this.gameroom.setPlayerB(roomName, tempAfter) // b
+      
+      client.join(roomName);
+      client.to(userBefore.client.id).emit('findMatch', roomName); // a
+      client.emit('findMatch', roomName); // b
+    }
+    return {};
+  }
+
+
+
+  @SubscribeMessage('shellWeGame')
+  shellWeGame(
+    socket: Socket,
+    roomInfo: { roomName: string; shellWeGameUser: string },
+  ) {
+    const sendIntraId: string = this.room.getIntraAtToken(socket); // 내가 보내꺼야 shellWeDmUser에게
+
+    let ret = '';
+    if (this.room.isInRoomUser(roomInfo.roomName, roomInfo.shellWeGameUser)) {
+      for (const [key, value] of this.room
+        .getRoom(roomInfo.roomName)
+        .users.entries()) {
+        if (value.intra === roomInfo.shellWeGameUser) {
+          ret = key;
+        }
+      }
+      socket.leave(roomInfo.roomName);
+      //                보내는 사람             받는 사람
+      const roomName = sendIntraId + ' ' + roomInfo.shellWeGameUser;
+
+      socket.join(roomName);
+      socket.to(ret).emit('shellWeGame', {
+        recvIntraId: roomInfo.shellWeGameUser,
+        sendIntraId: sendIntraId,
+        type : 'Game'
+      });
+    }
+    return {};
+  }
+
+
+
+  @SubscribeMessage('goGame') // 최종 수락을 해서 채팅으로간다 초대 받은사람 // 초대 한사람
+  goGame(socket: Socket, roomInfo: { roomName: string; user: string }) {
+    //join된거 풀기
+    let sendClientid;
+    for (let [key, value] of this.room.getAllRoom().get(roomInfo.roomName)
+      .users) {
+      if (value.intra === roomInfo.user) {
+        sendClientid = key;
+      }
+    }
+    const recvUser = this.room
+      .getAllRoom()
+      .get(roomInfo.roomName)
+      .users.get(socket.id).intra;
+    const recvU = this.room.getAllRoom().get(roomInfo.roomName).users.get(socket.id);
+    const sendU = this.room.getAllRoom().get(roomInfo.roomName).users.get(sendClientid);
+
+    for (const [key, value] of this.room.getAllRoom().get(roomInfo.roomName)
+      .users) {
+      if (key == sendClientid) {
+        this.room.rmRoomUser(roomInfo.roomName, roomInfo.user);
+      } else if (key == socket.id) {
+        this.room.rmRoomUser(roomInfo.roomName, recvUser); // 방에서 제거
+        socket.leave(roomInfo.roomName);
+      }
+    }
+    const roomName = roomInfo.user + ' ' + recvUser;
+    this.room.deleteEmptyRoom(roomInfo.roomName);
+
+
+    this.gameroom.createGameRoom(roomName, new gameRoom(recvU)); // a
+    this.gameroom.setPlayerB(roomName, sendU) // b
+
+    socket.join(roomName);
+    socket
+      .to(sendClientid)
+      .emit('joinedRoom', { roomName: roomName, roomType: 'Game' });
+    socket.emit('joinedRoom', { roomName: roomName, roomType: 'Game' });
+    // 게임방으로 보내는거고
+
+    return roomName;
+  }
+
+  ////////////////
+
   @SubscribeMessage('clearGameRoom')
   clearGameRoom(client: Socket) {
     
@@ -681,30 +782,32 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('gameSet')
-  gameSet(client: Socket, User : {userA: number, userB: number, name : string}) {
+  gameSet(client: Socket, User : {userA: number, userB: number, name : string, mode : boolean}) {
 
     let intra : string;
     if (User.userA >= 3) {
       intra = this.gameroom.allGameRoom().get(User.name).playerA.intra;
       client.to(User.name).emit('gameDone', intra);
       client.emit('gameDone', intra);
+      // db에 저장
     }
     else if (User.userB >= 3) {
       intra = this.gameroom.allGameRoom().get(User.name).playerB.intra;
       client.to(User.name).emit('gameDone', intra);
       client.emit('gameDone', intra);
+      // // db에 저장
     }
 
-    let temp : {userA: number, userB: number};
+    let temp : {userA: number, userB: number, mode :boolean};
     temp.userA = User.userA;
     temp.userB = User.userB;
+    temp.mode = User.mode;
 
     for (const [key, value] of this.gameroom.allGameRoom().get(User.name).observers) {
       client.to(value.client.id).emit('gameSet', temp);
       return {}
     }
   }
-
 
   // 서버에서 해줄일 : 옵저버들한테 gameSet 이벤트 emit 해주기 (
   //   객체 :{userA: number, userB:userB.number} 담아서
