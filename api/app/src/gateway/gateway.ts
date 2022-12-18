@@ -561,6 +561,8 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     return roomName;
   }
 
+
+
   @SubscribeMessage('createGameRoom')
   createGameRoom(client: Socket, roomName: string) {
     const userTemp: IUser = this.user.getUser(client.id); // 현재 클라이언트와 같은 사람 찾아와
@@ -580,6 +582,58 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     // client
     //   .to(room)
     //   .emit('roomInfo', this.room.getChatRoomInfo(room)); // join leave할때
+    return {};
+  }
+  @SubscribeMessage('enterGameRoomOBS')
+  enterGameRoomOBS(client: Socket, room: string) {
+    const userTemp: IUser = this.user.getUser(client.id);
+    this.gameroom.allGameRoom().get(room).observers.set(room, userTemp);
+    return {};
+  }
+
+  @SubscribeMessage('clearGameRoom')
+  clearGameRoom(client: Socket) {
+    
+    for (const [key, value] of this.gameroom.allGameRoom()) {
+      if (this.gameroom.isPlayerA(client.id, key)) { // a인지 확인
+        this.gameroom.deleteRoom(key);
+        client.to(key).emit('kickAll'); // 다른 사람 다 내보내기
+        client.emit('kickAll'); // 자기 나가기
+        // db에다 상대가 이기는 저장하는 로직이 있어야 된다. // 강종에서 상대
+      }
+      else if (this.gameroom.isPlayerB(client.id, key)) { // b인지 확인
+        this.gameroom.deletePlayer(key);
+        // db에다 상대가 이기는 저장하는 로직이 있어야 된다. 게임 중이라면 // 강종에서 상대
+      }
+      else { // 관전자
+        if (this.gameroom.allGameRoom().get(key).observers.has(client.id))
+        this.gameroom.allGameRoom().get(key).observers.delete(client.id);
+      }
+    }
+
+    client.rooms.forEach((ele: any) => {
+      if (ele != client.id) {
+        client.leave(ele);
+      }
+    });
+  }
+
+  @SubscribeMessage('leaveGameRoom') // 게임 방에서 방나가기 버튼을 눌렀을 때
+  leaveGameRoom(client: Socket, gameRoom: { room: string }) {
+
+    if (this.gameroom.isPlayerA(client.id, gameRoom.room)) { // a인지 확인
+      this.gameroom.deleteRoom(gameRoom.room);
+      client.to(gameRoom.room).emit('kickAll'); // 다른 사람 다 내보내기
+      client.emit('kickAll'); // 자기 나가기
+    }
+    else if (this.gameroom.isPlayerB(client.id, gameRoom.room)) { // b인지 확인
+      this.gameroom.deletePlayer(gameRoom.room);
+    }
+    else { // 관전자
+      if (this.gameroom.allGameRoom().get(gameRoom.room).observers.has(client.id))
+      this.gameroom.allGameRoom().get(gameRoom.room).observers.delete(client.id);
+    }
+      client.leave(gameRoom.room);
     return {};
   }
 
