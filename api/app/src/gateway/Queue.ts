@@ -26,4 +26,10 @@ export class Queue  {
     return this.storage.length;
   }
 
+  equal(element :IUser) : boolean {
+    if (this.storage.includes(element))
+      return true;
+    else
+      return false;
+  }
 }
