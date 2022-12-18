@@ -645,8 +645,6 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     return {};
   }
 
-
-
   @SubscribeMessage('goGame') // 최종 수락을 해서 채팅으로간다 초대 받은사람 // 초대 한사람
   goGame(socket: Socket, roomInfo: { roomName: string; user: string }) {
     //join된거 풀기
@@ -697,9 +695,9 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     
     for (const [key, value] of this.gameroom.allGameRoom()) {
       if (this.gameroom.isPlayerA(client.id, key)) { // a인지 확인
-        this.gameroom.deleteRoom(key);
         client.to(key).emit('kickAll'); // 다른 사람 다 내보내기
         client.emit('kickAll'); // 자기 나가기
+        this.gameroom.deleteRoom(key);
         // db에다 상대가 이기는 저장하는 로직이 있어야 된다. // 강종에서 상대
       }
       else if (this.gameroom.isPlayerB(client.id, key)) { // b인지 확인
@@ -723,9 +721,9 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   leaveGameRoom(client: Socket, gameRoom: { room: string }) {
 
     if (this.gameroom.isPlayerA(client.id, gameRoom.room)) { // a인지 확인
-      this.gameroom.deleteRoom(gameRoom.room);
       client.to(gameRoom.room).emit('kickAll'); // 다른 사람 다 내보내기
       client.emit('kickAll'); // 자기 나가기
+      this.gameroom.deleteRoom(gameRoom.room);
     }
     else if (this.gameroom.isPlayerB(client.id, gameRoom.room)) { // b인지 확인
       this.gameroom.deletePlayer(gameRoom.room);
