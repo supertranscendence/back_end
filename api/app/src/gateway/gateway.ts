@@ -154,16 +154,27 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   // 내부 동작 : 해당 방에서 kickUser가 어드민이나 오너가 아니면 방에서 내보냄
   // 반환 : return ;
 
+
+  //Owner 는 admin을 킥할 수 있어야 한다.
   @SubscribeMessage('kickUser') // 방 쫓아내기
   kickUser(client: Socket, roomInfo: { roomName: string; kickUser: string }) {
     const intra = this.room.getIntraAtToken(client); //이사람이 어드민이나 오너이면 //muteuser를 할 수 있게, 어드민이나 오너는 뮤트 할 수 없게
     let ret = '';
-    if (
-      roomInfo.kickUser == this.room.getOwenr(roomInfo.roomName) ||
-      this.room.checkAdmin(roomInfo.roomName, roomInfo.kickUser)
-    )
+    if (roomInfo.kickUser == this.room.getOwenr(roomInfo.roomName) || this.room.checkAdmin(roomInfo.roomName, roomInfo.kickUser)) {
+      if ((intra == this.room.getOwenr(roomInfo.roomName)) && this.room.checkAdmin(roomInfo.roomName, roomInfo.kickUser)) {
+        for (const [clientId, user] of this.room.getRoom(roomInfo.roomName)
+        .users) {
+          if (user.intra == roomInfo.kickUser) {
+            this.room.rmRoomUser(roomInfo.roomName, roomInfo.kickUser);
+            ret = clientId;
+          }
+        }
+        client.to(ret).emit('kicked'); // 다르게 유저객체에서 getuser kick대상을 찾아서
+        client.emit('roomInfo', this.room.getChatRoomInfo(roomInfo.roomName)); // join leave할때
+      }
       return ret;
-    if (
+    }
+    else if (
       intra == this.room.getOwenr(roomInfo.roomName) ||
       this.room.checkAdmin(roomInfo.roomName, intra)
     ) {
@@ -590,3 +601,27 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   //     });
   //   }
 }
+
+// Game
+
+//   getChatRoomInfo
+// ->getGameRoomInfo
+// enterRoom->
+// enterGameRoom
+// create-room->
+// createGameRoom
+// new-room-created
+//  -> newGameRoomCreated
+// clearRoom->
+// clearGameRoom
+
+
+// player 생성할때 a
+
+// b가 있는 지 없는지
+// 있으면 >> 실패 return false
+// 없으면 b가 입장 return true
+
+// 옵저버 입장
+
+// 게임 a 만 실행을 할 수 있게! >> start누르면 a인지 확인 맞으면 
