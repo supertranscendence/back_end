@@ -56,9 +56,13 @@ export class GameroomService {
     }
     return returnGameRoom;
   }
-  // getPlayers(owner: string) {
-  //   return this.gameRooms.get(owner).players;
-  // }
+  
+  isPlayerA(playerA : string, room : string) : boolean {
+    if (this.gameRooms.get(room).playerA.client.id == playerA)
+      return true;
+    else 
+      return false;
+  }
 
 
 }

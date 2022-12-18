@@ -555,7 +555,6 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('enterGameRoom')
   enterGameRoom(client: Socket, room :string) {
-    
     const userTemp: IUser = this.user.getUser(client.id);
     if (this.gameroom.setPlayerB(room, userTemp)) // 방에 사람 추가하기
       client.join(room);
@@ -572,6 +571,27 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     return  this.gameroom.getGameRooms();
   }
 
+  @SubscribeMessage('down') // 이 소켓이 a인지 b인지 observer ,, a면 true, b면 false emit은 room
+  down(client: Socket, room : string) {
+    if (this.gameroom.isPlayerA(client.id, room))
+    {
+      // 자기 한테 안보낼거 같다
+      // client.emit("down", true);//플레이어 에이인지 아닌지
+      client.to(room).emit("down", true);//플레이어 에이인지 아닌지
+    }
+    else
+      client.to(room).emit("down", false);//플레이어 에이인지 아닌지
+
+    return{};
+  }
+  @SubscribeMessage('up')
+  up(client: Socket, room : string) {
+    if (this.gameroom.isPlayerA(client.id, room))
+      client.to(room).emit("up", true);
+    else
+      client.to(room).emit("up", false);
+    return{};
+  }
 
   // @SubscribeMessage('setPlayer')
   // setPlayer(client: Socket, gameInfo: { owner: string }) {
