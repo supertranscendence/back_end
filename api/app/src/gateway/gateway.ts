@@ -387,6 +387,10 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   // 내부동작: shellWeDmUser에게 shellWeDm 이벤트 emit날림 ({user1:string, user2:string}
   // 넣어서 보내주기 user1 : shellWeDm이벤트 보낸사람, user2:보내준 shellWeDmUser)
 
+  // shellWeDM >> 원래 방에서 쫓아내고 >> roomInfo다시보내주기
+  // reJoin >> 원래방에 다시 합체 >> roomInfo다시보내주기
+  // GoDm >> 하나 쫓아냄 >> roomInfo다시보내주기
+
   @SubscribeMessage('shellWeDm') // 초대를 한사람
   shellWeDm(
     socket: Socket,
@@ -397,12 +401,6 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     let ret = '';
     // 방에 있으면 그 사람 뽑아내기
     if (this.room.isInRoomUser(roomInfo.roomName, roomInfo.shellWeDmUser)) {
-      // this.room.getRoom(roomInfo.roomName).users.forEach((ele)=>{
-      //   if (ele.intra === roomInfo.shellWeDmUser ) {
-      //     this.room.rmRoomUser(roomInfo.roomName, roomInfo.shellWeDmUser);
-      //     ret =  ele.client_id;
-      //   }
-      // })
 
       for (const [key, value] of this.room
         .getRoom(roomInfo.roomName)
@@ -413,14 +411,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       }
 
       socket.leave(roomInfo.roomName);
-      let tmpArr: string[] = [];
-      this.room
-        .getAllRoom()
-        .get(roomInfo.roomName)
-        .users.forEach((ele) => {
-          tmpArr.push(ele.intra);
-        });
-      socket.emit('roomInfo', tmpArr); // join leave할때
+      // socket.emit('roomInfo', this.room.getChatRoomInfo(roomInfo.roomName)); // join leave할때
 
       //                보내는 사람             받는 사람
       const roomName = sendIntraId + ' ' + roomInfo.shellWeDmUser;
@@ -441,14 +432,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('reJoin')
   reJoinRoom(socket: Socket, roomInfo: string) {
     socket.join(roomInfo);
-    let tmpArr: string[] = [];
-    this.room
-      .getAllRoom()
-      .get(roomInfo)
-      .users.forEach((ele) => {
-        tmpArr.push(ele.intra);
-      });
-    socket.emit('roomInfo', tmpArr); // join leave할때
+    // socket.emit('roomInfo', this.room.getChatRoomInfo(roomInfo));
   }
 
   //   goDm
@@ -498,14 +482,8 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
         // this.room.deleteUserBysocketId(user2Clientid, roomInfo.roomName); // 방에서 제거
         this.room.rmRoomUser(roomInfo.roomName, recvUser); // 방에서 제거
         socket.leave(roomInfo.roomName);
-        let tmpArr: string[] = [];
-        this.room
-          .getAllRoom()
-          .get(roomInfo.roomName)
-          .users.forEach((ele) => {
-            tmpArr.push(ele.intra);
-          });
-        socket.emit('roomInfo', tmpArr); // join leave할때
+        socket.to(roomInfo.roomName).emit('roomInfo', this.room.getChatRoomInfo(roomInfo.roomName));
+
       }
     }
 
