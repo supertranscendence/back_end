@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { IGameRoom } from '../types/types';
+import { IGameRoom, IUser } from '../types/types';
 import { Socket } from 'socket.io';
 import { Client } from 'socket.io/dist/client';
 import { DefaultEventsMap } from 'socket.io/dist/typed-events';
@@ -12,28 +12,38 @@ export class GameroomService {
     this.gameRooms = new Map<string, IGameRoom>();
   }
 
-  createGameRoom(owner: string, client: Socket) {
-    console.log(
-      this.gameRooms.set(
-        owner,
-        new (class implements IGameRoom {
-          readonly observers: Socket[];
-          readonly players: Socket[];
-
-          constructor() {
-            this.players = [];
-            this.observers = [];
-          }
-        })(),
-      ),
-    );
+  createGameRoom(roomName: string, userA: IUser) :boolean{
+      if (this.gameRooms.has(roomName)) {
+        return (true);
+      }
+      else {
+        this.gameRooms.set(
+          roomName = roomName,
+          new (class implements IGameRoom {
+            readonly observers: Map<string, IUser>;
+            readonly playerA: IUser;
+            constructor() {
+              this.observers = new Map<string, IUser>();
+              this.playerA = userA;
+            }
+          })(), 
+        )
+        return (false);
+      }
   }
 
-  setPlayer(owner: string, client: Socket) {
-    this.gameRooms.get(owner).players.push(client);
+  setPlayerB(roomName: string, user: IUser) : boolean {
+    if (this.gameRooms.get(roomName).playerB == null) {
+      this.gameRooms.get(roomName).playerB = user;
+      return true;
+    }
+    else
+      return false;
   }
 
-  getPlayers(owner: string) {
-    return this.gameRooms.get(owner).players;
-  }
+  // getPlayers(owner: string) {
+  //   return this.gameRooms.get(owner).players;
+  // }
+
+
 }
