@@ -14,9 +14,28 @@ import { ConfigService } from '@nestjs/config';
 import { GatewayModule } from './gateway/gateway.module';
 import { ExceptionModule } from './exception/exception.module';
 import { LoggerMiddleware } from './logger.middleware';
+import { MailerModule } from '@nestjs-modules/mailer';
+import { PugAdapter } from '@nestjs-modules/mailer/dist/adapters/pug.adapter';
 
 @Module({
   imports: [
+    MailerModule.forRootAsync({
+      useFactory: () => ({
+        transport: {
+          host: 'smtp.gmail.com',
+          port: 587,
+          secure: false,
+          auth: {
+            user: process.env.MAIL_ID,
+            pass: process.env.MAIL_PW,
+          },
+        },
+        defaults: {
+          from: '"no-reply" <abc@def.com>',
+        },
+        preview: true,
+      }),
+    }),
     ConfigModule.forRoot({
       validate,
       isGlobal: true,
