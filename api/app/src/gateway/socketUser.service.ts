@@ -30,9 +30,18 @@ export class SUserService {
     return false;
   }
 
+  isUserName(name: string): boolean {
+    for (const [key, values] of this.users) {
+      if (values.intra == name) return true;
+    }
+    return false;
+  }
+
+
   removeUser(id: string) {
     console.log('removeUser');
     console.log(id);
     this.users.delete(id);
   }
+
 }
