@@ -26,7 +26,6 @@ import { GameroomService } from './gameroom.service';
 import { gameRoom, Room } from './Room';
 import { User } from './User';
 import { UsersService } from '../users/services/users.service';
-import { Friends } from '../entities/Friends';
 
 @UseInterceptors(LoggingInterceptor)
 @UseGuards(AuthGuardLocal)
@@ -618,10 +617,13 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   gameStart(client: Socket, room: string) {
     if (this.gameroom.isPlayerA(client.id, room)) {
       client.to(room).emit('gameStart');
-      client.emit('gameStart');
-      return true;
-    } else {
-      return false;
+      client.emit('gameStart', true);
+      return {};
+    }
+    else {
+      client.to(room).emit('gameStart');
+      client.emit('gameStart', false);
+      return {};
     }
   }
 
@@ -700,47 +702,29 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   //     });
   //   }
 
-  @SubscribeMessage('myFriend')
-  myFriend(client: Socket) {
-    const intra = this.room.getIntraAtToken(client);
-    // const stateFriend : {state : string, name : string}[] = [];
-    const stateFriend: { Friends: friends; state: UserStatus }[] = [];
-    this.users.findFriend(intra).then((res) => {
-      for (const [key, values] of res.friends.entries()) {
-        let temp: { Friends: friends; state: UserStatus };
-        temp.Friends = <friends>values;
-        if (this.user.isUserName(values.friend)) {
-          temp.state = 1; //login
-        } else {
-          temp.state = 2; // logout
-        }
-        stateFriend.push(temp); // 친구
-      }
-    });
-    return { stateFriend };
-  }
+  //friend 로직 friend가 없어요!!!
+//   @SubscribeMessage('myFriend')
+//   myFriend(client : Socket) {
+//     const intra = this.room.getIntraAtToken(client);
+//     // const stateFriend : {state : string, name : string}[] = [];
+//     const stateFriend : {state: UserStatus, blocked: boolean}[] = [];
+//     this.users.findFriend(intra).then((res) => {
+//         for (const [key, values] of res.friends.entries())
+//         {
+//           if (key == null)
+//             return ;
+//           let temp : {state: UserStatus, blocked: boolean};
+//           // temp.friends = values.friend;
+//           temp.blocked = values.block;
+//           if (this.user.isUserName(values.friend)) {
+//             temp.state = 1; //login
+//           }
+//           else {
+//             temp.state = 2; // logout
+//           }
+//           stateFriend.push(temp); // 친구
+//         }
+//       })
+//       return JSON.stringify(stateFriend);
+//     };
 }
-
-// Game
-
-//   getChatRoomInfo
-// ->getGameRoomInfo
-
-// enterRoom->
-// enterGameRoom
-// create-room->
-// createGameRoom
-// new-room-created
-//  -> newGameRoomCreated
-// clearRoom->
-// clearGameRoom
-
-// player 생성할때 a
-
-// b가 있는 지 없는지
-// 있으면 >> 실패 return false
-// 없으면 b가 입장 return true
-
-// 옵저버 입장
-
-// 게임 a 만 실행을 할 수 있게! >> start누르면 a인지 확인 맞으면
