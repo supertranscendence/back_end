@@ -549,7 +549,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if (this.gameroom.createGameRoom(roomName, userTemp))
       return {};
     client.join(roomName);
-    client.emit('new-room-created', roomName);
+    client.emit('newGameRoomCreated', roomName);
     return {};
   }
 
