@@ -91,26 +91,10 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('PWDCheck')
   PWDCheck(client: Socket, roomInfo: { roomName: string; pw: string }) {
     if (roomInfo.pw == this.room.getPW(roomInfo.roomName)) {
-      this.logger.log(
-        `Function Name : PWDCheck room :${roomInfo.roomName}, clientid : ${client.id} name : ${roomInfo.roomName} `,
-      );
       client.join(roomInfo.roomName);
-      let tmpArr: string[] = [];
-      this.room
-        .getAllRoom()
-        .get(roomInfo.roomName)
-        .users.forEach((ele) => {
-          tmpArr.push(ele.intra);
-        });
-      client.emit('roomInfo', tmpArr); // join leave할때
-      const intra = this.room.getIntraAtToken(client);
-      // 여기는 상상으로 짜봄
-      // 자신의 아이디로 유저정보 뽑고, 그 유저로 있는 방에 참가! 방의 user에도 인원을 추가 해 주어야함!
       const userTemp: IUser = this.user.getUser(client.id);
-      //room에 참가
       this.room.addUser(roomInfo.roomName, userTemp, client); // 방에 사람 추가하기
-      this.room.getInRoomUser(roomInfo.roomName); // 여기서는 방에 사람이 있는지
-
+      client.emit('roomInfo', this.room.getChatRoomInfo(roomInfo.roomName)); // 방 안의 사람 정보 갱신
       return true;
     } else {
       this.logger.log(`Function Name : PWDCheck room false`);
