@@ -189,9 +189,12 @@ export class UsersService {
       .catch(/*this.logger.error(`${intra} avatar update failed`)*/);
   }
 
-  async updateEmailByIntra(intra: string, value: string) {
+  async updateEmailByIntra(
+    intra: string,
+    value: { tf: boolean; email: string },
+  ) {
     await this.usersRepository
-      .update({ intra: intra }, { email: value })
+      .update({ intra: intra }, value)
       .then((res) => {
         if (!res.affected) throw InternalServerErrorException;
         //this.logger.log(`${intra} avatar updated`);

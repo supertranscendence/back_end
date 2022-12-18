@@ -619,8 +619,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       client.to(room).emit('gameStart');
       client.emit('gameStart', true);
       return {};
-    }
-    else {
+    } else {
       client.to(room).emit('gameStart');
       client.emit('gameStart', false);
       return {};
@@ -703,28 +702,28 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   //   }
 
   //friend 로직 friend가 없어요!!!
-//   @SubscribeMessage('myFriend')
-//   myFriend(client : Socket) {
-//     const intra = this.room.getIntraAtToken(client);
-//     // const stateFriend : {state : string, name : string}[] = [];
-//     const stateFriend : {state: UserStatus, blocked: boolean}[] = [];
-//     this.users.findFriend(intra).then((res) => {
-//         for (const [key, values] of res.friends.entries())
-//         {
-//           if (key == null)
-//             return ;
-//           let temp : {state: UserStatus, blocked: boolean};
-//           // temp.friends = values.friend;
-//           temp.blocked = values.block;
-//           if (this.user.isUserName(values.friend)) {
-//             temp.state = 1; //login
-//           }
-//           else {
-//             temp.state = 2; // logout
-//           }
-//           stateFriend.push(temp); // 친구
-//         }
-//       })
-//       return JSON.stringify(stateFriend);
-//     };
+  //   @SubscribeMessage('myFriend')
+  //   myFriend(client : Socket) {
+  //     const intra = this.room.getIntraAtToken(client);
+  //     // const stateFriend : {state : string, name : string}[] = [];
+  //     const stateFriend : {state: UserStatus, blocked: boolean}[] = [];
+  //     this.users.findFriend(intra).then((res) => {
+  //         for (const [key, values] of res.friends.entries())
+  //         {
+  //           if (key == null)
+  //             return ;
+  //           let temp : {state: UserStatus, blocked: boolean};
+  //           // temp.friends = values.friend;
+  //           temp.blocked = values.block;
+  //           if (this.user.isUserName(values.friend)) {
+  //             temp.state = 1; //login
+  //           }
+  //           else {
+  //             temp.state = 2; // logout
+  //           }
+  //           stateFriend.push(temp); // 친구
+  //         }
+  //       })
+  //       return JSON.stringify(stateFriend);
+  //     };
 }
