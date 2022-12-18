@@ -68,9 +68,9 @@ export class UsersController {
   @HttpCode(204)
   @Header('Access-Control-Allow-Origin', 'https://gilee.click')
   @Header('Access-Control-Allow-Credentials', 'true')
-  setEmail(@Body('email') email: string, @Req() req: Request) {
+  setEmail(@Body() body: { tf: boolean; email: string }, @Req() req: Request) {
     const intra = this.auth.getIntra(this.auth.extractToken(req));
-    return this.users.updateEmailByIntra(intra, email);
+    return this.users.updateEmailByIntra(intra, body);
   }
 
   @Put()
