@@ -558,7 +558,6 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const userTemp: IUser = this.user.getUser(client.id);
     if (this.gameroom.setPlayerB(room, userTemp)) // 방에 사람 추가하기
       client.join(room);
-      
     // client
     //   .to(room)
     //   .emit('roomInfo', this.room.getChatRoomInfo(room)); // join leave할때
@@ -573,23 +572,33 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('down') // 이 소켓이 a인지 b인지 observer ,, a면 true, b면 false emit은 room
   down(client: Socket, room : string) {
+    console.log('down');
     if (this.gameroom.isPlayerA(client.id, room))
     {
       // 자기 한테 안보낼거 같다
-      // client.emit("down", true);//플레이어 에이인지 아닌지
+      client.emit("down", true);//플레이어 에이인지 아닌지
       client.to(room).emit("down", true);//플레이어 에이인지 아닌지
     }
     else
+    {
+      client.emit("down", true);
       client.to(room).emit("down", false);//플레이어 에이인지 아닌지
-
+    }
     return{};
   }
+  
   @SubscribeMessage('up')
   up(client: Socket, room : string) {
     if (this.gameroom.isPlayerA(client.id, room))
+    {
+      client.emit("up", true);
       client.to(room).emit("up", true);
+    }
     else
+    {
+      client.emit("up", true);
       client.to(room).emit("up", false);
+    }
     return{};
   }
 
