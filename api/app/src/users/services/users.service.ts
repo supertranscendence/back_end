@@ -212,6 +212,10 @@ export class UsersService {
       .catch(/*this.logger.error(`${intra} avatar update failed`)*/);
   }
 
+  async findOneByVerify(verify: string) {
+    return await this.usersRepository.findOneBy({ verify: verify });
+  }
+
   async delete(id: number) {
     await this.usersRepository.delete(id);
     return true;
