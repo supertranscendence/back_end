@@ -74,7 +74,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const intra = this.room.getIntraAtToken(client);
     this.room.addRoom(
       roomInfo.room,
-      new Room(roomInfo.room, intra, roomInfo.pwd),
+      new Room(roomInfo.room, intra, roomInfo.isPublic, roomInfo.pwd),
     );
     //this.room.showRooms();  //TODO 간단하게 보여주기
 
@@ -372,21 +372,16 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     socket.rooms.forEach((ele: any) => {
       if (ele != socket.id) {
         socket.leave(ele);
-        // let tmpArr: string[] = [];
-        // this.room
-        //   .getAllRoom()
-        //   .get(ele.room)
-        //   .users.forEach((ele) => {
-        //     tmpArr.push(ele.intra);
-        //   });
-          this.room.deleteUserBysocketId(socket.id, ele.room);
-        // 방에 아무도 없으면 방제거
-        socket
-      .to(ele.rooom)
-      .emit('roomInfo', this.room.getChatRoomInfo(ele.room)); // join leave할때
-        this.room.deleteEmptyRoom(ele);
       }
     });
+
+    for(const [key, value] of this.room.getAllRoom()) {
+      this.room.deleteUserBysocketId(socket.id, key);
+      socket
+      .to(key)
+      .emit('roomInfo', this.room.getChatRoomInfo(key)); // join leave할때
+      this.room.deleteEmptyRoom(key);
+    }
   }
 
   // 내부동작: shellWeDmUser에게 shellWeDm 이벤트 emit날림 ({user1:string, user2:string}
