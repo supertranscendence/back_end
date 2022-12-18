@@ -670,15 +670,45 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('gameStart')
   gameStart(client: Socket, room: string) {
     if (this.gameroom.isPlayerA(client.id, room)) {
-      client.to(room).emit('gameStart');
+      client.to(room).emit('gameStart', true);
       client.emit('gameStart', true);
       return {};
     } else {
-      client.to(room).emit('gameStart');
+      client.to(room).emit('gameStart', false);
       client.emit('gameStart', false);
       return {};
     }
   }
+
+  @SubscribeMessage('gameSet')
+  gameSet(client: Socket, User : {userA: number, userB: number, name : string}) {
+
+    let intra : string;
+    if (User.userA >= 3) {
+      intra = this.gameroom.allGameRoom().get(User.name).playerA.intra;
+      client.to(User.name).emit('gameDone', intra);
+      client.emit('gameDone', intra);
+    }
+    else if (User.userB >= 3) {
+      intra = this.gameroom.allGameRoom().get(User.name).playerB.intra;
+      client.to(User.name).emit('gameDone', intra);
+      client.emit('gameDone', intra);
+    }
+
+    let temp : {userA: number, userB: number};
+    temp.userA = User.userA;
+    temp.userB = User.userB;
+
+    for (const [key, value] of this.gameroom.allGameRoom().get(User.name).observers) {
+      client.to(value.client.id).emit('gameSet', temp);
+      return {}
+    }
+  }
+
+
+  // 서버에서 해줄일 : 옵저버들한테 gameSet 이벤트 emit 해주기 (
+  //   객체 :{userA: number, userB:userB.number} 담아서
+  // )
 
   //a인지 확인 모든 방에 gamestart
 
