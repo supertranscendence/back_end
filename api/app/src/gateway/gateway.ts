@@ -91,10 +91,26 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('PWDCheck')
   PWDCheck(client: Socket, roomInfo: { roomName: string; pw: string }) {
     if (roomInfo.pw == this.room.getPW(roomInfo.roomName)) {
+      this.logger.log(
+        `Function Name : PWDCheck room :${roomInfo.roomName}, clientid : ${client.id} name : ${roomInfo.roomName} `,
+      );
       client.join(roomInfo.roomName);
+      let tmpArr: string[] = [];
+      this.room
+        .getAllRoom()
+        .get(roomInfo.roomName)
+        .users.forEach((ele) => {
+          tmpArr.push(ele.intra);
+        });
+      client.emit('roomInfo', tmpArr); // join leave할때
+      const intra = this.room.getIntraAtToken(client);
+      // 여기는 상상으로 짜봄
+      // 자신의 아이디로 유저정보 뽑고, 그 유저로 있는 방에 참가! 방의 user에도 인원을 추가 해 주어야함!
       const userTemp: IUser = this.user.getUser(client.id);
+      //room에 참가
       this.room.addUser(roomInfo.roomName, userTemp, client); // 방에 사람 추가하기
-      client.emit('roomInfo', this.room.getChatRoomInfo(roomInfo.roomName)); // join leave할때
+      this.room.getInRoomUser(roomInfo.roomName); // 여기서는 방에 사람이 있는지
+
       return true;
     } else {
       this.logger.log(`Function Name : PWDCheck room false`);
@@ -143,6 +159,8 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     return;
   }
 
+  ///////////////////////////////
+
   //   kickUser
   // 주는 객체: {roomName:string , kickUser :string}
   // 내부 동작 : 해당 방에서 kickUser가 어드민이나 오너가 아니면 방에서 내보냄
@@ -168,6 +186,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
           ret = clientId;
         }
       }
+      //client.leave(roomInfo.roomName);
       client.to(ret).emit('kicked'); // 다르게 유저객체에서 getuser kick대상을 찾아서
       client.emit('roomInfo', this.room.getChatRoomInfo(roomInfo.roomName)); // join leave할때
     }
@@ -217,8 +236,16 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('muteUser') // 방 나갔다가 들어와도 mute가 된 상태
   muteUser(client: Socket, roomInfo: { roomName: string; muteUser: string }) {
+    this.logger.log(
+      `Function Name : muteUser room :${roomInfo.roomName}, clientid : ${client.id}, roomInfo ${roomInfo.muteUser}`,
+    );
     //관리자랑 주인은 뮤트 못시키게
     const intra = this.room.getIntraAtToken(client); //이사람이 어드민이나 오너이면 //muteuser를 할 수 있게, 어드민이나 오너는 뮤트 할 수 없게
+    // 여기서 undefined가 될수가 있네?
+    console.log('dkfalfjdaslfkjasd');
+    console.log(this.room.getOwenr(roomInfo.roomName));
+    console.log(this.room.getAllRoom().get(roomInfo.roomName).owner);
+    console.log('dkfalfjdaslfkjasd');
     if (
       roomInfo.muteUser == this.room.getOwenr(roomInfo.roomName) ||
       this.room.checkAdmin(roomInfo.roomName, roomInfo.muteUser)
@@ -245,7 +272,11 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('setAdmin') // 해당 방에서 adminUser 목록에 추가
   setAdmin(client: Socket, roomInfo: { roomName: string; adminUser: string }) {
-    const intra = this.room.getIntraAtToken(client); 
+    this.logger.log(
+      `Function Name : setAdmin room :${roomInfo.roomName}, clientid : ${client.id}, roomInfo ${roomInfo.adminUser}`,
+    );
+    const intra = this.room.getIntraAtToken(client); // 인트라 아이디가 나온다
+    // 오너는 admin에 추가하면 안됨
 
     this.room.getAllRoom();
     if (intra == this.room.getOwenr(roomInfo.roomName)) {
@@ -254,8 +285,16 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
           // 있는 사람은 추가 x
           return;
       }
+      // this.room.getRoom(roomInfo.roomName).admin.push(roomInfo.adminUser);
+      // }
+      // this.room.getRoom(roomInfo.roomName).admin.forof(element => {
+      //   if (element == roomInfo.adminUser) // 있는 사람은 추가 x
+      //     return f;
+      // });
       this.room.getRoom(roomInfo.roomName).admin.push(roomInfo.adminUser);
     }
+    console.log('function setAdmin');
+    this.room.showRooms();
     return this.room.getAllRoom().get(roomInfo.roomName).admin;
   }
 
@@ -265,7 +304,12 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     socket: Socket,
     newMsgObj: { room: string; user: string; msg: string; msgType?: string },
   ) {
+    // const extraToken = this.auth.extractToken(socket, 'ws');
+    // const intra = this.auth.getIntra(extraToken);
     const intra = this.room.getIntraAtToken(socket);
+    this.logger.log(
+      `Function Name : newMsg room :${newMsgObj.room}, Intra : ${intra} clientid : ${socket.id}, ${newMsgObj.user} : ${newMsgObj.msg}`,
+    );
 
     const temp: { room: string; user: string; msg: string } = {
       room: newMsgObj.room,
@@ -273,6 +317,13 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       msg: newMsgObj.msg,
     };
 
+    // 밴 된 대상은 제외
+    // this.room.getRoom(newMsgObj.room).users.forEach((userEle) => {
+    //   if (this.room.getRoom(newMsgObj.room).muted.includes(userEle.intra)) {
+
+    //     socket.to(userEle.client_id).emit('newMsg', temp);
+    //   }
+    // })
     if (newMsgObj.msgType && newMsgObj.msgType == 'Dm')
       socket.to(newMsgObj.room).emit('newMsg', temp);
     else {
@@ -296,6 +347,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       this.room.addUser(joinInfo.room, userTemp, client); // 방에 사람 추가하기
       this.room.getInRoomUser(joinInfo.room); // 여기서는 방에 사람이 있는지
     }
+
     client
       .to(joinInfo.room)
       .emit('roomInfo', this.room.getChatRoomInfo(joinInfo.room)); // join leave할때
@@ -304,7 +356,14 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('roomInfo')
   roomInfo(socket: Socket, roomInfo: { roomName: string }) {
-    return this.room.getChatRoomInfo(roomInfo.roomName);
+    let tmpArr: string[] = [];
+    this.room
+      .getAllRoom()
+      .get(roomInfo.roomName)
+      .users.forEach((ele) => {
+        tmpArr.push(ele.intra);
+      });
+    return tmpArr;
   }
 
   // 방 나가기 버튼
@@ -322,13 +381,29 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   // 다른방 눌렀다가 오기
   @SubscribeMessage('clearRoom')
   clearRoom(socket: Socket) {
+    // this.logger.log('clearRoom Before');
+    // console.log('clearRoom Before')
+    // this.room.showRooms();
+    this.logger.log(`Function Name : clearRoom clientid : ${socket.id}`);
+
     socket.rooms.forEach((ele: any) => {
       if (ele != socket.id) {
-        socket.leave(ele);          
-          this.room.deleteUserBysocketId(socket.id, ele);
-          this.room.deleteEmptyRoom(ele);
-          socket.emit('roomInfo', this.room.getChatRoomInfo(ele.room)); // join leave할때
+        socket.leave(ele);
+        let tmpArr: string[] = [];
+        this.room
+          .getAllRoom()
+          .get(ele.room)
+          .users.forEach((ele) => {
+            tmpArr.push(ele.intra);
+          });
+        socket.emit('roomInfo', tmpArr); // join leave할때
+        this.room.deleteUserBysocketId(socket.id, ele);
+        // 방에 아무도 없으면 방제거
+        this.room.deleteEmptyRoom(ele);
       }
+      // this.logger.log('clearRoom After');
+      // console.log('clearRoom After')
+      // this.room.showRooms();
     });
   }
 
@@ -341,8 +416,17 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     roomInfo: { roomName: string; shellWeDmUser: string },
   ) {
     const sendIntraId: string = this.room.getIntraAtToken(socket); // 내가 보내꺼야 shellWeDmUser에게
+
     let ret = '';
+    // 방에 있으면 그 사람 뽑아내기
     if (this.room.isInRoomUser(roomInfo.roomName, roomInfo.shellWeDmUser)) {
+      // this.room.getRoom(roomInfo.roomName).users.forEach((ele)=>{
+      //   if (ele.intra === roomInfo.shellWeDmUser ) {
+      //     this.room.rmRoomUser(roomInfo.roomName, roomInfo.shellWeDmUser);
+      //     ret =  ele.client_id;
+      //   }
+      // })
+
       for (const [key, value] of this.room
         .getRoom(roomInfo.roomName)
         .users.entries()) {
@@ -350,25 +434,44 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
           ret = key;
         }
       }
+
       socket.leave(roomInfo.roomName);
-      socket.emit('roomInfo', this.room.getChatRoomInfo(roomInfo.roomName)); // join leave할때
+      let tmpArr: string[] = [];
+      this.room
+        .getAllRoom()
+        .get(roomInfo.roomName)
+        .users.forEach((ele) => {
+          tmpArr.push(ele.intra);
+        });
+      socket.emit('roomInfo', tmpArr); // join leave할때
 
       //                보내는 사람             받는 사람
       const roomName = sendIntraId + ' ' + roomInfo.shellWeDmUser;
+
       socket.join(roomName);
+      // socket.emit('roomInfo', this.room.getAllRoom().get(roomInfo.roomName).users); // join leave할때
       socket.to(ret).emit('shellWeDm', {
         recvIntraId: roomInfo.shellWeDmUser,
         sendIntraId: sendIntraId,
       });
+      // return {};
     }
     return {};
   }
 
   // reJoin이면 다시 연결하기
+
   @SubscribeMessage('reJoin')
   reJoinRoom(socket: Socket, roomInfo: string) {
     socket.join(roomInfo);
-    socket.emit('roomInfo', this.room.getChatRoomInfo(roomInfo)); // join leave할때
+    let tmpArr: string[] = [];
+    this.room
+      .getAllRoom()
+      .get(roomInfo)
+      .users.forEach((ele) => {
+        tmpArr.push(ele.intra);
+      });
+    socket.emit('roomInfo', tmpArr); // join leave할때
   }
 
   //   goDm
@@ -377,7 +480,11 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   // 반환 return;
   @SubscribeMessage('goDm') // 최종 수락을 해서 채팅으로간다 초대 받은사람 // 초대 한사람
   goDm(socket: Socket, roomInfo: { roomName: string; user: string }) {
-  
+    //join된거 풀기
+    this.logger.log(
+      `Function Name goDm ${roomInfo.roomName}, ${roomInfo.user}`,
+    );
+
     let sendClientid;
     for (let [key, value] of this.room.getAllRoom().get(roomInfo.roomName)
       .users) {
@@ -386,31 +493,66 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       }
     }
 
+    this.logger.log(`Function Name recv ${sendClientid}`);
+
     const recvUser = this.room
       .getAllRoom()
       .get(roomInfo.roomName)
       .users.get(socket.id).intra;
+    this.logger.log(`Function Name recv ${recvUser}`);
+    // const user2Clientid = this.room.getAllRoom().get(socket.id).users.get(socket.id).client_id;
+
+    this.logger.log(`Function Name goDm join unlock`);
     // join된 방에서 조인 풀기
     for (const [key, value] of this.room.getAllRoom().get(roomInfo.roomName)
       .users) {
       if (key == sendClientid) {
+        this.logger.log(
+          `Function Name goDm join unlock sendClientId ${key}, ${sendClientid} ${value.intra}`,
+        );
+        // this.room.deleteUserBysocketId(user1Clientid, roomInfo.roomName);
         this.room.rmRoomUser(roomInfo.roomName, roomInfo.user);
+
+        //방에서 연결을 끊어주는 역할을 하는게 필요하다
       } else if (key == socket.id) {
+        this.logger.log(
+          `Function Name goDm join unlock recvUser ${key}, ${socket.id} ${value.intra}`,
+        );
+        // this.room.deleteUserBysocketId(user2Clientid, roomInfo.roomName); // 방에서 제거
         this.room.rmRoomUser(roomInfo.roomName, recvUser); // 방에서 제거
         socket.leave(roomInfo.roomName);
-        socket.emit('roomInfo', this.room.getChatRoomInfo(roomInfo.roomName)); // join leave할때
+        let tmpArr: string[] = [];
+        this.room
+          .getAllRoom()
+          .get(roomInfo.roomName)
+          .users.forEach((ele) => {
+            tmpArr.push(ele.intra);
+          });
+        socket.emit('roomInfo', tmpArr); // join leave할때
       }
     }
 
+    this.logger.log(`Function Name goDm join unlock success`);
+
     //              초대한 사람                 받는 사람
     const roomName = roomInfo.user + ' ' + recvUser;
+
+    this.logger.log(`Function Name goDm End : ${roomName}`);
     this.room.deleteEmptyRoom(roomInfo.roomName);
+
     socket.join(roomName);
+    // socket.emit('roomInfo', this.room.getAllRoom().get(joinInfo.room).users); // join leave할때
 
     socket
       .to(sendClientid)
       .emit('joinedRoom', { roomName: roomName, roomType: 'Dm' });
     socket.emit('joinedRoom', { roomName: roomName, roomType: 'Dm' });
+    // 채팅방으로 보낸다
+
+    //방에서 제거하는 로직
+    this.logger.log(
+      `Function Name goDm sendid : ${roomInfo.user}, ${sendClientid} socket.id : ${recvUser}, ${socket.id}`,
+    );
     return roomName;
   }
 
