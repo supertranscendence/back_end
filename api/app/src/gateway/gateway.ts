@@ -26,6 +26,7 @@ import { GameroomService } from './gameroom.service';
 import { Room } from './Room';
 import { User } from './User';
 import { UsersService } from '../users/services/users.service';
+import { Friends } from '../entities/Friends';
 
 @UseInterceptors(LoggingInterceptor)
 @UseGuards(AuthGuardLocal)
@@ -574,7 +575,6 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('down') // 이 소켓이 a인지 b인지 observer ,, a면 true, b면 false emit은 room
   down(client: Socket, room : string) {
-    console.log('down');
     if (this.gameroom.isPlayerA(client.id, room))
     {
       // 자기 한테 안보낼거 같다
@@ -607,12 +607,17 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('gameStart')
   gameStart(client: Socket, room : string) {
     if (this.gameroom.isPlayerA(client.id, room)) {
+      console.log('a');
       client.to(room).emit('gameStart');
       client.emit('gameStart');
+      console.log('a');
       return (true);
     }
-    else
+    else {
+      console.log('b');
       return (false);
+    }
+      
   }
   //a인지 확인 모든 방에 gamestart
 
@@ -691,14 +696,29 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   //     });
   //   }
 
-  // @SubscribeMessage('myFriend')
-  // myFriend(client : Socket) {
-  //   const intra = this.room.getIntraAtToken(client);
-  //   let a = this.users.findFriend(intra);
-  //   // a.
-  //   return {};
-  // }
+  @SubscribeMessage('myFriend')
+  myFriend(client : Socket) {
+    const intra = this.room.getIntraAtToken(client);
+    // const stateFriend : {state : string, name : string}[] = [];
+    const stateFriend : {Friends :Friends, state: UserStatus}[] = [];
+    this.users.findFriend(intra).then((res) => {
+        for (const [key, values] of res.friends.entries())
+        {
+          let temp : {Friends :Friends, state: UserStatus};
+          temp.Friends = values;
+          if (this.user.isUserName(values.friend)) {
+            temp.state = 1; //login
+          }
+          else {
+            temp.state = 2; // logout
+          }
+          stateFriend.push(temp); // 친구
+        }
+      })
+      return {stateFriend};
+    };
 }
+
 
 // Game
 
