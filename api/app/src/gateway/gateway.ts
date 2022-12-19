@@ -747,6 +747,12 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     return this.gameroom.getGameRooms();
   }
 
+  @SubscribeMessage('collision')
+  collision(client: Socket, roomInfo : {gameRoom, x, y}) {
+    client.emit('collision', {x : roomInfo.x, y : roomInfo.y})
+    client.to(roomInfo.gameRoom).emit('collision', {x : roomInfo.x, y : roomInfo.y})
+  }
+
   @SubscribeMessage('down') // 이 소켓이 a인지 b인지 observer ,, a면 true, b면 false emit은 room
   down(client: Socket, room: string) {
     if (this.gameroom.isPlayerA(client.id, room)) {
