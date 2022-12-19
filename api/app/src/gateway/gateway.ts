@@ -749,7 +749,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('collision')
   collision(client: Socket, roomInfo : {gameRoom, x, y, xv, yv}) {
-    client.emit('collision', {x : roomInfo.x, y : roomInfo.y})
+    client.emit('collision', {x : roomInfo.x, y : roomInfo.y, xv :roomInfo.xv, yv: roomInfo.yv});
     client.to(roomInfo.gameRoom).emit('collision', {x : roomInfo.x, y : roomInfo.y, xv :roomInfo.xv, yv: roomInfo.yv})
   }
 
