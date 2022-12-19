@@ -16,84 +16,71 @@ export class GameroomService {
     this.queue = new Queue();
   }
 
-  getQueue() : Queue {
+  getQueue(): Queue {
     return this.queue;
   }
 
-  allGameRoom() : Map<string, IGameRoom>{
+  allGameRoom(): Map<string, IGameRoom> {
     return this.gameRooms;
   }
 
-  createGameRoom(roomName: string, gameRoom : IGameRoom) :boolean{
-      if (this.gameRooms.has(roomName)) {
-        return (true);
-      }
-      else {
-        this.gameRooms.set(roomName, gameRoom); 
-        return (false);
-      }
+  createGameRoom(roomName: string, gameRoom: IGameRoom): boolean {
+    if (this.gameRooms.has(roomName)) {
+      return true;
+    } else {
+      this.gameRooms.set(roomName, gameRoom);
+      return false;
+    }
   }
 
-  setPlayerB(roomName: string, user: IUser) : boolean {
+  setPlayerB(roomName: string, user: IUser): boolean {
     if (this.gameRooms.get(roomName).playerB == null) {
       this.gameRooms.get(roomName).playerB = user;
       return true;
-    }
-    else
-      return false;
+    } else return false;
   }
 
-  getGameRooms(): { roomName: string; userAname : string }[] {
+  getGameRooms(): { roomName: string; userAname: string }[] {
     const returnGameRoom: {
       roomName: string;
-      userAname : string;
+      userAname: string;
     }[] = [];
 
     for (const [key, value] of this.gameRooms.entries()) {
       const tmp = {
         roomName: key,
-        userAname: value.playerA.intra
+        userAname: value.playerA.intra,
       };
       returnGameRoom.push(tmp);
     }
     return returnGameRoom;
   }
-  
-  getPlayerAId(room : string) : string {
-    if(this.gameRooms.get(room).playerA == null)
-      return ""
-    else
-      return (this.gameRooms.get(room).playerA.client.id);
-  } 
 
-  isPlayerA(playerA : string, room : string) : boolean {
-    if (this.getPlayerAId(room) == playerA)
-      return true;
-    else 
-      return false;
+  getPlayerAId(room: string): string {
+    if (this.gameRooms.get(room).playerA == null) return '';
+    else return this.gameRooms.get(room).playerA.client.id;
   }
 
-  getPlayerBId(room : string) : string {
-    if(this.gameRooms.get(room).playerB == null)
-      return ""
-    else
-      return (this.gameRooms.get(room).playerB.client.id);
-  } 
-
-  isPlayerB(playerB : string, room : string) : boolean {
-    if (this.getPlayerBId(room) == playerB)
-      return true;
-    else 
-      return false;
+  isPlayerA(playerA: string, room: string): boolean {
+    if (this.getPlayerAId(room) == playerA) return true;
+    else return false;
   }
 
-  deleteRoom(room : string) : void{
+  getPlayerBId(room: string): string {
+    if (this.gameRooms.get(room).playerB == null) return '';
+    else return this.gameRooms.get(room).playerB.client.id;
+  }
+
+  isPlayerB(playerB: string, room: string): boolean {
+    if (this.getPlayerBId(room) == playerB) return true;
+    else return false;
+  }
+
+  deleteRoom(room: string): void {
     this.gameRooms.delete(room);
   }
 
-
-  deletePlayer(room : string) : void{
+  deletePlayer(room: string): void {
     this.gameRooms.get(room).playerB = null;
   }
-
 }
