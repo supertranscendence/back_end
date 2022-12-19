@@ -748,9 +748,9 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('collision')
-  collision(client: Socket, roomInfo : {gameRoom, x, y}) {
+  collision(client: Socket, roomInfo : {gameRoom, x, y, xv, yv}) {
     client.emit('collision', {x : roomInfo.x, y : roomInfo.y})
-    client.to(roomInfo.gameRoom).emit('collision', {x : roomInfo.x, y : roomInfo.y})
+    client.to(roomInfo.gameRoom).emit('collision', {x : roomInfo.x, y : roomInfo.y, xv :roomInfo.xv, yv: roomInfo.yv})
   }
 
   @SubscribeMessage('down') // 이 소켓이 a인지 b인지 observer ,, a면 true, b면 false emit은 room
