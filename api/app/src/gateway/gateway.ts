@@ -746,35 +746,35 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     return this.gameroom.getGameRooms();
   }
 
-  @SubscribeMessage('collision')
-  collision(client: Socket, roomInfo : {gameRoom, x, y, xv, yv}) {
-    // client.emit('collision', {x : roomInfo.x, y : roomInfo.y, xv :roomInfo.xv, yv: roomInfo.yv});
-    if (this.gameroom.isPlayerA(client.id, roomInfo.gameRoom))
-      client.to(this.gameroom.allGameRoom().get(roomInfo.gameRoom).playerB.client.id).emit('collision', {x : roomInfo.x, y : roomInfo.y, xv :roomInfo.xv, yv: roomInfo.yv})
-    else if (this.gameroom.isPlayerB(client.id, roomInfo.gameRoom))
-      client.to(this.gameroom.allGameRoom().get(roomInfo.gameRoom).playerA.client.id).emit('collision', {x : roomInfo.x, y : roomInfo.y, xv :roomInfo.xv, yv: roomInfo.yv})
-  }
+  // @SubscribeMessage('collision')
+  // collision(client: Socket, roomInfo : {gameRoom, x, y, xv, yv}) {
+  //   // client.emit('collision', {x : roomInfo.x, y : roomInfo.y, xv :roomInfo.xv, yv: roomInfo.yv});
+  //   if (this.gameroom.isPlayerA(client.id, roomInfo.gameRoom))
+  //     client.to(this.gameroom.allGameRoom().get(roomInfo.gameRoom).playerB.client.id).emit('collision', {x : roomInfo.x, y : roomInfo.y, xv :roomInfo.xv, yv: roomInfo.yv})
+  //   else if (this.gameroom.isPlayerB(client.id, roomInfo.gameRoom))
+  //     client.to(this.gameroom.allGameRoom().get(roomInfo.gameRoom).playerA.client.id).emit('collision', {x : roomInfo.x, y : roomInfo.y, xv :roomInfo.xv, yv: roomInfo.yv})
+  // }
 
   @SubscribeMessage('down') // 이 소켓이 a인지 b인지 observer ,, a면 true, b면 false emit은 room
-  down(client: Socket, room: string) {
-    if (this.gameroom.isPlayerA(client.id, room)) {
-      client.emit('down', true); //플레이어 에이인지 아닌지
-      client.to(room).emit('down', true); //플레이어 에이인지 아닌지
+  down(client: Socket, gameRoom : {gameRoom, x ,y}) {
+    if (this.gameroom.isPlayerA(client.id, gameRoom.gameRoom)) {
+      client.emit('down', {true: true, x :gameRoom.x , y : gameRoom.y}); //플레이어 에이인지 아닌지
+      client.to(gameRoom.gameRoom).emit('down', {true: true, x :gameRoom.x , y : gameRoom.y}); //플레이어 에이인지 아닌지
     } else {
-      client.emit('down', false);
-      client.to(room).emit('down', false); //플레이어 에이인지 아닌지
+      client.emit('down', {false: false, x :gameRoom.x , y : gameRoom.y}); //플레이어 에이인지 아닌지
+      client.to(gameRoom.gameRoom).emit('down', {false: false, x :gameRoom.x , y : gameRoom.y}); //플레이어 에이인지 아닌지
     }
     return {};
   }
 
   @SubscribeMessage('up')
-  up(client: Socket, room: string) {
-    if (this.gameroom.isPlayerA(client.id, room)) {
-      client.emit('up', true);
-      client.to(room).emit('up', true);
+  up(client: Socket, gameRoom : {gameRoom, x ,y}) {
+    if (this.gameroom.isPlayerA(client.id, gameRoom.gameRoom)) {
+      client.emit('up', {true: true, x :gameRoom.x , y : gameRoom.y});
+      client.to(gameRoom.gameRoom).emit('up', {true: true, x :gameRoom.x , y : gameRoom.y}); //플레이어 에이인지 아닌지
     } else {
-      client.emit('up', false);
-      client.to(room).emit('up', false);
+      client.emit('up', {false: false, x :gameRoom.x , y : gameRoom.y}); //플레이어 에이인지 아닌지
+      client.to(gameRoom.gameRoom).emit('up', {false: false, x :gameRoom.x , y : gameRoom.y}); //플레이어 에이인지 아닌지
     }
     return {};
   }
