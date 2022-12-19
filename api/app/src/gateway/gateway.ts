@@ -27,7 +27,6 @@ import { gameRoom, Room } from './Room';
 import { User } from './User';
 import { UsersService } from '../users/services/users.service';
 import { InsertValuesMissingError } from 'typeorm';
-import { Friends } from '../entities/Friends';
 
 @UseInterceptors(LoggingInterceptor)
 @UseGuards(AuthGuardLocal)
@@ -749,8 +748,11 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('collision')
   collision(client: Socket, roomInfo : {gameRoom, x, y, xv, yv}) {
-    client.emit('collision', {x : roomInfo.x, y : roomInfo.y, xv :roomInfo.xv, yv: roomInfo.yv});
-    client.to(roomInfo.gameRoom).emit('collision', {x : roomInfo.x, y : roomInfo.y, xv :roomInfo.xv, yv: roomInfo.yv})
+    // client.emit('collision', {x : roomInfo.x, y : roomInfo.y, xv :roomInfo.xv, yv: roomInfo.yv});
+    if (this.gameroom.isPlayerA(client.id, roomInfo.gameRoom))
+      client.to(this.gameroom.allGameRoom().get(roomInfo.gameRoom).playerB.client.id).emit('collision', {x : roomInfo.x, y : roomInfo.y, xv :roomInfo.xv, yv: roomInfo.yv})
+    else if (this.gameroom.isPlayerB(client.id, roomInfo.gameRoom))
+      client.to(this.gameroom.allGameRoom().get(roomInfo.gameRoom).playerA.client.id).emit('collision', {x : roomInfo.x, y : roomInfo.y, xv :roomInfo.xv, yv: roomInfo.yv})
   }
 
   @SubscribeMessage('down') // 이 소켓이 a인지 b인지 observer ,, a면 true, b면 false emit은 room
@@ -898,27 +900,29 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   //friend 로직 friend가 없어요!!!
     @SubscribeMessage('myFriend')
-    myFriend(client : Socket) {
+    myFriend(client : Socket, a: string) {
+      console.log('mYFriend', a);
       const intra = this.room.getIntraAtToken(client);
       // const stateFriend : {state : string, name : string}[] = [];
       const stateFriend : {friend: string, state: UserStatus, blocked: boolean}[] = [];
       this.users.findFriend(intra).then((res) => {
-          for (const [key, values] of res.friends.entries())
-          {
-            if (key == null)
-              return ;
-            let temp : {friend: string, state: UserStatus, blocked: boolean};
-            temp.friend = values.friend;
-            temp.blocked = values.block
-            if (this.user.isUserName(values.friend)) {
-              temp.state = 1; //login
-            }
-            else {
-              temp.state = 2; // logout
-            }
-            stateFriend.push(temp); // 친구
-          }
-        })
-        return JSON.stringify(stateFriend);
+          // for (const [key, values] of res.friends.entries())
+          // {
+          //   if (key == null)
+          //     return ;
+          //   let temp : {friend: string, state: UserStatus, blocked: boolean};
+          //   temp.friend = values.friend;
+          //   temp.blocked = values.block
+          //   if (this.user.isUserName(values.friend)) {
+          //     temp.state = 1; //login
+          //   }
+          //   else {
+          //     temp.state = 2; // logout
+          //   }
+          //   stateFriend.push(temp); // 친구
+          // }
+          return JSON.stringify(res);})
+        // return JSON.stringify(stateFriend);
+        
       };
 }
