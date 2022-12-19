@@ -604,13 +604,13 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.gameroom.getQueue().enqueue(userTemp); //소켓 디스커넥트가
 
     if (this.gameroom.getQueue().getSize() >= 2) {
-      let userBefore : IUser = this.gameroom.getQueue().dequeue(); // a
-      let tempAfter : IUser = this.gameroom.getQueue().dequeue(); // b
+      let userBefore: IUser = this.gameroom.getQueue().dequeue(); // a
+      let tempAfter: IUser = this.gameroom.getQueue().dequeue(); // b
 
       let roomName = userBefore + ' ' + tempAfter;
       this.gameroom.createGameRoom(roomName, new gameRoom(userBefore)); // a
-      this.gameroom.setPlayerB(roomName, tempAfter) // b
-      
+      this.gameroom.setPlayerB(roomName, tempAfter); // b
+
       client.join(roomName);
       client.to(userBefore.client.id).emit('findMatch', roomName); // a
       client.emit('findMatch', roomName); // b
@@ -759,13 +759,6 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     return {};
   }
 
-  @SubscribeMessage('collision')
-  collision(client: Socket, gameRoom: { gameRoom: string, x: number, y: number }) {
-    client.emit('collision', {x : gameRoom.x, y : gameRoom.y});
-    client.to(gameRoom.gameRoom).emit('collision', {x : gameRoom.x, y : gameRoom.y});
-  }
-  
-
   @SubscribeMessage('up')
   up(client: Socket, room: string) {
     if (this.gameroom.isPlayerA(client.id, room)) {
@@ -800,12 +793,11 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       client.to(User.name).emit('gameDone', intra);
       client.emit('gameDone', intra);
       // db에 저
-    }
-    else if (User.userB >= 3) {
+    } else if (User.userB >= 3) {
       intra = this.gameroom.allGameRoom().get(User.name).playerB.intra;
       client.to(User.name).emit('gameDone', intra);
       client.emit('gameDone', intra);
-      // db에 저장
+      // // db에 저장
     }
 
     let temp : {userA: number, userB: number, mode :boolean};
