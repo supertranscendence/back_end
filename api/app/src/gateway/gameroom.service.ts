@@ -35,7 +35,7 @@ export class GameroomService {
   }
 
   setPlayerB(roomName: string, user: IUser): boolean {
-    if (!this.gameRooms.get(roomName).playerB) {
+    if (!this.gameRooms.get(roomName).playerB) { // 방에 없어요
       this.gameRooms.get(roomName).playerB = user;
       return true;
     } else return false;
@@ -80,6 +80,13 @@ export class GameroomService {
   }
 
   deleteRoom(room: string): void {
+    
+    this.gameRooms.get(room).playerA = null;
+    this.gameRooms.get(room).playerB = null;
+    this.gameRooms.get(room).observers.forEach(element => {
+      element = null;
+    })
+    this.gameRooms.get(room).observers = null;
     this.gameRooms.delete(room);
   }
 
