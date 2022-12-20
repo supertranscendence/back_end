@@ -90,12 +90,12 @@ export class AuthController {
     res.status(302).redirect('https://gilee.click/logincheck');
   }
 
-  @Post('/ft/email')
+  @Post('/ft/verify_email')
   @Header('Access-Control-Allow-Origin', 'https://gilee.click')
   @Header('Access-Control-Allow-Credentials', 'true')
   async ftTakeCode(@Body('code') code: string, @Req() req, @Res() res) {
     if (await this.user.findOneByVerify(code))
-      res.status(302).redirect('/ft/redirect');
+      res.status(302).redirect('/api/auth/ft/redirect');
     else res.status(500);
   }
 }
