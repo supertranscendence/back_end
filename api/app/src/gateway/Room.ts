@@ -11,7 +11,12 @@ export class Room implements IChatRoom {
   pw: string;
   users: Map<string, IUser>;
 
-  constructor(roomName: string, intra: string, isPublic : boolean, pwd?: string) {
+  constructor(
+    roomName: string,
+    intra: string,
+    isPublic: boolean,
+    pwd?: string,
+  ) {
     this.admin = [];
     this.ban = [];
     this.id = 0;
@@ -29,8 +34,9 @@ export class gameRoom implements IGameRoom {
   playerB: IUser;
   observers: Map<string, IUser>;
 
-  constructor(userA : IUser) {
+  constructor(userA: IUser) {
     this.playerA = userA;
+    this.playerB = null;
     observers: new Map<string, IUser>();
   }
 }
