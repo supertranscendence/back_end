@@ -602,10 +602,11 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if (this.gameroom.setPlayerB(room, userTemp)) {
       // b가 없으면 설정하고 아래 실행
       client.join(room);
+    }
+    if (this.gameroom.allGameRoom().get(room).playerB) {
+      player_B = this.gameroom.allGameRoom().get(room).playerB.intra;
       isB = true;
     }
-    if (this.gameroom.allGameRoom().get(room).playerB)
-      player_B = this.gameroom.allGameRoom().get(room).playerB.intra;
 
     client.to(room).emit('gameRoomInfo', {
       playerA: playerA,
@@ -820,33 +821,25 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   // }
 
   @SubscribeMessage('down') // 이 소켓이 a인지 b인지 observer ,, a면 true, b면 false emit은 room
-  down(client: Socket, gameRoom: { gameRoom; x; y }) {
+  down(client: Socket, gameRoom: { gameRoom }) {
     if (this.gameroom.isPlayerA(client.id, gameRoom.gameRoom)) {
-      client.emit('down', { true: true, x: gameRoom.x, y: gameRoom.y }); //플레이어 에이인지 아닌지
-      client
-        .to(gameRoom.gameRoom)
-        .emit('down', { true: true, x: gameRoom.x, y: gameRoom.y }); //플레이어 에이인지 아닌지
+      client.emit('down'); //플레이어 에이인지 아닌지
+      client.to(gameRoom.gameRoom).emit('down'); //플레이어 에이인지 아닌지
     } else {
-      client.emit('down', { false: false, x: gameRoom.x, y: gameRoom.y }); //플레이어 에이인지 아닌지
-      client
-        .to(gameRoom.gameRoom)
-        .emit('down', { false: false, x: gameRoom.x, y: gameRoom.y }); //플레이어 에이인지 아닌지
+      client.emit('down'); //플레이어 에이인지 아닌지
+      client.to(gameRoom.gameRoom).emit('down'); //플레이어 에이인지 아닌지
     }
     return {};
   }
 
   @SubscribeMessage('up')
-  up(client: Socket, gameRoom: { gameRoom; x; y }) {
+  up(client: Socket, gameRoom: { gameRoom }) {
     if (this.gameroom.isPlayerA(client.id, gameRoom.gameRoom)) {
-      client.emit('up', { true: true, x: gameRoom.x, y: gameRoom.y });
-      client
-        .to(gameRoom.gameRoom)
-        .emit('up', { true: true, x: gameRoom.x, y: gameRoom.y }); //플레이어 에이인지 아닌지
+      client.emit('up');
+      client.to(gameRoom.gameRoom).emit('up'); //플레이어 에이인지 아닌지
     } else {
-      client.emit('up', { false: false, x: gameRoom.x, y: gameRoom.y }); //플레이어 에이인지 아닌지
-      client
-        .to(gameRoom.gameRoom)
-        .emit('up', { false: false, x: gameRoom.x, y: gameRoom.y }); //플레이어 에이인지 아닌지
+      client.emit('up'); //플레이어 에이인지 아닌지
+      client.to(gameRoom.gameRoom).emit('up'); //플레이어 에이인지 아닌지
     }
     return {};
   }
