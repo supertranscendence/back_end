@@ -594,25 +594,21 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   enterGameRoom(client: Socket, room: string) {
     const userTemp: IUser = this.user.getUser(client.id);
     const playerA: string = this.gameroom.allGameRoom().get(room).playerA.intra;
-    let player_B = '';
     let isB = false;
 
     // b가 없을때 들어와 설정하고 그사람이름
     // b가 있을때 들어와 못 들어오고 안에 있는 사람 설정
-    if (this.gameroom.allGameRoom().get(room).playerB) {
+    if (this.gameroom.allGameRoom().get(room).playerB.intra != '') {
       isB = true;
     }
 
     if (this.gameroom.setPlayerB(room, userTemp)) {
-      // b가 없으면 설정하고 아래 실행
       client.join(room);
     }
 
-    player_B = this.gameroom.allGameRoom().get(room).playerB.intra;
-
     client.to(room).emit('gameRoomInfo', {
       playerA: playerA,
-      playerB: player_B,
+      playerB: this.gameroom.allGameRoom().get(room).playerB.intra,
       isA: this.gameroom.isPlayerA(userTemp.intra, room),
     });
     return isB;
@@ -622,9 +618,8 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   gameRoomInfo(client: Socket, roomName: string) {
     const player_A: string = this.gameroom.allGameRoom().get(roomName)
       .playerA.intra;
-    const player_B: string = this.gameroom.allGameRoom().get(roomName).playerB
-      ? this.gameroom.allGameRoom().get(roomName).playerB.intra
-      : '';
+    const player_B: string = this.gameroom.allGameRoom().get(roomName)
+      .playerB.intra;
 
     return { playerA: player_A, playerB: player_B };
   }
@@ -639,9 +634,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     client.join(room);
     const player_A: string = this.gameroom.allGameRoom().get(room)
       .playerA.intra;
-    let player_B = '';
-    if (this.gameroom.allGameRoom().get(room).playerB)
-      player_B = this.gameroom.allGameRoom().get(room).playerB.intra;
+    const player_B = this.gameroom.allGameRoom().get(room).playerB.intra;
     client.to(room).emit('gameRoomInfo', {
       playerA: player_A,
       playerB: player_B,
@@ -703,12 +696,10 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
           .get(gameRoom.room)
           .observers.delete(client.id);
     }
-    let player_b = '';
-    if (this.gameroom.allGameRoom().get(gameRoom.room).playerB)
-      player_b = this.gameroom.allGameRoom().get(gameRoom.room).playerB.intra;
+
     client.to(gameRoom.room).emit('gameRoomInfo', {
       playerA: this.gameroom.allGameRoom().get(gameRoom.room).playerA.intra,
-      playerB: player_b,
+      playerB: this.gameroom.allGameRoom().get(gameRoom.room).playerB.intra,
       isA: this.gameroom.isPlayerA(
         this.gameroom.allGameRoom().get(gameRoom.room).playerA.intra,
         gameRoom.room,
