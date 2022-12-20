@@ -667,6 +667,11 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
         if (this.gameroom.allGameRoom().get(key).observers.has(client.id))
           this.gameroom.allGameRoom().get(key).observers.delete(client.id);
       }
+      client.to(key).emit('gameRoomInfo', {
+        playerA: value.playerA.intra,
+        playerB: value.playerB.intra,
+        isA: this.gameroom.isPlayerA(value.playerA.intra, key),
+      });
     }
     client.rooms.forEach((ele: any) => {
       if (ele != client.id) {
@@ -697,7 +702,15 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
           .get(gameRoom.room)
           .observers.delete(client.id);
     }
-    client.leave(gameRoom.room);
+    client.to(gameRoom.room).emit('gameRoomInfo', {
+      playerA: this.gameroom.allGameRoom().get(gameRoom.room).playerA.intra,
+      playerB: this.gameroom.allGameRoom().get(gameRoom.room).playerB.intra,
+      isA: this.gameroom.isPlayerA(
+        this.gameroom.allGameRoom().get(gameRoom.room).playerA.intra,
+        gameRoom.room,
+      ),
+    }),
+      client.leave(gameRoom.room);
     return {};
   }
 
