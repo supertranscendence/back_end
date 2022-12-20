@@ -598,8 +598,9 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   gameRoomInfo(client: Socket, roomName: string) {
     const player_A: string = this.gameroom.allGameRoom().get(roomName)
       .playerA.intra;
-    const player_B: string = this.gameroom.allGameRoom().get(roomName)
-      .playerB.intra;
+    const player_B: string = this.gameroom.allGameRoom().get(roomName).playerB
+      ? this.gameroom.allGameRoom().get(roomName).playerB.intra
+      : '';
 
     return { playerA: player_A, playerB: player_B };
   }
