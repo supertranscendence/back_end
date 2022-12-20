@@ -588,7 +588,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   enterGameRoom(client: Socket, room: string) {
     const userTemp: IUser = this.user.getUser(client.id);
     const playerA: string = this.gameroom.allGameRoom().get(room).playerA.intra;
-    let player_B;
+    let player_B = '';
     let isB = false;
 
     // b가 없을때 들어와 설정하고 그사람이름
@@ -618,13 +618,23 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     return { playerA: player_A, playerB: player_B };
   }
 
-  /////////////////////////////////////////////////////////////////////////////////////////////
   @SubscribeMessage('enterGameRoomOBS')
   enterGameRoomOBS(client: Socket, room: string) {
     const userTemp: IUser = this.user.getUser(client.id);
     this.gameroom.allGameRoom().get(room).observers.set(room, userTemp);
+    const player_A: string = this.gameroom.allGameRoom().get(room)
+      .playerA.intra;
+    let player_B = '';
+    if (this.gameroom.allGameRoom().get(room).playerB)
+      player_B = this.gameroom.allGameRoom().get(room).playerB.intra;
+
+    client
+      .to(room)
+      .emit('gameRoomInfo', { playerA: player_A, playerB: player_B });
     return {};
   }
+
+  /////////////////////////////////////////////////////////////////////////////////////////////
 
   @SubscribeMessage('clearGameRoom')
   clearGameRoom(client: Socket) {
