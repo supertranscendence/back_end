@@ -24,6 +24,7 @@ export class GameroomService {
     return this.gameRooms;
   }
 
+  /////////////////////////////////////////////////////////////////////////////////////////////
   createGameRoom(roomName: string, gameRoom: IGameRoom): boolean {
     if (this.gameRooms.has(roomName)) {
       return true;
@@ -34,11 +35,13 @@ export class GameroomService {
   }
 
   setPlayerB(roomName: string, user: IUser): boolean {
-    if (this.gameRooms.get(roomName).playerB == null) {
+    if (!this.gameRooms.get(roomName).playerB) {
       this.gameRooms.get(roomName).playerB = user;
       return true;
     } else return false;
   }
+
+  /////////////////////////////////////////////////////////////////////////////////////////////
 
   getGameRooms(): { roomName: string; userAname: string }[] {
     const returnGameRoom: {
