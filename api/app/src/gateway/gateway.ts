@@ -638,7 +638,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     let player_B = '';
     if (this.gameroom.allGameRoom().get(room).playerB)
       player_B = this.gameroom.allGameRoom().get(room).playerB.intra;
-
+    client.join(room);
     client.to(room).emit('gameRoomInfo', {
       playerA: player_A,
       playerB: player_B,
