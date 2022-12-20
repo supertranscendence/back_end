@@ -672,7 +672,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
         // db에다 상대가 이기는 저장하는 로직이 있어야 된다. 게임 중이라면 // 강종에서 상대
       } else {
         // 관전자
-        if (this.gameroom.allGameRoom().get(key).observers.has(client.id))
+        if (this.gameroom.allGameRoom().get(key).observers)
           this.gameroom.allGameRoom().get(key).observers.delete(client.id);
       }
       client.to(key).emit('gameRoomInfo', {
@@ -697,17 +697,18 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       this.gameroom.deletePlayer(gameRoom.room);
     } else {
       // 관전자
-      if (
-        this.gameroom.allGameRoom().get(gameRoom.room).observers.has(client.id)
-      )
+      if (this.gameroom.allGameRoom().get(gameRoom.room).observers)
         this.gameroom
           .allGameRoom()
           .get(gameRoom.room)
           .observers.delete(client.id);
     }
+    let player_b = '';
+    if (this.gameroom.allGameRoom().get(gameRoom.room).playerB)
+      player_b = this.gameroom.allGameRoom().get(gameRoom.room).playerB.intra;
     client.to(gameRoom.room).emit('gameRoomInfo', {
       playerA: this.gameroom.allGameRoom().get(gameRoom.room).playerA.intra,
-      playerB: this.gameroom.allGameRoom().get(gameRoom.room).playerB.intra,
+      playerB: player_b,
       isA: this.gameroom.isPlayerA(
         this.gameroom.allGameRoom().get(gameRoom.room).playerA.intra,
         gameRoom.room,
