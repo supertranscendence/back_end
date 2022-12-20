@@ -572,6 +572,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     return roomName;
   }
 
+  /////////////////////////////////////////////////////////////////////////////////
   @SubscribeMessage('createGameRoom')
   createGameRoom(client: Socket, roomName: string) {
     const userTemp: IUser = this.user.getUser(client.id); // 현재 클라이언트와 같은 사람 찾아와
@@ -580,7 +581,12 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     client.join(roomName);
     const playerB = '';
     client.emit('newGameRoomCreated', roomName);
-    client.emit('gameRoomInfo', { playerA: userTemp.intra, playerB: playerB });
+
+    client.emit('gameRoomInfo', {
+      playerA: userTemp.intra,
+      playerB: playerB,
+      isA: this.gameroom.isPlayerA(userTemp.intra, roomName),
+    });
     return {};
   }
 
@@ -601,9 +607,11 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if (this.gameroom.allGameRoom().get(room).playerB)
       player_B = this.gameroom.allGameRoom().get(room).playerB.intra;
 
-    client
-      .to(room)
-      .emit('gameRoomInfo', { playerA: playerA, playerB: player_B });
+    client.to(room).emit('gameRoomInfo', {
+      playerA: playerA,
+      playerB: player_B,
+      isA: this.gameroom.isPlayerA(userTemp.intra, room),
+    });
     return { isB };
   }
 
@@ -628,9 +636,11 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if (this.gameroom.allGameRoom().get(room).playerB)
       player_B = this.gameroom.allGameRoom().get(room).playerB.intra;
 
-    client
-      .to(room)
-      .emit('gameRoomInfo', { playerA: player_A, playerB: player_B });
+    client.to(room).emit('gameRoomInfo', {
+      playerA: player_A,
+      playerB: player_B,
+      isA: this.gameroom.isPlayerA(userTemp.intra, room),
+    });
     return {};
   }
 
