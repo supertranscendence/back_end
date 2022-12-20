@@ -615,7 +615,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       playerB: player_B,
       isA: this.gameroom.isPlayerA(userTemp.intra, room),
     });
-    return { isB };
+    return isB;
   }
 
   @SubscribeMessage('gameRoomInfo')
