@@ -599,14 +599,16 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     // b가 없을때 들어와 설정하고 그사람이름
     // b가 있을때 들어와 못 들어오고 안에 있는 사람 설정
+    if (this.gameroom.allGameRoom().get(room).playerB) {
+      isB = true;
+    }
+
     if (this.gameroom.setPlayerB(room, userTemp)) {
       // b가 없으면 설정하고 아래 실행
       client.join(room);
     }
-    if (this.gameroom.allGameRoom().get(room).playerB) {
-      player_B = this.gameroom.allGameRoom().get(room).playerB.intra;
-      isB = true;
-    }
+
+    player_B = this.gameroom.allGameRoom().get(room).playerB.intra;
 
     client.to(room).emit('gameRoomInfo', {
       playerA: playerA,
