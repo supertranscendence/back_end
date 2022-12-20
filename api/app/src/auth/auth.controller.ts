@@ -96,6 +96,6 @@ export class AuthController {
   @Header('Access-Control-Allow-Credentials', 'true')
   async ftTakeCode(@Body('code') code: string, @Req() req, @Res() res) {
     if (await this.user.findOneByVerify(code)) res.status(200).send('');
-    else res.status(500);
+    else res.status(500).send('');
   }
 }
