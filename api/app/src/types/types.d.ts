@@ -19,7 +19,7 @@ export interface IUser {
 
 export interface IGameRoom {
   playerA: IUser;
-  playerB?: IUser;
+  playerB: IUser;
   observers: Map<string, IUser>;
 }
 
