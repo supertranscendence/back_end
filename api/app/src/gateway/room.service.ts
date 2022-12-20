@@ -53,11 +53,12 @@ export class RoomService {
   }
 
   addRoom(roomname: string, charRoom: IChatRoom): boolean {
-    if (this.rooms.has(roomname)) { // 있으면 true
-      return (true);
-    }
-    else {                          // 없으면 false
-      this.rooms.set(roomname, charRoom)
+    if (this.rooms.has(roomname)) {
+      // 있으면 true
+      return true;
+    } else {
+      // 없으면 false
+      this.rooms.set(roomname, charRoom);
       return false;
     }
   }

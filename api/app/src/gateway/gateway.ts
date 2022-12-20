@@ -158,6 +158,16 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   // 주는 객체: {roomName:string , kickUser :string}
   // 내부 동작 : 해당 방에서 kickUser가 어드민이나 오너가 아니면 방에서 내보냄
   // 반환 : return ;
+  ///////////////////////////////
+
+  //   kickUser
+  // 주는 객체: {roomName:string , kickUser :string}
+  // 내부 동작 : 해당 방에서 kickUser가 어드민이나 오너가 아니면 방에서 내보냄
+  // 반환 : return ;
+
+  // ban mute
+
+  //Owner 는 admin을 킥할 수 있어야 한다.
 
   // ban mute
 
@@ -562,12 +572,15 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     return roomName;
   }
 
+  /////////////////////////////////////////////////////////////////////////////////////////////
   @SubscribeMessage('createGameRoom')
   createGameRoom(client: Socket, roomName: string) {
     const userTemp: IUser = this.user.getUser(client.id); // 현재 클라이언트와 같은 사람 찾아와
     if (this.gameroom.createGameRoom(roomName, new gameRoom(userTemp)))
       return {};
     client.join(roomName);
+    const playerB = '';
+    client.emit('gameRoomInfo', { playerA: userTemp.intra, playerB: playerB });
     client.emit('newGameRoomCreated', roomName);
     return {};
   }
@@ -575,15 +588,13 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('enterGameRoom')
   enterGameRoom(client: Socket, room: string) {
     const userTemp: IUser = this.user.getUser(client.id);
-    if (this.gameroom.setPlayerB(room, userTemp))
-      // 방에 사람 추가하기
-      client.join(room);
-    // client
-    //   .to(room)
-    //   .emit('roomInfo', this.room.getChatRoomInfo(room)); // join leave할때
+    if (this.gameroom.setPlayerB(room, userTemp)) client.join(room);
+    const playerA: string = this.gameroom.allGameRoom().get(room).playerA.intra;
+    client.emit('gameRoomInfo', { playerA: playerA, playerB: userTemp.intra });
     return {};
   }
 
+  //여기 까지 확인하기
   @SubscribeMessage('enterGameRoomOBS')
   enterGameRoomOBS(client: Socket, room: string) {
     const userTemp: IUser = this.user.getUser(client.id);
@@ -835,6 +846,8 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       return {};
     }
   }
+
+  //////////////////////////////////////////////////////////////////////////////////////////////
 
   // 서버에서 해줄일 : 옵저버들한테 gameSet 이벤트 emit 해주기 (
   //   객체 :{userA: number, userB:userB.number} 담아서
