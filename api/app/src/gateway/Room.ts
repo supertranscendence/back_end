@@ -37,6 +37,6 @@ export class gameRoom implements IGameRoom {
   constructor(userA: IUser) {
     this.playerA = userA;
     this.playerB = null;
-    observers: new Map<string, IUser>();
+    this.observers = new Map();
   }
 }
