@@ -1079,8 +1079,9 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('Block')
   Block(client: Socket, friendName : string) {
 
+    const my = this.user.getUsers().get(client.id).intra;
     // 소켓에 해당하는 사람을 찾고 그사람의 친구를 block
-    this
+    // this.users.blockFriend(my, friendIntra)
   }
 
   //friend 로직 friend가 없어요!!!
@@ -1095,10 +1096,11 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }[] = [];
     this.users.findFriend(intra).then((res) => {
       for (const [key, values] of res.friends.entries()) {
-        let ava : string;
+        let ava : string = "";
 
         this.users.findByIntra(values.friend).then((res) => {
-          ava = res.avatar;
+          if (res && res.avatar)
+            ava = res.avatar;
         });
         // 객체생성을 이런식으로 한단다
         const temp: { friend: string; state: UserStatus; blocked: boolean; avatar : string} = {
@@ -1127,7 +1129,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
         stateFriend.push(temp); // 친구
       }
-
+      console.log(JSON.stringify(stateFriend));
       return JSON.stringify(stateFriend);
     });
   }
