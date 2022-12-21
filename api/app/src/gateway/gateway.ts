@@ -65,9 +65,9 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.room.deleteUser(client.id);
     this.user.removeUser(client.id); // TODO 방 나가기 콜백 보내기
 
-    // 게임방에서 나가기
-    // 채팅방에서 나가기
-    // 게임중이라면 점수주는 로직이 필요!
+
+    // 다 끊어주기,, cleargame룸 (다른 버튼을 눌렀을 때)
+    
   }
 
   @SubscribeMessage('getChatRoomInfo')
@@ -662,7 +662,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       .playerA.intra;
     let player_B: string = '';
     
-    if (this.gameroom.allGameRoom().get(room).playerB)
+    if (this.gameroom.allGameRoom().get(room).playerB) 
       player_B = this.gameroom.allGameRoom().get(room).playerB.intra;
 
     client.to(room).emit('gameRoomInfo', {
@@ -989,7 +989,8 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       client.emit('gameDone', intra);
       this.gameroom.deleteRoom(User.name);
     
-      this.game.create(a + '|' + b ,User.userA + '|' + User.userB)
+      this.game.create(a.intra + '|' + b.intra ,User.userA + '|' + User.userB)
+      this.game.create(b.intra + '|' + a.intra ,User.userB + '|' + User.userA)
       // db에 저
     } else if (User.userB >= 3) {
       intra = this.gameroom.allGameRoom().get(User.name).playerB.intra;
