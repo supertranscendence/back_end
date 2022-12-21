@@ -28,17 +28,20 @@ export class Queue  {
 
   equal(element :IUser) : boolean {
     for (const ele of this.storage) {
-      if (ele.intra == element.intra)
-        return true;
+      if (ele)
+        if (ele.intra == element.intra)
+          return true;
     }
       return false;
   }
 
   delete(clientId : string) : boolean {
     for (let i of this.storage) {
-      if (i.client.id == clientId)
-        i = null;
+      if (i) {
+        if (i.client.id == clientId)
+          i = null;
       return true;
+      }
     }
     return false;
   }
