@@ -1078,18 +1078,31 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
 
 
-  @SubscribeMessage('unBlock')
-  unBlock(client: Socket, friendName : string) {
-    const my = this.user.getUsers().get(client.id).intra;
-      this.users.deleteBlock(my, friendName)
-  }
+  // @SubscribeMessage('unBlock')
+  // unBlock(client: Socket, friendName : string) {
+  //   const my = this.user.getUsers().get(client.id).intra;
+  //     this.users.deleteBlock(my, friendName)
+  // }
+
   @SubscribeMessage('Block')
   Block(client: Socket, friendName : string) {
     const my = this.user.getUsers().get(client.id).intra;
-    // if (this.users.chkBlock(my, friendName))
-    //   this.users.deleteBlock(my,friendName);
-    // else
-      this.users.blockFriend(my, friendName)
+    
+    //  비동기는 이렇게 처리합니다 then 내부에서 처리를 한다!
+    this.users.IsBlock(my, friendName).then(
+      (res) => {
+        let chk = res;
+        console.log(chk, res);
+        if (chk) {
+          console.log('delete');
+          this.users.deleteBlock(my,friendName);
+        }
+        else{
+          console.log('block');
+          this.users.blockFriend(my, friendName)
+        }
+      }
+    );
   }
 
   //friend 로직 friend가 없어요!!!

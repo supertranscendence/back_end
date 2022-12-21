@@ -40,6 +40,19 @@ export class UsersService {
   }
   ///////////////
 
+  async IsBlock(myintra: string, friendIntra: string) : Promise<boolean>{
+    // const id = (await this.usersRepository.findOneBy({ intra: myintra })).id;
+  
+    
+    
+    let friends = await this.friendsRepository.findBy({ intra: myintra });
+    for (const f of friends) {
+      if (f.intra == myintra && f.friend == friendIntra && f.block == true)
+        return true;
+    }
+    return false;
+  }
+
   async deleteBlock(myintra: string, friendIntra: string){
     const id = (await this.usersRepository.findOneBy({ intra: myintra })).id;
     this.friendsRepository
