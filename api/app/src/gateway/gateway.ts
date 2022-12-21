@@ -1081,7 +1081,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     const my = this.user.getUsers().get(client.id).intra;
     // 소켓에 해당하는 사람을 찾고 그사람의 친구를 block
-    // this.users.blockFriend(my, friendIntra)
+    this.users.blockFriend(my, friendName)
   }
 
   //friend 로직 friend가 없어요!!!
@@ -1129,8 +1129,10 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
         stateFriend.push(temp); // 친구
       }
-      console.log(JSON.stringify(stateFriend));
-      return JSON.stringify(stateFriend);
+      // console.log(JSON.stringify(stateFriend));
+      // console.log(typeof(JSON.stringify(stateFriend)));
+      const json = JSON.stringify(stateFriend);
+      return json;
     });
   }
 }
