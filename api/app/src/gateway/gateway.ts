@@ -947,17 +947,19 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('gameStart')
   gameStart(client: Socket, roomInfo : {room: string, mode : boolean}) { // 모드 이면 true
     
-      // if (this.gameroom.allGameRoom().get(roomInfo.room).playerB.client.id == client.id)
-      
-      if (this.gameroom.isPlayerA(client.id, roomInfo.room)) {
-        // 사람들 게임중인 상태 
-        client.to(roomInfo.room).emit('gameStart', {start : true, mode :roomInfo.mode});
-        client.emit('gameStart', {start : true, mode :roomInfo.mode});
-        // return {};
-      } else {
-        // client.to(roomInfo.room).emit('gameStart', {start: false, mode : roomInfo.mode});
-        // client.emit('gameStart', {start: false, mode : roomInfo.mode});
+      if (this.gameroom.allGameRoom().get(roomInfo.room).playerB) {
+
+        if (this.gameroom.isPlayerA(client.id, roomInfo.room)) {
+          // 사람들 게임중인 상태 
+          client.to(roomInfo.room).emit('gameStart', {start : true, mode :roomInfo.mode});
+          client.emit('gameStart', {start : true, mode :roomInfo.mode});
+          // return {};
+        } else {
+          // client.to(roomInfo.room).emit('gameStart', {start: false, mode : roomInfo.mode});
+          // client.emit('gameStart', {start: false, mode : roomInfo.mode});
+        }
       }
+      
       return {};
   }
 
@@ -1077,7 +1079,8 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('Block')
   Block(client: Socket, friendName : string) {
 
-    // this.users.
+    // 소켓에 해당하는 사람을 찾고 그사람의 친구를 block
+    this
   }
 
   //friend 로직 friend가 없어요!!!
