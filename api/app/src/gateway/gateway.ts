@@ -1131,8 +1131,8 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       }
       // console.log(JSON.stringify(stateFriend));
       // console.log(typeof(JSON.stringify(stateFriend)));
-      const json = JSON.stringify(stateFriend);
-      return json;
+      // const json = JSON.stringify(stateFriend);
+      return stateFriend;
     });
   }
 }
