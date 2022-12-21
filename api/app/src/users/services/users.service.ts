@@ -17,6 +17,12 @@ export class UsersService {
     return this.usersRepository.find();
   }
 
+
+  async update(name : string) {
+    let a = (await this.usersRepository.findOneBy({ intra: name })).level;
+
+    this.usersRepository.update({ intra : name}, {level :  a + 30});
+}
   // findOne(id : number) {
   //     return this.usersRepository.findOne(id);
   // }
