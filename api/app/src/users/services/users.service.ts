@@ -26,33 +26,30 @@ export class UsersService {
   async findByIntra(intra: string): Promise<Users> {
     return await this.usersRepository.findOneBy({ intra: intra });
   }
-
   // 친구
-  async blockFriend(myintra: string, friendIntra: string){
-    const id = (await this.friendsRepository.findOneBy({ intra: myintra })).id;
-    //나를 찾아,, 그 사람을 찾아 그사람의 상태를 바꿔
-    
-    // this.authRepository.update(id, { act: access, res: refresh });
-    this.friendsRepository
-        // .leftJoinAndSelect('m.friends', 't')
-    .update({id: id}, { friend: friendIntra, block: true})
-    
-    // .createQueryBuilder('user')
-      // .leftJoinAndSelect('user.friends', 'f')
-      // .leftJoinAndSelect('house.images', 'image')
-      // .where('user.id = :id', { id: id })
-      // .andWhere('user.friend = :friend', { friend: friendIntra })
-    //   .createQueryBuilder('m')
-    //   .leftJoinAndSelect('m.friends', 't')
-    //   .where('m.id = :id', { id: id })
-    //   .;
-    // .update({ intra: myintra }, {block : true})
-    // .update({intra: myintra}, {m.friend : friendIntra});
-    // .update({ intra :myintra }, {block : true})
-    // .update({ intra: intra }, { avatar: value })
-    // return await this.usersRepository.findOneBy({ intra: intra });
 
-    
+  //비동기를 동기적으로 어떻게 처리를 해야되는 걸까?
+  async chkBlock(myintra: string, friendIntra: string) : Promise<boolean> {
+    let chk :boolean = false;
+    await (await this.friendsRepository.findBy({intra: myintra})).forEach(element => {
+      if (element.intra == myintra && element.friend == friendIntra && element.block === true) {
+        chk = true;
+      }
+    });
+      return chk;
+  }
+  ///////////////
+
+  async deleteBlock(myintra: string, friendIntra: string){
+    const id = (await this.usersRepository.findOneBy({ intra: myintra })).id;
+    this.friendsRepository
+    .update({id: id, friend: friendIntra}, {block : false})    
+  }
+
+  async blockFriend(myintra: string, friendIntra: string){
+    const id = (await this.usersRepository.findOneBy({ intra: myintra })).id;
+    this.friendsRepository
+    .update({id: id, friend: friendIntra}, {block : true})    
   }
 
   public async findFriend(intra: string): Promise<Users> {

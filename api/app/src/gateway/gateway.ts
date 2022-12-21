@@ -892,12 +892,12 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   
     if (gameRoom.isA !== undefined) {
       if (gameRoom.isA) {
-        client.emit('down', {isA : gameRoom.isA, yPos: gameRoom.yPos}); //플레이어 에이인지 아닌지
         client.to(gameRoom.name).emit('down', {isA : gameRoom.isA, yPos: gameRoom.yPos}); //플레이어 에이인지 아닌지
+        client.emit('down', {isA : gameRoom.isA, yPos: gameRoom.yPos}); //플레이어 에이인지 아닌지
       }
       else {
-        client.emit('down', {isA : gameRoom.isA, yPos: gameRoom.yPos}); //플레이어 에이인지 아닌지
         client.to(gameRoom.name).emit('down', {isA : false, yPos: gameRoom.yPos}); //플레이어 에이인지 아닌지
+        client.emit('down', {isA : gameRoom.isA, yPos: gameRoom.yPos}); //플레이어 에이인지 아닌지
       }
     }
   }
@@ -908,12 +908,12 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   
     if (gameRoom.isA !== undefined) {
       if (gameRoom.isA) {
-        client.emit('up', {isA : gameRoom.isA, yPos: gameRoom.yPos}); //플레이어 에이인지 아닌지
         client.to(gameRoom.name).emit('up', {isA : gameRoom.isA, yPos: gameRoom.yPos}); //플레이어 에이인지 아닌지
+        client.emit('up', {isA : gameRoom.isA, yPos: gameRoom.yPos}); //플레이어 에이인지 아닌지
       }
       else {
-        client.emit('up', {isA : gameRoom.isA, yPos: gameRoom.yPos}); //플레이어 에이인지 아닌지
         client.to(gameRoom.name).emit('up', {isA : false, yPos: gameRoom.yPos}); //플레이어 에이인지 아닌지
+        client.emit('up', {isA : gameRoom.isA, yPos: gameRoom.yPos}); //플레이어 에이인지 아닌지
       }
     }
   }
@@ -1076,12 +1076,20 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   //     });
   //   }
 
+
+
+  @SubscribeMessage('unBlock')
+  unBlock(client: Socket, friendName : string) {
+    const my = this.user.getUsers().get(client.id).intra;
+      this.users.deleteBlock(my, friendName)
+  }
   @SubscribeMessage('Block')
   Block(client: Socket, friendName : string) {
-
     const my = this.user.getUsers().get(client.id).intra;
-    // 소켓에 해당하는 사람을 찾고 그사람의 친구를 block
-    this.users.blockFriend(my, friendName)
+    // if (this.users.chkBlock(my, friendName))
+    //   this.users.deleteBlock(my,friendName);
+    // else
+      this.users.blockFriend(my, friendName)
   }
 
   //friend 로직 friend가 없어요!!!
@@ -1092,6 +1100,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const stateFriend: {
       friend: string;
       state: UserStatus;
+      avatar: string;
       blocked: boolean;
     }[] = [];
     this.users.findFriend(intra).then((res) => {
