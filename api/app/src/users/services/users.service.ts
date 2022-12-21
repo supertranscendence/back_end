@@ -28,9 +28,20 @@ export class UsersService {
   }
 
   // 친구
-  // async blockFriend(myintra: string, friendIntra: string){
-    // const id = (await this.usersRepository.findOneBy({ intra: myintra })).id;
-    // this.usersRepository
+  async blockFriend(myintra: string, friendIntra: string){
+    const id = (await this.friendsRepository.findOneBy({ intra: myintra })).id;
+    //나를 찾아,, 그 사람을 찾아 그사람의 상태를 바꿔
+    
+    // this.authRepository.update(id, { act: access, res: refresh });
+    this.friendsRepository
+        // .leftJoinAndSelect('m.friends', 't')
+    .update({id: id}, { friend: friendIntra, block: true})
+    
+    // .createQueryBuilder('user')
+      // .leftJoinAndSelect('user.friends', 'f')
+      // .leftJoinAndSelect('house.images', 'image')
+      // .where('user.id = :id', { id: id })
+      // .andWhere('user.friend = :friend', { friend: friendIntra })
     //   .createQueryBuilder('m')
     //   .leftJoinAndSelect('m.friends', 't')
     //   .where('m.id = :id', { id: id })
@@ -42,7 +53,7 @@ export class UsersService {
     // return await this.usersRepository.findOneBy({ intra: intra });
 
     
-  // }
+  }
 
   public async findFriend(intra: string): Promise<Users> {
     const id = (await this.usersRepository.findOneBy({ intra: intra })).id;
