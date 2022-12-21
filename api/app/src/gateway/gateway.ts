@@ -765,6 +765,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if (this.gameroom.getQueue().equal(userTemp)) {
       return this.gameroom.getQueue().getSize();
     }
+
     this.gameroom.getQueue().enqueue(userTemp); //소켓 디스커넥트가
 
     if (this.gameroom.getQueue().getSize() >= 2) {
