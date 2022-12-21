@@ -27,6 +27,23 @@ export class UsersService {
     return await this.usersRepository.findOneBy({ intra: intra });
   }
 
+  // 친구
+  // async blockFriend(myintra: string, friendIntra: string){
+    // const id = (await this.usersRepository.findOneBy({ intra: myintra })).id;
+    // this.usersRepository
+    //   .createQueryBuilder('m')
+    //   .leftJoinAndSelect('m.friends', 't')
+    //   .where('m.id = :id', { id: id })
+    //   .;
+    // .update({ intra: myintra }, {block : true})
+    // .update({intra: myintra}, {m.friend : friendIntra});
+    // .update({ intra :myintra }, {block : true})
+    // .update({ intra: intra }, { avatar: value })
+    // return await this.usersRepository.findOneBy({ intra: intra });
+
+    
+  // }
+
   public async findFriend(intra: string): Promise<Users> {
     const id = (await this.usersRepository.findOneBy({ intra: intra })).id;
     return await this.usersRepository
