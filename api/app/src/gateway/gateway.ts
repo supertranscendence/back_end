@@ -892,11 +892,11 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   
     if (gameRoom.isA !== undefined) {
       if (gameRoom.isA) {
-        client.emit('down', gameRoom.isA); //플레이어 에이인지 아닌지
+        client.emit('down', {isA : gameRoom.isA, yPos: gameRoom.yPos}); //플레이어 에이인지 아닌지
         client.to(gameRoom.name).emit('down', {isA : gameRoom.isA, yPos: gameRoom.yPos}); //플레이어 에이인지 아닌지
       }
       else {
-        client.emit('down', false); //플레이어 에이인지 아닌지
+        client.emit('down', {isA : gameRoom.isA, yPos: gameRoom.yPos}); //플레이어 에이인지 아닌지
         client.to(gameRoom.name).emit('down', {isA : false, yPos: gameRoom.yPos}); //플레이어 에이인지 아닌지
       }
     }
@@ -908,11 +908,11 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   
     if (gameRoom.isA !== undefined) {
       if (gameRoom.isA) {
-        client.emit('up', gameRoom.isA); //플레이어 에이인지 아닌지
+        client.emit('up', {isA : gameRoom.isA, yPos: gameRoom.yPos}); //플레이어 에이인지 아닌지
         client.to(gameRoom.name).emit('up', {isA : gameRoom.isA, yPos: gameRoom.yPos}); //플레이어 에이인지 아닌지
       }
       else {
-        client.emit('up', false); //플레이어 에이인지 아닌지
+        client.emit('up', {isA : gameRoom.isA, yPos: gameRoom.yPos}); //플레이어 에이인지 아닌지
         client.to(gameRoom.name).emit('up', {isA : false, yPos: gameRoom.yPos}); //플레이어 에이인지 아닌지
       }
     }
@@ -1074,10 +1074,15 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   //     });
   //   }
 
+  @SubscribeMessage('Block')
+  Block(client: Socket, friendName : string) {
+
+    this.users.
+  }
+
   //friend 로직 friend가 없어요!!!
   @SubscribeMessage('myFriend')
-  myFriend(client: Socket, a: string) {
-    console.log('mYFriend', a);
+  myFriend(client: Socket) {
     const intra = this.room.getIntraAtToken(client);
     // const stateFriend : {state : string, name : string}[] = [];
     const stateFriend: {
