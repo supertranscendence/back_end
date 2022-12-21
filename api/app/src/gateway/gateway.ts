@@ -922,6 +922,8 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('collision')
   collision(client: Socket, ball: {name: string,x: number, y:number, radius:number, velocityX:number, velocityY:number, speed:number, color:string}) {
+    client.emit('collision', {x : ball.x, y :ball.y, radius : ball.radius, velocityX : ball.velocityX, velocityY : ball.velocityY,
+      speed: ball.speed, color: ball.color})
     client.to(ball.name).emit('collision', {x : ball.x, y :ball.y, radius : ball.radius, velocityX : ball.velocityX, velocityY : ball.velocityY,
     speed: ball.speed, color: ball.color})
   }
