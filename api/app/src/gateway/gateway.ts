@@ -1126,28 +1126,19 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('myFriend')
   myFriend(client: Socket) {
     const intra = this.room.getIntraAtToken(client);
-    // const stateFriend : {state : string, name : string}[] = [];
     const stateFriend: {
-      friend: string;
-      state: UserStatus;
-      avatar: string;
-      blocked: boolean;
+      friend: string; state: UserStatus; avatar: string; blocked: boolean;
     }[] = [];
     
     this.users.findFriend(intra).then((res) => {
       for (const [key, values] of res.entries()) {
         let ava : string = "";
-
         this.users.findByIntra(values.friend).then((res) => {
           if (res && res.avatar)
             ava = res.avatar;
         });
-        // 객체생성을 이런식으로 한단다
         const temp: { friend: string; state: UserStatus; blocked: boolean; avatar : string} = {
-          friend: values.friend,
-          state: 0, // 여기 상태가져오는 로직이 필요함
-          blocked: values.block,
-          avatar: ava,
+          friend: values.friend, state: 0, blocked: values.block, avatar: ava,
         };
         if (this.user.isUserName(values.friend)) {
           temp.state = 1; //login
@@ -1155,7 +1146,6 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
         else {
           temp.state = 2; // logout
         }
-
         this.gameroom.allGameRoom().forEach((e) => {
           if (e.playerA.intra == values.friend)
             temp.state = 3;
@@ -1166,13 +1156,10 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
               temp.state = 3;
           })
         }); 
-
         stateFriend.push(temp); // 친구
       }
-      // console.log(JSON.stringify(stateFriend));
-      // console.log(typeof(JSON.stringify(stateFriend)));
-      // const json = JSON.stringify(stateFriend);
+      // console.log(stateFriend);
+      return stateFriend;
     });
-    return stateFriend;
   }
 }

@@ -67,14 +67,21 @@ export class UsersService {
   }
 
   public async findFriend(intra: string): Promise<Friends[]> {
-    // const id = (await this.usersRepository.findOneBy({ intra: intra })).id;
-    // return await this.usersRepository
-    //   .createQueryBuilder('m')
-    //   .leftJoinAndSelect('m.friends', 't')
-    //   .where('m.id = :id', { id: id })
-    //   .
-    //   .getOne();
+    const id = (await this.usersRepository.findOneBy({ intra: intra })).id;
+    
     return await this.friendsRepository.findBy({ intra: intra })
+
+  }
+
+
+  public async findUserFriend(intra: string): Promise<Users> {
+    const id = (await this.usersRepository.findOneBy({ intra: intra })).id;
+    return await this.usersRepository
+      .createQueryBuilder('m')
+      .leftJoinAndSelect('m.friends', 't')
+      .where('m.id = :id', { id: id })
+      .getOne();
+    // return await this.friendsRepository.findBy({ intra: intra })
 
   }
 
