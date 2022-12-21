@@ -21,12 +21,14 @@ export interface IGameRoom {
   playerA: IUser;
   playerB: IUser;
   observers: Map<string, IUser>;
+  roomState: boolean;
 }
 
 export interface IGame {
   A: Client<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>;
   B: Client<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>;
   score?: string;
+  roomState: boolean;
 }
 
 export interface IChatRoom {

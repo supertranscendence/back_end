@@ -33,10 +33,12 @@ export class gameRoom implements IGameRoom {
   playerA: IUser;
   playerB: IUser;
   observers: Map<string, IUser>;
+  roomState: boolean;
 
   constructor(userA: IUser) {
     this.playerA = userA;
     this.playerB = null;
     this.observers = new Map();
+    this.roomState = false;
   }
 }
