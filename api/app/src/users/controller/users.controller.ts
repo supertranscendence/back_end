@@ -49,8 +49,8 @@ export class UsersController {
   @Header('Access-Control-Allow-Credentials', 'true')
   findFriend(@Req() request: Request) {
     const intra = this.auth.getIntra(this.auth.extractToken(request, 'http'));
-    // return this.users.findByIntra(intra);
-    return this.users.findFriend(intra);
+    console.log(intra);
+    return this.users.findUserFriend(intra);
   }
 
   @Post()
