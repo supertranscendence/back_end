@@ -66,7 +66,29 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.user.removeUser(client.id); // TODO 방 나가기 콜백 보내기
 
 
+    for (const [key, value] of this.gameroom.allGameRoom()) {
+      // this.gameroom.deleteUser(key, client.id);
+      if (this.gameroom.isPlayerA(client.id, key)) {
+        // a인지 확
+        client.to(key).emit('kickAll'); // 다른 사람 다 내보내기
+        client.emit('kickAll'); // 자기 나가기
+        this.gameroom.deleteRoom(key);
+  
+      } else if (this.gameroom.isPlayerB(client.id, key)) {
+        // b인지 확인
+        this.gameroom.deletePlayer(key);
+      } else {
+        // 관전자
+        if (this.gameroom.allGameRoom().get(key).observers)
+          this.gameroom
+            .allGameRoom()
+            .get(key)
+            .observers.delete(client.id);
+      }
+
+    }
     // 다 끊어주기,, cleargame룸 (다른 버튼을 눌렀을 때)
+    this.gameroom.getQueue().delete(client.id);
     
   }
 

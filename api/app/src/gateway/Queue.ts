@@ -33,4 +33,13 @@ export class Queue  {
     }
       return false;
   }
+
+  delete(clientId : string) : boolean {
+    for (let i of this.storage) {
+      if (i.client.id == clientId)
+        i = null;
+      return true;
+    }
+    return false;
+  }
 }
