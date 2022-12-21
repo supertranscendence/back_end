@@ -947,7 +947,8 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('gameStart')
   gameStart(client: Socket, roomInfo : {room: string, mode : boolean}) { // 모드 이면 true
     
-      if (this.gameroom.allGameRoom().get(roomInfo.room).playerB.client.id == client.id)
+      // if (this.gameroom.allGameRoom().get(roomInfo.room).playerB.client.id == client.id)
+      
       if (this.gameroom.isPlayerA(client.id, roomInfo.room)) {
         // 사람들 게임중인 상태 
         client.to(roomInfo.room).emit('gameStart', {start : true, mode :roomInfo.mode});
@@ -979,14 +980,15 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       this.gameroom.deleteRoom(User.name);
       // // db에 저장
     }
-
-    for (const [key, value] of this.gameroom.allGameRoom().get(User.name)
-      .observers) {
-      client.to(value.client.id).emit('gameSet', {
-        userA: User.userA,
-        userB: User.userB,
-        mode: User.mode,
-      });
+    else {
+      for (const [key, value] of this.gameroom.allGameRoom().get(User.name)
+        .observers) {
+        client.to(value.client.id).emit('gameSet', {
+          userA: User.userA,
+          userB: User.userB,
+          mode: User.mode,
+        });
+      }
     }
     return {};
   }
