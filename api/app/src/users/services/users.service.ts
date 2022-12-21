@@ -47,6 +47,11 @@ export class UsersService {
   }
   ///////////////
 
+  async ListBlock(myintra: string) : Promise<Friends[]>{
+    // const id = (await this.usersRepository.findOneBy({ intra: myintra })).id;
+    return await this.friendsRepository.findBy({ intra: myintra, block : true });
+  }
+
   async IsBlock(myintra: string, friendIntra: string) : Promise<boolean>{
     // const id = (await this.usersRepository.findOneBy({ intra: myintra })).id;
   
