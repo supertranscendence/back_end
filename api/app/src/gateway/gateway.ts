@@ -580,6 +580,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('createGameRoom')
   createGameRoom(client: Socket, roomName: string) {
     const userTemp: IUser = this.user.getUser(client.id); // 현재 클라이언트와 같은 사람 찾아와
+    userTemp.status = 3;
     // console.log(roomName);
     if (this.gameroom.createGameRoom(roomName, new gameRoom(userTemp)))
       return {};
@@ -602,6 +603,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('enterGameRoom')
   enterGameRoom(client: Socket, room: string) {
     const userTemp: IUser = this.user.getUser(client.id);
+    userTemp.status = 3;
     const playerA: string = this.gameroom.allGameRoom().get(room).playerA.intra;
     let isB = false;
 
@@ -647,6 +649,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('enterGameRoomOBS')
   enterGameRoomOBS(client: Socket, room: string) {
     const userTemp: IUser = this.user.getUser(client.id);
+    userTemp.status = 3;
     this.gameroom
       .allGameRoom()
       .get(room)
@@ -943,15 +946,17 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('gameStart')
   gameStart(client: Socket, room: string) {
-    if (this.gameroom.isPlayerB(client.id, room)) {
-      // 사람들 게임중인 상태 
-      client.to(room).emit('gameStart', true);
-      client.emit('gameStart', true);
-      return {};
-    } else {
-      client.to(room).emit('gameStart', false);
-      client.emit('gameStart', false);
-      return {};
+    if (this.gameroom.allGameRoom().get(room).playerB != null) {
+      if (this.gameroom.isPlayerA(client.id, room)) {
+        // 사람들 게임중인 상태 
+        client.to(room).emit('gameStart', true);
+        client.emit('gameStart', true);
+        return {};
+      } else {
+        client.to(room).emit('gameStart', false);
+        client.emit('gameStart', false);
+        return {};
+      }
     }
   }
 
