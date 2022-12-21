@@ -28,6 +28,7 @@ import { User } from './User';
 import { UsersService } from '../users/services/users.service';
 import { InsertValuesMissingError } from 'typeorm';
 import { GameService } from '../game/services/game.service';
+import { RandomModule } from '@faker-js/faker';
 
 @UseInterceptors(LoggingInterceptor)
 @UseGuards(AuthGuardLocal)
@@ -918,6 +919,14 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       }
     }
   }
+
+  @SubscribeMessage('collision')
+  collision(client: Socket, ball: {name: string,x: number, y:number, radius:number, velocityX:number, velocityY:number, speed:number, color:string}) {
+    client.to(ball.name).emit('collision', {x : ball.x, y :ball.y, radius : ball.radius, velocityX : ball.velocityX, velocityY : ball.velocityY,
+    speed: ball.speed, color: ball.color})
+  }
+
+// 이벤트 받은 백엔드가 처리해줄 일: 그대로 모든 방 유저들, 소켓 본인에게 그대로 볼 정보 보내주기!
   // @SubscribeMessage('up')
   // up(client: Socket, gameRoom: { gameRoom }) {
   //   if (this.gameroom.isPlayerA(client.id, gameRoom.gameRoom)) {
