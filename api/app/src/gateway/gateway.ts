@@ -609,6 +609,8 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const playerA: string = this.gameroom.allGameRoom().get(room).playerA.intra;
     let isB = false;
 
+    if (this.gameroom.allGameRoom().get(room).roomState == true)
+      return true;
     console.log('enterGameROom');
     if (this.gameroom.allGameRoom().get(room).playerB) {
       console.log('already');
@@ -963,6 +965,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
         if (this.gameroom.isPlayerA(client.id, roomInfo.room)) {
           // 사람들 게임중인 상태 
+          this.gameroom.allGameRoom().get(roomInfo.room).roomState = true;
           client.to(roomInfo.room).emit('gameStart', {start : true, mode :roomInfo.mode});
           client.emit('gameStart', {start : true, mode :roomInfo.mode});
           // return {};
