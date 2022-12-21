@@ -28,7 +28,7 @@ export class Queue  {
 
   equal(element :IUser) : boolean {
     for (const ele of this.storage) {
-      if (ele.intra = element.intra)
+      if (ele.intra == element.intra)
         return true;
     }
       return false;
