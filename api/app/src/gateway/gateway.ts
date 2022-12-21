@@ -1204,7 +1204,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
         stateFriend.push(temp); // 친구
       }
       // console.log(stateFriend);
-      return stateFriend;
+      return JSON.stringify(stateFriend);
     });
     return ret
   }
