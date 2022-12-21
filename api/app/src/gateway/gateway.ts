@@ -1076,13 +1076,13 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   //     });
   //   }
 
-  @SubscribeMessage('Block')
-  Block(client: Socket, friendName : string) {
+  // @SubscribeMessage('Block')
+  // Block(client: Socket, friendName : string) {
 
-    const my = this.user.getUsers().get(client.id).intra;
-    // 소켓에 해당하는 사람을 찾고 그사람의 친구를 block
-    this.users.blockFriend(my, friendName)
-  }
+  //   const my = this.user.getUsers().get(client.id).intra;
+  //   // 소켓에 해당하는 사람을 찾고 그사람의 친구를 block
+  //   this.users.blockFriend(my, friendName)
+  // }
 
   //friend 로직 friend가 없어요!!!
   @SubscribeMessage('myFriend')
