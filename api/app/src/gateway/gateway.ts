@@ -405,45 +405,45 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     // })
 
     //newMsgOBj가 user
-    this.users.ListBlock(intra).then(
-      (res) => {
-        for (const [key, value] of this.room.getRoom(newMsgObj.room).users) {
-
-
-          res.forEach(element => {
-
-
-            if (element.friend != value.intra)
-            {
-              if (newMsgObj.msgType && newMsgObj.msgType == 'Dm')
-                socket.to(value.client.id).emit('newMsg', temp);
-              else {
-                if (!this.room.getRoom(newMsgObj.room).muted.includes(intra)) {
-                  socket.to(value.client.id).emit('newMsg', temp);
-                }
-              }
-            }
-            else {
-            }
-          });
-        }
-      }
-    )
-
-    // this.users.IsBlock(newMsgObj.user, intra).then( // 내가 이사람 블락?
+    // this.users.ListBlock(intra).then(
     //   (res) => {
-    //     if (res) { }
-    //     else{
-    //       if (newMsgObj.msgType && newMsgObj.msgType == 'Dm')
-    //         socket.to(newMsgObj.room).emit('newMsg', temp);
-    //       else {
-    //         if (!this.room.getRoom(newMsgObj.room).muted.includes(intra)) {
-    //           socket.to(newMsgObj.room).emit('newMsg', temp);
+    //     for (const [key, value] of this.room.getRoom(newMsgObj.room).users) {
+
+
+    //       res.forEach(element => {
+
+
+    //         if (element.friend != value.intra)
+    //         {
+    //           if (newMsgObj.msgType && newMsgObj.msgType == 'Dm')
+    //             socket.to(value.client.id).emit('newMsg', temp);
+    //           else {
+    //             if (!this.room.getRoom(newMsgObj.room).muted.includes(intra)) {
+    //               socket.to(value.client.id).emit('newMsg', temp);
+    //             }
+    //           }
     //         }
-    //      }
+    //         else {
+    //         }
+    //       });
     //     }
     //   }
-    // );
+    // )
+
+    this.users.IsBlock(newMsgObj.user, intra).then( // 내가 이사람 블락?
+      (res) => {
+        if (res) { }
+        else{
+          if (newMsgObj.msgType && newMsgObj.msgType == 'Dm')
+            socket.to(newMsgObj.room).emit('newMsg', temp);
+          else {
+            if (!this.room.getRoom(newMsgObj.room).muted.includes(intra)) {
+              socket.to(newMsgObj.room).emit('newMsg', temp);
+            }
+         }
+        }
+      }
+    );
     return {};
   }
 
