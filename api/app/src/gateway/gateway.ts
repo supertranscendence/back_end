@@ -580,7 +580,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('createGameRoom')
   createGameRoom(client: Socket, roomName: string) {
     const userTemp: IUser = this.user.getUser(client.id); // 현재 클라이언트와 같은 사람 찾아와
-    userTemp.status = 3;
+    // userTemp.status = 3;
     // console.log(roomName);
     if (this.gameroom.createGameRoom(roomName, new gameRoom(userTemp)))
       return {};
@@ -603,7 +603,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('enterGameRoom')
   enterGameRoom(client: Socket, room: string) {
     const userTemp: IUser = this.user.getUser(client.id);
-    userTemp.status = 3;
+    // userTemp.status = 3;
     const playerA: string = this.gameroom.allGameRoom().get(room).playerA.intra;
     let isB = false;
 
@@ -649,7 +649,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('enterGameRoomOBS')
   enterGameRoomOBS(client: Socket, room: string) {
     const userTemp: IUser = this.user.getUser(client.id);
-    userTemp.status = 3;
+    // userTemp.status = 3;
     this.gameroom
       .allGameRoom()
       .get(room)
@@ -970,11 +970,13 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       intra = this.gameroom.allGameRoom().get(User.name).playerA.intra;
       client.to(User.name).emit('gameDone', intra);
       client.emit('gameDone', intra);
+      this.gameroom.deleteRoom(User.name);
       // db에 저
     } else if (User.userB >= 3) {
       intra = this.gameroom.allGameRoom().get(User.name).playerB.intra;
       client.to(User.name).emit('gameDone', intra);
       client.emit('gameDone', intra);
+      this.gameroom.deleteRoom(User.name);
       // // db에 저장
     }
 
@@ -1082,25 +1084,40 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       blocked: boolean;
     }[] = [];
     this.users.findFriend(intra).then((res) => {
-
       for (const [key, values] of res.friends.entries()) {
+        let ava : string;
+        
+        this.users.findByIntra(values.friend).then((res) => {
+          ava = res.avatar;
+        });
         // 객체생성을 이런식으로 한단다
-        const temp: { friend: string; state: UserStatus; blocked: boolean } = {
+        const temp: { friend: string; state: UserStatus; blocked: boolean; avatar : string} = {
           friend: values.friend,
           state: 0, // 여기 상태가져오는 로직이 필요함
           blocked: values.block,
+          avatar: ava,
         };
         if (this.user.isUserName(values.friend)) {
           temp.state = 1; //login
-        } else {
+        } 
+        else {
           temp.state = 2; // logout
         }
+
+        this.gameroom.allGameRoom().forEach((e) => {
+          if (e.playerA.intra == values.friend)
+            temp.state = 3;
+          else if  (e.playerB.intra == values.friend)
+            temp.state = 3;
+          e.observers.forEach((a) => {
+            if (a.intra == values.friend)
+              temp.state = 3;
+          })
+        }); 
+
         stateFriend.push(temp); // 친구
       }
 
-
-      // console.log(JSON.stringify(res));
-      // console.log(JSON.stringify(stateFriend));
       return JSON.stringify(res);
     });
   }
