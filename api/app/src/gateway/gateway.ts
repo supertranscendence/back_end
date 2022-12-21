@@ -888,32 +888,32 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   // }
 
   @SubscribeMessage('down') // 이 소켓이 a인지 b인지 observer ,, a면 true, b면 false emit은 room
-  down(client: Socket, gameRoom: { name : string, isA : boolean | undefined}) {
+  down(client: Socket, gameRoom: { name : string, isA : boolean | undefined, yPos: number}) {
   
     if (gameRoom.isA !== undefined) {
       if (gameRoom.isA) {
         client.emit('down', gameRoom.isA); //플레이어 에이인지 아닌지
-        client.to(gameRoom.name).emit('down', gameRoom.isA); //플레이어 에이인지 아닌지
+        client.to(gameRoom.name).emit('down', {isA : gameRoom.isA, yPos: gameRoom.yPos}); //플레이어 에이인지 아닌지
       }
       else {
         client.emit('down', false); //플레이어 에이인지 아닌지
-        client.to(gameRoom.name).emit('down', false); //플레이어 에이인지 아닌지
+        client.to(gameRoom.name).emit('down', {isA : false, yPos: gameRoom.yPos}); //플레이어 에이인지 아닌지
       }
     }
   }
 
 
   @SubscribeMessage('up') // 이 소켓이 a인지 b인지 observer ,, a면 true, b면 false emit은 room
-  up(client: Socket, gameRoom: { name : string, isA : boolean | undefined}) {
+  up(client: Socket, gameRoom: { name : string, isA : boolean | undefined, yPos: number}) {
   
     if (gameRoom.isA !== undefined) {
       if (gameRoom.isA) {
         client.emit('up', gameRoom.isA); //플레이어 에이인지 아닌지
-        client.to(gameRoom.name).emit('up', gameRoom.isA); //플레이어 에이인지 아닌지
+        client.to(gameRoom.name).emit('up', {isA : gameRoom.isA, yPos: gameRoom.yPos}); //플레이어 에이인지 아닌지
       }
       else {
         client.emit('up', false); //플레이어 에이인지 아닌지
-        client.to(gameRoom.name).emit('up', false); //플레이어 에이인지 아닌지
+        client.to(gameRoom.name).emit('up', {isA : false, yPos: gameRoom.yPos}); //플레이어 에이인지 아닌지
       }
     }
   }
