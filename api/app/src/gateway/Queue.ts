@@ -15,15 +15,18 @@ export class Queue  {
     this.tail++;
   }
 
-  dequeue() {
-    let removed = this.storage[this.head];
-    delete this.storage[this.head];
-    this.head++;
-    return removed;
+  getHead() :number{
+    return (this.head);
+  }
+  getTail() :number{
+    return (this.tail);
   }
 
-  getSize() {
-    return this.storage.length;
+  dequeue() : IUser{
+    let removed = this.storage[this.head];
+    this.storage[this.head] = null;
+    this.head++;
+    return removed;
   }
 
   equal(element :IUser) : boolean {
