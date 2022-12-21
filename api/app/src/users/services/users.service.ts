@@ -1,4 +1,5 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Friends } from '../../entities/Friends';
 import { Users } from '../../entities/Users';
 import { FriendsRepository } from '../../friends/repository/friends.repository';
 import { UsersRepository } from '../repository/users.repository';
@@ -40,6 +41,19 @@ export class UsersService {
   }
   ///////////////
 
+  async IsBlock(myintra: string, friendIntra: string) : Promise<boolean>{
+    // const id = (await this.usersRepository.findOneBy({ intra: myintra })).id;
+  
+    
+    
+    let friends = await this.friendsRepository.findBy({ intra: myintra });
+    for (const f of friends) {
+      if (f.intra == myintra && f.friend == friendIntra && f.block == true)
+        return true;
+    }
+    return false;
+  }
+
   async deleteBlock(myintra: string, friendIntra: string){
     const id = (await this.usersRepository.findOneBy({ intra: myintra })).id;
     this.friendsRepository
@@ -52,13 +66,16 @@ export class UsersService {
     .update({id: id, friend: friendIntra}, {block : true})    
   }
 
-  public async findFriend(intra: string): Promise<Users> {
-    const id = (await this.usersRepository.findOneBy({ intra: intra })).id;
-    return await this.usersRepository
-      .createQueryBuilder('m')
-      .leftJoinAndSelect('m.friends', 't')
-      .where('m.id = :id', { id: id })
-      .getOne();
+  public async findFriend(intra: string): Promise<Friends[]> {
+    // const id = (await this.usersRepository.findOneBy({ intra: intra })).id;
+    // return await this.usersRepository
+    //   .createQueryBuilder('m')
+    //   .leftJoinAndSelect('m.friends', 't')
+    //   .where('m.id = :id', { id: id })
+    //   .
+    //   .getOne();
+    return await this.friendsRepository.findBy({ intra: intra })
+
   }
 
   public async editNick(intra: string, fixNick: string): Promise<Users> {
