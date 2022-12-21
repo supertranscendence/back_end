@@ -892,12 +892,12 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   
     if (gameRoom.isA !== undefined) {
       if (gameRoom.isA) {
-        client.to(gameRoom.name).emit('down', {isA : gameRoom.isA, yPos: gameRoom.yPos}); //플레이어 에이인지 아닌지
         client.emit('down', {isA : gameRoom.isA, yPos: gameRoom.yPos}); //플레이어 에이인지 아닌지
+        client.to(gameRoom.name).emit('down', {isA : gameRoom.isA, yPos: gameRoom.yPos}); //플레이어 에이인지 아닌지
       }
       else {
-        client.to(gameRoom.name).emit('down', {isA : false, yPos: gameRoom.yPos}); //플레이어 에이인지 아닌지
         client.emit('down', {isA : gameRoom.isA, yPos: gameRoom.yPos}); //플레이어 에이인지 아닌지
+        client.to(gameRoom.name).emit('down', {isA : false, yPos: gameRoom.yPos}); //플레이어 에이인지 아닌지
       }
     }
   }
@@ -908,12 +908,12 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   
     if (gameRoom.isA !== undefined) {
       if (gameRoom.isA) {
-        client.to(gameRoom.name).emit('up', {isA : gameRoom.isA, yPos: gameRoom.yPos}); //플레이어 에이인지 아닌지
         client.emit('up', {isA : gameRoom.isA, yPos: gameRoom.yPos}); //플레이어 에이인지 아닌지
+        client.to(gameRoom.name).emit('up', {isA : gameRoom.isA, yPos: gameRoom.yPos}); //플레이어 에이인지 아닌지
       }
       else {
-        client.to(gameRoom.name).emit('up', {isA : false, yPos: gameRoom.yPos}); //플레이어 에이인지 아닌지
         client.emit('up', {isA : gameRoom.isA, yPos: gameRoom.yPos}); //플레이어 에이인지 아닌지
+        client.to(gameRoom.name).emit('up', {isA : false, yPos: gameRoom.yPos}); //플레이어 에이인지 아닌지
       }
     }
   }
