@@ -73,7 +73,7 @@ export class UsersService {
   }
 
   public async findFriend(intra: string): Promise<Friends[]> {
-    const id = (await this.usersRepository.findOneBy({ intra: intra })).id;
+    // const id = (await this.usersRepository.findOneBy({ intra: intra })).id;
     
     return await this.friendsRepository.findBy({ intra: intra })
 
