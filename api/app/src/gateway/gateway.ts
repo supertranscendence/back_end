@@ -1120,7 +1120,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
         stateFriend.push(temp); // 친구
       }
 
-      return JSON.stringify(res);
+      return JSON.stringify(stateFriend);
     });
   }
 }
