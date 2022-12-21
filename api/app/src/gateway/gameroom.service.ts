@@ -79,6 +79,10 @@ export class GameroomService {
     else return false;
   }
 
+  // deleteUser(room :string, client: string) {
+  //   this.gameRooms.get(room).
+  // }
+
   deleteRoom(room: string): void {
     
     this.gameRooms.get(room).playerA = null;

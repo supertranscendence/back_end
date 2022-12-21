@@ -706,7 +706,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
         client.leave(ele);
       }
     });
-    
+    this.gameroom.getQueue().delete(client.id);
     for (const [key, value] of this.gameroom.allGameRoom()) {
       let a = value.playerA
       let b = value.playerB
@@ -745,6 +745,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('leaveGameRoom') // 게임 방에서 방나가기 버튼을 눌렀을 때
   leaveGameRoom(client: Socket, gameRoom: { room: string }) {
   // leaveGameRoom(client: Socket, gameRoom: { room: string }) {
+    this.gameroom.getQueue().delete(client.id);
     let a = this.gameroom.allGameRoom().get(gameRoom.room).playerA;
     let b = this.gameroom.allGameRoom().get(gameRoom.room).playerB;
       let is_A = this.gameroom.isPlayerA(a.intra, gameRoom.room);
@@ -1015,6 +1016,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       client.emit('gameDone', intra);
       this.gameroom.deleteRoom(User.name);
     
+      this.users.update(a.intra);
       this.game.create(a.intra + '|' + b.intra ,User.userA + '|' + User.userB)
       this.game.create(b.intra + '|' + a.intra ,User.userB + '|' + User.userA)
       // db에 저
@@ -1024,6 +1026,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       client.emit('gameDone', intra);
       this.gameroom.deleteRoom(User.name);
 
+      this.users.update(b.intra);
       this.game.create(a + '|' + b ,User.userA + '|' + User.userB)
       this.game.create(b + '|' + a ,User.userB + '|' + User.userA)
       // // db에 저장

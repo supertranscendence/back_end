@@ -41,6 +41,13 @@ export class GameService {
         });
     }
 
+    update(names: string, score: string) {
+        return this.gameRepository.save({
+            player : names,
+            score : score,
+        });
+    }
+
     // async update(id: number, body: any) {
     //     const test = await this.gameRepository.getId(new Game);
     //     this.gameRepository.merge(test, body);
