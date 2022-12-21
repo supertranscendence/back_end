@@ -1175,36 +1175,37 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       friend: string; state: UserStatus; avatar: string; blocked: boolean;
     }[] = [];
     
-    this.users.findFriend(intra).then((res) => {
+    const ret = this.users.findFriend(intra).then((res) => {
       for (const [key, values] of res.entries()) {
         let ava : string = "";
         this.users.findByIntra(values.friend).then((res) => {
           if (res && res.avatar)
             ava = res.avatar;
-        });
-        const temp: { friend: string; state: UserStatus; blocked: boolean; avatar : string} = {
-          friend: values.friend, state: 0, blocked: values.block, avatar: ava,
-        };
-        if (this.user.isUserName(values.friend)) {
-          temp.state = 1; //login
-        } 
-        else {
-          temp.state = 2; // logout
-        }
-        this.gameroom.allGameRoom().forEach((e) => {
-          if (e.playerA.intra == values.friend)
-            temp.state = 3;
-          else if  (e.playerB.intra == values.friend)
-            temp.state = 3;
-          e.observers.forEach((a) => {
-            if (a.intra == values.friend)
+            const temp: { friend: string; state: UserStatus; blocked: boolean; avatar : string} = {
+              friend: values.friend, state: 0, blocked: values.block, avatar: ava,
+            };
+            if (this.user.isUserName(values.friend)) {
+              temp.state = 1; //login
+            } 
+            else {
+              temp.state = 2; // logout
+            }
+            this.gameroom.allGameRoom().forEach((e) => {
+              if (e.playerA.intra == values.friend)
               temp.state = 3;
-          })
-        }); 
-        stateFriend.push(temp); // 친구
+              else if  (e.playerB.intra == values.friend)
+              temp.state = 3;
+              e.observers.forEach((a) => {
+                if (a.intra == values.friend)
+              temp.state = 3;
+            })
+          }); 
+          stateFriend.push(temp); // 친구
+        });
       }
       // console.log(stateFriend);
       return stateFriend;
     });
+    return ret;
   }
 }
