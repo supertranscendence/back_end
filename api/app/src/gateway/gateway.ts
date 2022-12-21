@@ -62,6 +62,10 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     });
     this.room.deleteUser(client.id);
     this.user.removeUser(client.id); // TODO 방 나가기 콜백 보내기
+
+    // 게임방에서 나가기
+    // 채팅방에서 나가기
+    // 게임중이라면 점수주는 로직이 필요!
   }
 
   @SubscribeMessage('getChatRoomInfo')
@@ -649,10 +653,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     
     if (this.gameroom.allGameRoom().get(room).playerB)
       player_B = this.gameroom.allGameRoom().get(room).playerB.intra;
-  
-      console.log('entregameOBS', player_A, ' , ', player_B, ', ', this.gameroom.allGameRoom().get(room).observers);
 
-      console.log('newGameRoomCreated', client);
     client.to(room).emit('gameRoomInfo', {
       playerA: player_A,
       playerB: player_B,
@@ -681,15 +682,11 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
         
         this.gameroom.deleteRoom(key);
         // db에다 상대가 이기는 저장하는 로직이 있어야 된다. // 강종에서 상대
-
-
       } else if (this.gameroom.isPlayerB(client.id, key)) {
         
         // b인지 확인
         this.gameroom.deletePlayer(key);
         // db에다 상대가 이기는 저장하는 로직이 있어야 된다. 게임 중이라면 // 강종에서 상대
-
-
       } else {
         // 관전자
         if (this.gameroom.allGameRoom().get(key).observers)
@@ -713,11 +710,9 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('leaveGameRoom') // 게임 방에서 방나가기 버튼을 눌렀을 때
   leaveGameRoom(client: Socket, gameRoom: { room: string }) {
   // leaveGameRoom(client: Socket, gameRoom: { room: string }) {
-    console.log('aaaa', gameRoom.room);
     let a = this.gameroom.allGameRoom().get(gameRoom.room).playerA;
     let b = this.gameroom.allGameRoom().get(gameRoom.room).playerB;
       let is_A = this.gameroom.isPlayerA(a.intra, gameRoom.room);
-    client.leave(gameRoom.room);
     if (this.gameroom.isPlayerA(client.id, gameRoom.room)) {
       // a인지 확
       client.to(gameRoom.room).emit('kickAll'); // 다른 사람 다 내보내기
@@ -869,29 +864,76 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   //     client.to(this.gameroom.allGameRoom().get(roomInfo.gameRoom).playerA.client.id).emit('collision', {x : roomInfo.x, y : roomInfo.y, xv :roomInfo.xv, yv: roomInfo.yv})
   // }
 
+///////////////////////////////
+
+  // @SubscribeMessage('down') // 이 소켓이 a인지 b인지 observer ,, a면 true, b면 false emit은 room
+  // down(client: Socket, gameRoom: { gameRoom }) {
+  //   if (this.gameroom.isPlayerA(client.id, gameRoom.gameRoom)) {
+  //     client.emit('down'); //플레이어 에이인지 아닌지
+  //     client.to(gameRoom.gameRoom).emit('down'); //플레이어 에이인지 아닌지
+  //   } else {
+  //     client.emit('down'); //플레이어 에이인지 아닌지
+  //     client.to(gameRoom.gameRoom).emit('down'); //플레이어 에이인지 아닌지
+  //   }
+  //   return {};
+  // }
+
   @SubscribeMessage('down') // 이 소켓이 a인지 b인지 observer ,, a면 true, b면 false emit은 room
-  down(client: Socket, gameRoom: { gameRoom }) {
-    if (this.gameroom.isPlayerA(client.id, gameRoom.gameRoom)) {
-      client.emit('down'); //플레이어 에이인지 아닌지
-      client.to(gameRoom.gameRoom).emit('down'); //플레이어 에이인지 아닌지
-    } else {
-      client.emit('down'); //플레이어 에이인지 아닌지
-      client.to(gameRoom.gameRoom).emit('down'); //플레이어 에이인지 아닌지
+  down(client: Socket, gameRoom: { name : string, isA : boolean | undefined}) {
+  
+    if (gameRoom.isA !== undefined) {
+      if (gameRoom.isA) {
+        client.emit('down', gameRoom.isA); //플레이어 에이인지 아닌지
+        client.to(gameRoom.name).emit('down', gameRoom.isA); //플레이어 에이인지 아닌지
+      }
+      else {
+        client.emit('down', false); //플레이어 에이인지 아닌지
+        client.to(gameRoom.name).emit('down', false); //플레이어 에이인지 아닌지
+      }
     }
-    return {};
   }
 
-  @SubscribeMessage('up')
-  up(client: Socket, gameRoom: { gameRoom }) {
-    if (this.gameroom.isPlayerA(client.id, gameRoom.gameRoom)) {
-      client.emit('up');
-      client.to(gameRoom.gameRoom).emit('up'); //플레이어 에이인지 아닌지
-    } else {
-      client.emit('up'); //플레이어 에이인지 아닌지
-      client.to(gameRoom.gameRoom).emit('up'); //플레이어 에이인지 아닌지
+
+  @SubscribeMessage('up') // 이 소켓이 a인지 b인지 observer ,, a면 true, b면 false emit은 room
+  up(client: Socket, gameRoom: { name : string, isA : boolean | undefined}) {
+  
+    if (gameRoom.isA !== undefined) {
+      if (gameRoom.isA) {
+        client.emit('up', gameRoom.isA); //플레이어 에이인지 아닌지
+        client.to(gameRoom.name).emit('up', gameRoom.isA); //플레이어 에이인지 아닌지
+      }
+      else {
+        client.emit('up', false); //플레이어 에이인지 아닌지
+        client.to(gameRoom.name).emit('up', false); //플레이어 에이인지 아닌지
+      }
     }
-    return {};
   }
+  // @SubscribeMessage('up')
+  // up(client: Socket, gameRoom: { gameRoom }) {
+  //   if (this.gameroom.isPlayerA(client.id, gameRoom.gameRoom)) {
+  //     client.emit('up');
+  //     client.to(gameRoom.gameRoom).emit('up'); //플레이어 에이인지 아닌지
+  //   } else {
+  //     client.emit('up'); //플레이어 에이인지 아닌지
+  //     client.to(gameRoom.gameRoom).emit('up'); //플레이어 에이인지 아닌지
+  //   }
+  //   return {};
+  // }
+
+  // @SubscribeMessage('up')
+  // up(client: Socket, gameRoom: { name : string, isA : boolean | undefined}) {
+  //   if (this.gameroom.isPlayerA(client.id, gameRoom.gameRoom)) {
+  //     client.emit('up');
+  //     client.to(gameRoom.gameRoom).emit('up'); //플레이어 에이인지 아닌지
+  //   } else {
+  //     client.emit('up'); //플레이어 에이인지 아닌지
+  //     client.to(gameRoom.gameRoom).emit('up'); //플레이어 에이인지 아닌지
+  //   }
+  //   return {};
+  // }
+
+  //////////////////////////////
+
 
   @SubscribeMessage('gameStart')
   gameStart(client: Socket, room: string) {
