@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { ArrayContains, In, Like, Repository } from 'typeorm';
+import { threadId } from 'worker_threads';
 import { Game } from '../../entities/Game';
 import { GameRepository } from '../repository/game.repository';
 
@@ -23,28 +24,31 @@ export class GameService {
     findOne(idx: number): Promise<Game> {
         const g = new Game();
         g.id = idx;
-        // return await this.gameRepository.find({
-        //     select: ['id', 'player', 'score', 'created', 'updated'],
-        //     where: { id: idx },
-        
-        // });
-
         return this.gameRepository.findOneBy(g);
     }
 
-    create(body: any) {
-        const newTest = this.gameRepository.create(body);
-        return this.gameRepository.save(newTest);
+    async findbyname(intra: string) : Promise<Game[]>{
+        let findName = intra + '|';
+        return await this.gameRepository.findBy({
+        player: Like(`${intra}|%`),
+        })
     }
 
-    async update(id: number, body: any) {
-        const test = await this.gameRepository.getId(new Game);
-        this.gameRepository.merge(test, body);
-        return this.gameRepository.save(test);
+    create(names: string, score: string) {
+        return this.gameRepository.save({
+            player : names,
+            score : score,
+        });
     }
 
-    async delete(id: number) {
-        await this.gameRepository.delete(id);
-        return true;
-    }
+    // async update(id: number, body: any) {
+    //     const test = await this.gameRepository.getId(new Game);
+    //     this.gameRepository.merge(test, body);
+    //     return this.gameRepository.save(test);
+    // }
+
+    // async delete(id: number) {
+    //     await this.gameRepository.delete(id);
+    //     return true;
+    // }
 }

@@ -4,9 +4,9 @@ import { Socket } from 'socket.io';
 
 export enum UserStatus {
   me,
-  login,
-  logout,
-  ingame,
+  login,  // 1
+  logout, // 2
+  ingame, // 3
 }
 
 export interface IUser {

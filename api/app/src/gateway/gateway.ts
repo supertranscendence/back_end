@@ -27,6 +27,7 @@ import { gameRoom, Room } from './Room';
 import { User } from './User';
 import { UsersService } from '../users/services/users.service';
 import { InsertValuesMissingError } from 'typeorm';
+import { GameService } from '../game/services/game.service';
 
 @UseInterceptors(LoggingInterceptor)
 @UseGuards(AuthGuardLocal)
@@ -38,7 +39,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     private room: RoomService,
     private user: SUserService,
-    private game: SGameService,
+    private game: GameService,
     private auth: AuthService,
     private gameroom: GameroomService,
     private users: UsersService,
@@ -969,17 +970,24 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     User: { userA: number; userB: number; name: string; mode: boolean },
   ) {
     let intra: string;
+    const a = this.gameroom.allGameRoom().get(User.name).playerA;
+    const b = this.gameroom.allGameRoom().get(User.name).playerB;
     if (User.userA >= 3) {
       intra = this.gameroom.allGameRoom().get(User.name).playerA.intra;
       client.to(User.name).emit('gameDone', intra);
       client.emit('gameDone', intra);
       this.gameroom.deleteRoom(User.name);
+    
+      this.game.create(a + '|' + b ,User.userA + '|' + User.userB)
       // db에 저
     } else if (User.userB >= 3) {
       intra = this.gameroom.allGameRoom().get(User.name).playerB.intra;
       client.to(User.name).emit('gameDone', intra);
       client.emit('gameDone', intra);
       this.gameroom.deleteRoom(User.name);
+
+      this.game.create(a + '|' + b ,User.userA + '|' + User.userB)
+      this.game.create(b + '|' + a ,User.userB + '|' + User.userA)
       // // db에 저장
     }
     else {
@@ -1116,8 +1124,9 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       avatar: string;
       blocked: boolean;
     }[] = [];
+    
     this.users.findFriend(intra).then((res) => {
-      for (const [key, values] of res.friends.entries()) {
+      for (const [key, values] of res.entries()) {
         let ava : string = "";
 
         this.users.findByIntra(values.friend).then((res) => {

@@ -6,8 +6,8 @@ import { AuthService } from '../auth/auth.service';
 import { AuthRepository } from '../auth/auth.repository';
 
 @Module({
-  // imports: [],
-  // providers: [GameService, GameRepository, AuthService, AuthRepository], // GameService >> + GameRepository GameRepository는 어디있어애 될까?
-  // controllers: [GameController],
+  imports: [],
+  providers: [GameService, GameRepository, AuthService, AuthRepository], // GameService >> + GameRepository GameRepository는 어디있어애 될까?
+  controllers: [GameController],
 })
 export class GameModule {}

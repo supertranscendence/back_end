@@ -11,6 +11,8 @@ import { SUserService } from './socketUser.service';
 import { SGameService } from './sgame.service';
 import { GameroomService } from './gameroom.service';
 import { FriendsRepository } from '../friends/repository/friends.repository';
+import { GameService } from '../game/services/game.service';
+import { GameRepository } from '../game/repository/game.repository';
 
 @Module({
   imports: [PassportModule.register({ defaultStrategy: 'jwt' })],
@@ -26,7 +28,9 @@ import { FriendsRepository } from '../friends/repository/friends.repository';
     SUserService,
     SGameService,
     Logger,
-    FriendsRepository
+    FriendsRepository,
+    GameRepository,
+    GameService
   ],
 })
 export class GatewayModule {}
