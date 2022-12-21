@@ -126,6 +126,6 @@ export class UsersController {
   getOther(@Param('id') tid: string) {
     // const intra = this.auth.getIntra(this.auth.extractToken(request, 'http'));
     
-    return this.users.findByIntra(tid).then((res) => { if(!res) throw InternalServerErrorException });
+    return this.users.findByIntra(tid);
   }
 }

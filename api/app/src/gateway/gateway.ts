@@ -795,13 +795,13 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       const userBefore: IUser = this.gameroom.getQueue().dequeue(); // a
       const tempAfter: IUser = this.gameroom.getQueue().dequeue(); // b
 
-      const roomName = userBefore + ' ' + tempAfter;
-      this.gameroom.createGameRoom(roomName, new gameRoom(userBefore)); // a
-      this.gameroom.setPlayerB(roomName, tempAfter); // b
+      const roomName =  userBefore + ' ' + tempAfter;
+      // this.gameroom.createGameRoom(roomName, new gameRoom(userBefore)); // a
+      // this.gameroom.setPlayerB(roomName, tempAfter); // b
 
       client.join(roomName);
-      client.to(userBefore.client.id).emit('findMatch', roomName); // a
-      client.emit('findMatch', roomName); // b
+      client.to(userBefore.client.id).emit('findMatch', {roomName :roomName, isA :true}); // a
+      client.emit('findMatch', {roomName:roomName, isA : false}); // b
     }
     return this.gameroom.getQueue().getTail() - this.gameroom.getQueue().getHead();
   }
