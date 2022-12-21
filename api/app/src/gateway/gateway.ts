@@ -403,14 +403,21 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     //     socket.to(userEle.client_id).emit('newMsg', temp);
     //   }
     // })
-    if (newMsgObj.msgType && newMsgObj.msgType == 'Dm')
-      socket.to(newMsgObj.room).emit('newMsg', temp);
-    else {
-      if (!this.room.getRoom(newMsgObj.room).muted.includes(intra)) {
-        socket.to(newMsgObj.room).emit('newMsg', temp);
-      }
-    }
 
+    this.users.IsBlock(intra, newMsgObj.user).then(
+      (res) => {
+        if (res) { }
+        else{
+          if (newMsgObj.msgType && newMsgObj.msgType == 'Dm')
+            socket.to(newMsgObj.room).emit('newMsg', temp);
+          else {
+            if (!this.room.getRoom(newMsgObj.room).muted.includes(intra)) {
+              socket.to(newMsgObj.room).emit('newMsg', temp);
+            }
+         }
+        }
+      }
+    );
     return {};
   }
 
@@ -501,16 +508,22 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       socket.leave(roomInfo.roomName);
       // socket.emit('roomInfo', this.room.getChatRoomInfo(roomInfo.roomName)); // join leave할때
 
-      //                보내는 사람             받는 사람
-      const roomName = sendIntraId + ' ' + roomInfo.shellWeDmUser;
-
-      socket.join(roomName);
-      // socket.emit('roomInfo', this.room.getAllRoom().get(roomInfo.roomName).users); // join leave할때
-      socket.to(ret).emit('shellWeDm', {
-        recvIntraId: roomInfo.shellWeDmUser,
-        sendIntraId: sendIntraId,
-      });
-      // return {};
+      this.users.IsBlock(roomInfo.shellWeDmUser, sendIntraId).then(
+        (res) => {
+          if (res) {
+          }
+          else{
+            //                보내는 사람             받는 사람
+            const roomName = sendIntraId + ' ' + roomInfo.shellWeDmUser;
+            socket.join(roomName);
+            // socket.emit('roomInfo', this.room.getAllRoom().get(roomInfo.roomName).users); // join leave할때
+            socket.to(ret).emit('shellWeDm', {
+              recvIntraId: roomInfo.shellWeDmUser,
+              sendIntraId: sendIntraId,
+            });
+          }
+        }
+      );
     }
     return {};
   }
