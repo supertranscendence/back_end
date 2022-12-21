@@ -630,12 +630,18 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       .playerA.intra;
     let player_B: string = '';
     
+    let isA : boolean;
+    if (this.gameroom.allGameRoom().get(roomName).playerA.client.id == client.id)
+      isA = true;
+    else
+      isA = false;
+
     if (this.gameroom.allGameRoom().get(roomName).playerB)
       player_B = this.gameroom.allGameRoom().get(roomName).playerB.intra;
 
-    console.log('gameRoomINfo', player_A, player_B);
 
-    return { playerA: player_A, playerB: player_B };
+
+    return { playerA: player_A, playerB: player_B , isA: isA,};
   }
 
   @SubscribeMessage('enterGameRoomOBS')
@@ -938,6 +944,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('gameStart')
   gameStart(client: Socket, room: string) {
     if (this.gameroom.isPlayerB(client.id, room)) {
+      // 사람들 게임중인 상태 
       client.to(room).emit('gameStart', true);
       client.emit('gameStart', true);
       return {};
@@ -1070,6 +1077,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       blocked: boolean;
     }[] = [];
     this.users.findFriend(intra).then((res) => {
+
       for (const [key, values] of res.friends.entries()) {
         // 객체생성을 이런식으로 한단다
         const temp: { friend: string; state: UserStatus; blocked: boolean } = {
@@ -1084,6 +1092,8 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
         }
         stateFriend.push(temp); // 친구
       }
+
+
       // console.log(JSON.stringify(res));
       // console.log(JSON.stringify(stateFriend));
       return JSON.stringify(res);
