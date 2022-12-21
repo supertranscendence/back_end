@@ -1077,7 +1077,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('Block')
   Block(client: Socket, friendName : string) {
 
-    this.users.
+    // this.users.
   }
 
   //friend 로직 friend가 없어요!!!
