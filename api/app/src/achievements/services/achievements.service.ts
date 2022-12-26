@@ -1,5 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Achievements } from '../../entities/Achievements';
+import { Users } from '../../entities/Users';
+import { UsersRepository } from '../../users/repository/users.repository';
 
 // import { Repository } from 'typeorm';
 // import { Achievements } from '../../entities/Achievements';
@@ -10,6 +13,7 @@ export class AchievementsService {
     constructor(
         // @InjectRepository(Achievements)
         // private achieveRepository: Repository<Achievements>,
+        private usersRepository: UsersRepository,
         private achieveRepository: AchievementsRepository
     ) {}
 
@@ -32,6 +36,18 @@ export class AchievementsService {
     //     this.achieveRepository.merge(test, body);
     //     return this.achieveRepository.save(test);
     // }
+
+    async findAchi(intra: string) : Promise<Users[]>{
+        // let findName = intra + '|';
+        const myid = (await this.usersRepository.findOneBy({ intra: intra })).id;
+
+        return this.usersRepository
+      .createQueryBuilder('m')
+      .leftJoinAndSelect('m.achievements', 't')
+      .where('m.id = :id', { id: myid })
+      .getMany();
+        // user에서 join을 해서 achievement를 찾자
+    }
 
     async delete(id: number) {
         await this.achieveRepository.delete(id);

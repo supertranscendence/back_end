@@ -32,7 +32,7 @@ export class GameController extends BaseController<Game>{
 // --김이 들어가는 시작하는 사원 조회
 // SELECT * FROM My_Talbe WHERE Nm_Kor LIKE '%김%'
 
-    @Get('/:intra') 
+    @Get('/:intra')
     @HttpCode(200)
     @Header('Access-Control-Allow-Origin', 'https://gilee.click')
     @Header('Access-Control-Allow-Credentials', 'true')

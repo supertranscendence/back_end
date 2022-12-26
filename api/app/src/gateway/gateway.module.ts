@@ -13,6 +13,7 @@ import { GameroomService } from './gameroom.service';
 import { FriendsRepository } from '../friends/repository/friends.repository';
 import { GameService } from '../game/services/game.service';
 import { GameRepository } from '../game/repository/game.repository';
+import { AchievementsRepository } from '../achievements/repository/achievements.repository';
 
 @Module({
   imports: [PassportModule.register({ defaultStrategy: 'jwt' })],
@@ -30,7 +31,8 @@ import { GameRepository } from '../game/repository/game.repository';
     Logger,
     FriendsRepository,
     GameRepository,
-    GameService
+    GameService,
+    AchievementsRepository
   ],
 })
 export class GatewayModule {}
