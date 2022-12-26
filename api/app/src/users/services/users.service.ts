@@ -257,15 +257,6 @@ export class UsersService {
   public async addAchiev(intra: string, num : number): Promise<void> {
     const my = (await this.usersRepository.findOneBy({ intra: intra }));
     const myid = my.id;
-
-    // const member = await this.friendsRepository
-    //   .createQueryBuilder('m')
-    //   .where('m.id = :id AND m.friend = :friend', {
-    //     id: myid,
-    //     friend: addFriend,
-    //   })
-    //   .getMany();
-
     const member = await this.achiev
       .createQueryBuilder('m')
       .where('m.id = :id AND m.achievement = :achievement', {
@@ -283,6 +274,27 @@ export class UsersService {
       await this.achiev.save(newAchiev);
     }
   }
+
+  // 다른 방법의 
+  // const member = await this.achiev
+  //     .createQueryBuilder('m')
+  //     .where('m.id = :id AND m.achievement = :achievement', {
+  //       id: myid,
+  //       achievement: num,
+  //     })
+  //     .getOne();
+
+  //     const newAchiev = new Achievements();
+  //     newAchiev.userid = my;
+  //     newAchiev.achievement = num;
+  //     newAchiev.tid = myid;
+
+  //   if (member == null) {
+  //     await this.achiev.save(newAchiev);
+  //   }
+  
+
+
 
   //get
   // public async findAchiev(intra: string): Promise<Users> {
