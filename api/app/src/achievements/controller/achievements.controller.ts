@@ -51,6 +51,12 @@ export class AchievementsController {
         // const name = this.auth.getIntra(this.auth.extractToken(req, 'http'));
         // console.log(name);
 
+        // this.achievement.findAchi(intra).then((a) => {
+        //     for (const [key, value] of Object.entries(a)) {
+        //         return (value.achievements);
+                // 이렇게 하면 받아오긴함
+        //     }       
+        // });
         return this.achievement.findAchi(intra);
     }
 
