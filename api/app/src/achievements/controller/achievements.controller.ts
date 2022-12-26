@@ -1,7 +1,9 @@
-import { Body, Controller, Delete, Get, Header, HttpCode, Param, Post, Put, Req } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Header, HttpCode, Param, Post, Put, Req, UseGuards } from '@nestjs/common';
+import { AuthGuardLocal } from '../../auth/auth.guard';
 import { AuthService } from '../../auth/auth.service';
 import { AchievementsService } from '../services/achievements.service';
 
+@UseGuards(AuthGuardLocal)
 @Controller('achievements')
 export class AchievementsController {
 
