@@ -47,10 +47,7 @@ export class AchievementsService {
       .where('m.id = :id', { id: myid })
       .getMany();
 
-        if (a == null)
-            return null;
-        else
-            return a;
+        return a;
         // user에서 join을 해서 achievement를 찾자
     }
 
