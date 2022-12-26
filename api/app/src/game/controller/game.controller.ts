@@ -39,10 +39,10 @@ export class GameController extends BaseController<Game>{
     findMyData(@Req() req: Request, @Param('intra') intra : string) // : Promise<Game[]>
     {
         // console.log('fdfads');
-        const name = this.auth.getIntra(this.auth.extractToken(req, 'http'));
-        console.log(name);
+        // const name = this.auth.getIntra(this.auth.extractToken(req, 'http'));
+        // console.log(name);
 
-        return this.gameService.findbyname(name);
+        return this.gameService.findbyname(intra);
     }
 
 ///
