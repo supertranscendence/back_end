@@ -23,7 +23,16 @@ export class Queue  {
   }
 
   dequeue() : IUser{
-    let removed = this.storage[this.head];
+    
+    let removed;
+    for (removed of this.storage)
+    {
+      removed = this.storage[this.head];
+      if (removed == null)
+        this.head++;
+      else
+        break;
+    }
     this.storage[this.head] = null;
     this.head++;
     return removed;

@@ -808,6 +808,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const userTemp: IUser = this.user.getUser(client.id);
     //유저에서 있으면 아래실행
     if (this.gameroom.getQueue().equal(userTemp)) {
+      this.gameroom.getQueue().delete(client.id); //소켓 디스커넥트가
       return this.gameroom.getQueue().getTail() - this.gameroom.getQueue().getHead();
     }
 
@@ -817,7 +818,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       const userBefore: IUser = this.gameroom.getQueue().dequeue(); // a
       const tempAfter: IUser = this.gameroom.getQueue().dequeue(); // b
 
-      const roomName =  userBefore + ' ' + tempAfter;
+      const roomName =  userBefore.intra + ' ' + tempAfter.intra;
       // this.gameroom.createGameRoom(roomName, new gameRoom(userBefore)); // a
       // this.gameroom.setPlayerB(roomName, tempAfter); // b
 
