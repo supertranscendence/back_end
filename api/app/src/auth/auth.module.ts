@@ -6,6 +6,7 @@ import { FtStrategy } from './ft.strategy';
 import { UsersService } from '../users/services/users.service';
 import { UsersRepository } from '../users/repository/users.repository';
 import { FriendsRepository } from '../friends/repository/friends.repository';
+import { AchievementsRepository } from '../achievements/repository/achievements.repository';
 
 @Module({
   imports: [],
@@ -17,6 +18,7 @@ import { FriendsRepository } from '../friends/repository/friends.repository';
     UsersService,
     UsersRepository,
     FriendsRepository,
+    AchievementsRepository
   ],
   exports: [AuthService, AuthRepository],
 })

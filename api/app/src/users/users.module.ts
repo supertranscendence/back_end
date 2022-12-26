@@ -5,6 +5,7 @@ import { UsersService } from './services/users.service';
 import { AuthService } from '../auth/auth.service';
 import { AuthRepository } from '../auth/auth.repository';
 import { FriendsRepository } from '../friends/repository/friends.repository';
+import { AchievementsRepository } from '../achievements/repository/achievements.repository';
 
 @Module({
   imports: [],
@@ -15,6 +16,7 @@ import { FriendsRepository } from '../friends/repository/friends.repository';
     AuthService,
     AuthRepository,
     FriendsRepository,
+    AchievementsRepository,
   ],
 })
 export class UsersModule {}

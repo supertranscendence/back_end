@@ -128,4 +128,14 @@ export class UsersController {
     
     return this.users.findByIntra(tid);
   }
+
+  @Post('/achievement')
+  @HttpCode(200)
+  @Header('Access-Control-Allow-Origin', 'https://gilee.click')
+  @Header('Access-Control-Allow-Credentials', 'true')
+  addAchi(@Req() req: Request, @Body('achi') achi: number) {
+    const intra = this.auth.getIntra(this.auth.extractToken(req, 'http'));
+    this.users.addAchiev(intra, achi)
+  }
+
 }

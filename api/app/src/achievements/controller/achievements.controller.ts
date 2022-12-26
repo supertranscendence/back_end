@@ -1,23 +1,27 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Header, HttpCode, Param, Post, Put, Req } from '@nestjs/common';
+import { AuthService } from '../../auth/auth.service';
 import { AchievementsService } from '../services/achievements.service';
 
 @Controller('achievements')
 export class AchievementsController {
 
     constructor (
-        private achievement : AchievementsService
+        private achievement : AchievementsService,
+        private auth: AuthService
     ) {}
 
-    @Get()
-    getAll() {
-        // return [1, 2, 3];
-        return this.achievement.findAll();
-    }
+    // @Get()
+    // getAll() {
+    //     // return [1, 2, 3];
+    //     return this.achievement.findAll();
+    // }
 
     // @Get(':id')
     // getOne(@Param('id') tid : number) {
     //     return this.achievement.findOne(tid);
     // }
+
+
 
     @Post()
     create(@Body() body: any) {
@@ -36,5 +40,20 @@ export class AchievementsController {
         // return true;
         return this.achievement.delete(tid);
     }
+
+    @Get('/:intra')
+    @HttpCode(200)
+    @Header('Access-Control-Allow-Origin', 'https://gilee.click')
+    @Header('Access-Control-Allow-Credentials', 'true')
+    findMyAchi(@Req() req: Request, @Param('intra') intra:string) // : Promise<Game[]>
+    {
+        // console.log('fdfads');
+        const name = this.auth.getIntra(this.auth.extractToken(req, 'http'));
+        console.log(name);
+
+        return this.achievement.findAchi(intra);
+    }
+
+
 
 }

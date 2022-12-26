@@ -1,4 +1,6 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { AchievementsRepository } from '../../achievements/repository/achievements.repository';
+import { Achievements } from '../../entities/Achievements';
 import { Friends } from '../../entities/Friends';
 import { Users } from '../../entities/Users';
 import { FriendsRepository } from '../../friends/repository/friends.repository';
@@ -11,6 +13,7 @@ export class UsersService {
     // private usersRepository : Repository<Users>,
     private usersRepository: UsersRepository,
     private friendsRepository: FriendsRepository,
+    private achiev :AchievementsRepository,
   ) {}
 
   findAll() {
@@ -124,12 +127,7 @@ export class UsersService {
   }
 
   public async addmyfriend(intra: string, addFriend: string): Promise<void> {
-    // let accountToSaveWithUser: Account;
-    // First check if account exist
-
-    // 있는지 확인하고, 없으면 추가, 있으면 무시하기
     const myid = (await this.usersRepository.findOneBy({ intra: intra })).id;
-    // const add =  await (await this.usersRepository.findOneBy({intra: addFriend}));
 
     const member = await this.friendsRepository
       .createQueryBuilder('m')
@@ -139,48 +137,14 @@ export class UsersService {
       })
       .getMany();
     if (member.length == 0) {
-      // const user = this.friendsRepository.create({});
-      // *** 여기 부분이에오*** //
       await this.friendsRepository.save({
         id: myid,
-        // userid : myid,
         intra: intra,
         friend: addFriend,
         block: false,
       });
-      // const myPhoto = await this.usersRepository
-      // .createQueryBuilder()
-      // .insert()
-      // .into(Friends)
-      // .values({
-      //     id :
-      //     // user:{
-      //     //     id: data.userId
-      //     // }
-      // })
-      // .execute();
+
     }
-
-    //     const account = await this.friendsRepository.findOneBy({intra: intra}).id
-    //         where: {
-    //             friend: dto.accountName,
-    //         },
-    //     });
-
-    // if (isNil(account)) {
-    //     const accountToSave = this.accountRepository.create({
-    //         name: dto.accountName,
-    //     });
-    //     accountToSaveWithUser = await this.accountRepository.save(accountToSave);
-    // } else {
-    //     accountToSaveWithUser = account;
-    // }
-
-    // await this.userRepository.save({
-    //     email: dto.email,
-    //     password: hash(dto.password), // Use your package for hash password
-    //     name: accountToSaveWithUser.name,
-    // });
   }
 
   // public async register(intra: string): Promise<Users> {
@@ -286,4 +250,53 @@ export class UsersService {
     await this.usersRepository.delete(id);
     return true;
   }
+
+/////////////////////////////////////////////////////////
+
+  //post
+  public async addAchiev(intra: string, num : number): Promise<void> {
+    const my = (await this.usersRepository.findOneBy({ intra: intra }));
+    const myid = my.id;
+
+    // const member = await this.friendsRepository
+    //   .createQueryBuilder('m')
+    //   .where('m.id = :id AND m.friend = :friend', {
+    //     id: myid,
+    //     friend: addFriend,
+    //   })
+    //   .getMany();
+
+    const member = await this.achiev
+      .createQueryBuilder('m')
+      .where('m.id = :id AND m.achievement = :achievement', {
+        id: myid,
+        achievement: num,
+      })
+      .getMany();
+
+      const newAchiev = new Achievements();
+      newAchiev.userid = my;
+      newAchiev.achievement = num;
+      newAchiev.tid = myid;
+
+    if (member.length == 0) {
+      await this.achiev.save(newAchiev);
+    }
+  }
+
+  //get
+  // public async findAchiev(intra: string): Promise<Users> {
+  //   const id = (await this.usersRepository.findOneBy({ intra: intra })).id;
+  //   return await this.usersRepository
+  //     .createQueryBuilder('m')
+  //     .leftJoinAndSelect('m.achievement', 't')
+  //     .where('m.id = :id', { id: id })
+  //     .getOne();
+  //   // return await this.friendsRepository.findBy({ intra: intra })
+
+  // }
+
+
+/////////////////////////////////////////////////////////
+
 }
