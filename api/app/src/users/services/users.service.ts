@@ -54,9 +54,7 @@ export class UsersService {
 
   async IsBlock(myintra: string, friendIntra: string) : Promise<boolean>{
     // const id = (await this.usersRepository.findOneBy({ intra: myintra })).id;
-  
-    
-    
+
     let friends = await this.friendsRepository.findBy({ intra: myintra });
     for (const f of friends) {
       if (f.intra == myintra && f.friend == friendIntra && f.block == true)
@@ -75,6 +73,14 @@ export class UsersService {
     const id = (await this.usersRepository.findOneBy({ intra: myintra })).id;
     this.friendsRepository
     .update({id: id, friend: friendIntra}, {block : true})    
+  }
+
+  async BlockFriendsList(myintra: string) : Promise<Users[]>{
+    return await this.usersRepository
+      .createQueryBuilder('m')
+      .leftJoinAndSelect('m.friends', 't')
+      .where('m.intra = :intra', { intra: myintra })
+      .getMany();
   }
 
   public async findFriend(intra: string): Promise<Friends[]> {
