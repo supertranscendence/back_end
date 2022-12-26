@@ -4,7 +4,7 @@ import { AuthService } from '../../auth/auth.service';
 import { AchievementsService } from '../services/achievements.service';
 
 @UseGuards(AuthGuardLocal)
-@Controller('achievements')
+@Controller('api/achievements')
 export class AchievementsController {
 
     constructor (
