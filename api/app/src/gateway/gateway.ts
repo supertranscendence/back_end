@@ -807,14 +807,36 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   findMatch(client: Socket) {
     const userTemp: IUser = this.user.getUser(client.id);
     //유저에서 있으면 아래실행
+
+    // 시작하고 head, tail, size 확인하고,
+    // 방나가고 head, tail, size 확인하고,
+    // 게임 시작하고 head, tail, size 확인하고,
+    // 한명이 시작하고 나가고 다른 한명이 들어오고 head, tail, size 확인하고,
+
+    // console.log('startMatch');
+    // this.gameroom.getQueue().data();
     if (this.gameroom.getQueue().equal(userTemp)) {
+      
+      // console.log('deletequeue before');
+      // this.gameroom.getQueue().data();
+      
+      
+      // delete가 안됨! 이것만 수정을 하면 됨!
       this.gameroom.getQueue().delete(client.id); //소켓 디스커넥트가
-      return this.gameroom.getQueue().getTail() - this.gameroom.getQueue().getHead();
+      
+      // console.log('deletequeue after');
+      // this.gameroom.getQueue().data();
+
+      return this.gameroom.getQueue().getSize();
     }
 
-    this.gameroom.getQueue().enqueue(userTemp); //소켓 디스커넥트가
 
-    if (this.gameroom.getQueue().getTail() - this.gameroom.getQueue().getHead() >= 2) {
+    // this.gameroom.getQueue().enqueue(userTemp); //소켓 디스커넥트가
+    // console.log('enqueue before');
+    // this.gameroom.getQueue().data();
+    // console.log('enqueue after');
+
+    if (this.gameroom.getQueue().getSize()>= 2) {
       const userBefore: IUser = this.gameroom.getQueue().dequeue(); // a
       const tempAfter: IUser = this.gameroom.getQueue().dequeue(); // b
 
@@ -826,7 +848,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       client.to(userBefore.client.id).emit('findMatch', {roomName :roomName, isA :true}); // a
       client.emit('findMatch', {roomName:roomName, isA : false}); // b
     }
-    return this.gameroom.getQueue().getTail() - this.gameroom.getQueue().getHead();
+    return this.gameroom.getQueue().getSize();
   }
 
   @SubscribeMessage('shellWeGame')
@@ -1031,7 +1053,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     User: { userA: number; userB: number; name: string; mode: boolean },
   ) {
     let intra: string;
-    const a = this.gameroom.allGameRoom().get(User.name).playerA;
+    const a = this.gameroom.allGameRoom().get(User.name).playerA; // 여기가 설정이 안되어있음! 그래서 게임이 안끝남!
     const b = this.gameroom.allGameRoom().get(User.name).playerB;
     if (User.userA >= 3) {
       intra = this.gameroom.allGameRoom().get(User.name).playerA.intra;
