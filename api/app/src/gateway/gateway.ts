@@ -29,6 +29,8 @@ import { UsersService } from '../users/services/users.service';
 import { InsertValuesMissingError } from 'typeorm';
 import { GameService } from '../game/services/game.service';
 import { RandomModule } from '@faker-js/faker';
+import { Friends } from '../entities/Friends';
+import { Users } from '../entities/Users';
 
 @UseInterceptors(LoggingInterceptor)
 @UseGuards(AuthGuardLocal)
@@ -383,9 +385,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     socket: Socket,
     newMsgObj: { room: string; user: string; msg: string; msgType?: string },
   ) {
-    // const extraToken = this.auth.extractToken(socket, 'ws');
-    // const intra = this.auth.getIntra(extraToken);
-    const intra = this.room.getIntraAtToken(socket);
+    const intra = this.room.getIntraAtToken(socket); // 나
     this.logger.log(
       `Function Name : newMsg room :${newMsgObj.room}, Intra : ${intra} clientid : ${socket.id}, ${newMsgObj.user} : ${newMsgObj.msg}`,
     );
@@ -396,54 +396,37 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       msg: newMsgObj.msg,
     };
 
-    // 밴 된 대상은 제외
-    // this.room.getRoom(newMsgObj.room).users.forEach((userEle) => {
-    //   if (this.room.getRoom(newMsgObj.room).muted.includes(userEle.intra)) {
-
-    //     socket.to(userEle.client_id).emit('newMsg', temp);
-    //   }
-    // })
-
-    //newMsgOBj가 user
-    // this.users.ListBlock(intra).then(
-    //   (res) => {
-    //     for (const [key, value] of this.room.getRoom(newMsgObj.room).users) {
-
-
-    //       res.forEach(element => {
-
-
-    //         if (element.friend != value.intra)
-    //         {
-    //           if (newMsgObj.msgType && newMsgObj.msgType == 'Dm')
-    //             socket.to(value.client.id).emit('newMsg', temp);
-    //           else {
-    //             if (!this.room.getRoom(newMsgObj.room).muted.includes(intra)) {
-    //               socket.to(value.client.id).emit('newMsg', temp);
-    //             }
-    //           }
-    //         }
-    //         else {
-    //         }
-    //       });
-    //     }
-    //   }
-    // )
-
-    this.users.IsBlock(newMsgObj.user, intra).then( // 내가 이사람 블락?
-      (res) => {
-        if (res) { }
-        else{
-          if (newMsgObj.msgType && newMsgObj.msgType == 'Dm')
-            socket.to(newMsgObj.room).emit('newMsg', temp);
+    this.room.getAllRoom().get(newMsgObj.room).users.forEach(element => {
+      this.users.IsBlock(element.intra, intra).then(
+        (res) => {
+          if (res) {}
+          else {
+            if (newMsgObj.msgType && newMsgObj.msgType == 'Dm')
+            socket.to(element.client.id).emit('newMsg', temp);
           else {
             if (!this.room.getRoom(newMsgObj.room).muted.includes(intra)) {
-              socket.to(newMsgObj.room).emit('newMsg', temp);
+              socket.to(element.client.id).emit('newMsg', temp);
             }
          }
+          }
         }
-      }
-    );
+      )
+    });
+
+    // this.users.IsBlock(newMsgObj.user, intra).then( // 내가 이사람 블락?
+    //   (res) => {
+    //     if (res) { }
+    //     else{
+    //       if (newMsgObj.msgType && newMsgObj.msgType == 'Dm')
+    //         socket.to(newMsgObj.room).emit('newMsg', temp);
+    //       else {
+    //         if (!this.room.getRoom(newMsgObj.room).muted.includes(intra)) {
+    //           socket.to(newMsgObj.room).emit('newMsg', temp);
+    //         }
+    //      }
+    //     }
+    //   }
+    // );
     return {};
   }
 
