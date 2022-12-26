@@ -41,11 +41,16 @@ export class AchievementsService {
         // let findName = intra + '|';
         const myid = (await this.usersRepository.findOneBy({ intra: intra })).id;
 
-        return this.usersRepository
+        let a = this.usersRepository
       .createQueryBuilder('m')
       .leftJoinAndSelect('m.achievements', 't')
       .where('m.id = :id', { id: myid })
       .getMany();
+
+        if (a == null)
+            return null;
+        else
+            return a;
         // user에서 join을 해서 achievement를 찾자
     }
 
