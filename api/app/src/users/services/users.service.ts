@@ -266,7 +266,7 @@ export class UsersService {
       .getMany();
 
       const newAchiev = new Achievements();
-      newAchiev.userid = my;
+      newAchiev.userid = myid;
       newAchiev.achievement = num;
       newAchiev.tid = myid;
 

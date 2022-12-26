@@ -19,6 +19,6 @@ updated:Date | null;
 
 @ManyToOne(()=>Users,users=>users.achievements)
 @JoinColumn([{ name: "id", referencedColumnName: "id" },
-])userid:Users;
+])userid:number;
 
 }

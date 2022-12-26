@@ -37,17 +37,17 @@ export class AchievementsService {
     //     return this.achieveRepository.save(test);
     // }
 
-    async findAchi(intra: string) : Promise<Users[]>{
+    async findAchi(intra: string) : Promise<Achievements[]>{
         // let findName = intra + '|';
-        const myid = (await this.usersRepository.findOneBy({ intra: intra })).id;
+        const my = (await this.usersRepository.findOneBy({ intra: intra })).id;
 
-        let a = this.usersRepository
-      .createQueryBuilder('m')
-      .leftJoinAndSelect('m.achievements', 't')
-      .where('m.id = :id', { id: myid })
-      .getMany();
+    //     let a = this.usersRepository
+    //   .createQueryBuilder('m')
+    //   .leftJoinAndSelect('m.achievements', 't')
+    //   .where('m.id = :id', { id: myid })
+    //   .getMany();
 
-        return a;
+    return this.achieveRepository.findBy({userid : my})
         // user에서 join을 해서 achievement를 찾자
     }
 
