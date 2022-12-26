@@ -1049,8 +1049,8 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       this.gameroom.deleteRoom(User.name);
 
       this.users.update(b.intra);
-      this.game.create(a + '|' + b ,User.userA + '|' + User.userB)
-      this.game.create(b + '|' + a ,User.userB + '|' + User.userA)
+      this.game.create(a.intra + '|' + b.intra ,User.userA + '|' + User.userB)
+      this.game.create(b.intra + '|' + a.intra ,User.userB + '|' + User.userA)
       // // db에 저장
     }
     else {
