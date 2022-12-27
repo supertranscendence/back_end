@@ -45,6 +45,15 @@ export class SUserService {
     return false;
   }
 
+  getUsertoFriend(name: string): IUser {
+    
+    for (const [key, values] of this.users) {
+      if (values.intra == name) return values;
+    }
+    return null;
+
+  }
+
 
   removeUser(id: string) {
     console.log('removeUser');
@@ -69,7 +78,7 @@ export class SUserService {
           friend: values.friend, state: 0, blocked: values.block, avatar: ava,
         };
         if (this.isUserName(values.friend)) {
-          temp.state = temp.state; //login
+          temp.state = this.getUsertoFriend(values.friend).status; //login
         } 
         else {
           temp.state = 2; // logout
