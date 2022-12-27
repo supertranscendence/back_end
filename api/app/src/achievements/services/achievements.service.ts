@@ -40,6 +40,7 @@ export class AchievementsService {
     async findAchi(intra: string) : Promise<Achievements[]>{
         // let findName = intra + '|';
         const my = (await this.usersRepository.findOneBy({ intra: intra })).id;
+        
 
     //     let a = this.usersRepository
     //   .createQueryBuilder('m')

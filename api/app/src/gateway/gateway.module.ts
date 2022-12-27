@@ -32,7 +32,8 @@ import { AchievementsRepository } from '../achievements/repository/achievements.
     FriendsRepository,
     GameRepository,
     GameService,
-    AchievementsRepository
+    AchievementsRepository,
+    SUserService,
   ],
 })
 export class GatewayModule {}

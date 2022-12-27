@@ -56,6 +56,12 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   handleConnection(client: any) {
     const intra = this.auth.getIntra(this.auth.extractToken(client, 'ws'));
     this.user.addUser(client.id, new User(client, intra)); // 사람을 추가해서 user에 넣기
+    
+    // **********************
+    // 여기서 login emit을 보내기!
+    // **********************
+    client.emit('changeState');
+
     this.logger.log(this.user.getUsers());
   }
 
@@ -67,6 +73,11 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.room.deleteUser(client.id);
     this.user.removeUser(client.id); // TODO 방 나가기 콜백 보내기
 
+      // **********************
+    // 여기서 logout emit을 보내기!
+    // **********************
+
+    client.emit('changeState');
 
     for (const [key, value] of this.gameroom.allGameRoom()) {
       // this.gameroom.deleteUser(key, client.id);
@@ -91,6 +102,8 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
     // 다 끊어주기,, cleargame룸 (다른 버튼을 눌렀을 때)
     this.gameroom.getQueue().delete(client.id);
+
+
     
   }
 
@@ -833,8 +846,8 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     this.gameroom.getQueue().enqueue(userTemp); //소켓 디스커넥트가
     // console.log('enqueue before');
-    // this.gameroom.getQueue().data();
     // console.log('enqueue after');
+    // this.gameroom.getQueue().data();
 
     if (this.gameroom.getQueue().getSize()>= 2) {
       const userBefore: IUser = this.gameroom.getQueue().dequeue(); // b이여된다!
@@ -852,8 +865,9 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     // gameroomInfo도 emit을 보낼 수도 있다!
     // 뒤에 들어온 애를 A 앞에 들어온 애를 B로!
 
-      client.to(userBefore.client.id).emit('findMatch', {roomName :roomName, isA :false}); // b
+      // console.log('----------' + roomName);
       client.emit('findMatch', {roomName:roomName, isA : true}); // a
+      client.to(userBefore.client.id).emit('findMatch', {roomName :roomName, isA :false}); // b
     }
     return this.gameroom.getQueue().getSize();
   }
@@ -1039,6 +1053,19 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     
       if (this.gameroom.allGameRoom().get(roomInfo.room).playerB) {
 
+        this.user.getUsers().get(this.gameroom.allGameRoom().get(roomInfo.room).playerA.intra).status = 2;
+        this.user.getUsers().get(this.gameroom.allGameRoom().get(roomInfo.room).playerB.intra).status = 2;
+        client.emit('changeState');
+        // a가 뭔지 user에서 찾고
+        // b가 뭔지 user에서 찾고
+        // user에서 상태 변화!
+        // **********************
+        // 여기서 game a, b 로 보내기!
+        // **********************
+        
+        // 설정하고
+        // emit
+        
         if (this.gameroom.isPlayerA(client.id, roomInfo.room)) {
           // 사람들 게임중인 상태 
           this.gameroom.allGameRoom().get(roomInfo.room).roomState = true;
@@ -1071,7 +1098,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       this.users.update(a.intra);
       this.game.create(a.intra + '|' + b.intra ,User.userA + '|' + User.userB)
       this.game.create(b.intra + '|' + a.intra ,User.userB + '|' + User.userA)
-      // db에 저
+      
     } else if (User.userB >= 3) {
       intra = this.gameroom.allGameRoom().get(User.name).playerB.intra;
       client.to(User.name).emit('gameDone', intra);
@@ -1081,7 +1108,6 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       this.users.update(b.intra);
       this.game.create(a.intra + '|' + b.intra ,User.userA + '|' + User.userB)
       this.game.create(b.intra + '|' + a.intra ,User.userB + '|' + User.userA)
-      // // db에 저장
     }
     else {
       for (const [key, value] of this.gameroom.allGameRoom().get(User.name)
@@ -1093,6 +1119,14 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
         });
       }
     }
+    // **********************
+        // 여기서 a, b 게임 끝으로
+    // ********************** 
+        // a, b 로그인으로
+      this.user.getUsers().get(this.gameroom.allGameRoom().get(User.name).playerA.intra).status = 1;
+      this.user.getUsers().get(this.gameroom.allGameRoom().get(User.name).playerB.intra).status = 1;
+      client.emit('changeState');
+
     return {};
   }
 
@@ -1209,42 +1243,50 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   //friend 로직 friend가 없어요!!!
   @SubscribeMessage('myFriend')
   myFriend(client: Socket) {
-    const intra = this.room.getIntraAtToken(client);
-    const stateFriend: {
-      friend: string; state: UserStatus; avatar: string; blocked: boolean;
-    }[] = [];
-    
-    const ret = this.users.findFriend(intra).then((res) => {
-      for (const [key, values] of res.entries()) {
-        let ava : string = "";
-        this.users.findByIntra(values.friend).then((res) => {
-          if (res && res.avatar)
-            ava = res.avatar;
-        });
-        const temp: { friend: string; state: UserStatus; blocked: boolean; avatar : string} = {
-          friend: values.friend, state: 0, blocked: values.block, avatar: ava,
-        };
-        if (this.user.isUserName(values.friend)) {
-          temp.state = 1; //login
-        } 
-        else {
-          temp.state = 2; // logout
-        }
-        this.gameroom.allGameRoom().forEach((e) => {
-          if (e.playerA.intra == values.friend)
-            temp.state = 3;
-          else if  (e.playerB.intra == values.friend)
-            temp.state = 3;
-          e.observers.forEach((a) => {
-            if (a.intra == values.friend)
-              temp.state = 3;
-          })
-        }); 
-        stateFriend.push(temp); // 친구
-      }
-      // console.log(stateFriend);
-      return JSON.stringify(stateFriend);
-    });
-    return ret
+    client.emit('myFriend', this.user.myFriend(client));
   }
+  //   const intra = this.room.getIntraAtToken(client);
+    
+  //   // const stateFriend: {
+  //   //   friend: string; state: UserStatus; avatar: string; blocked: boolean;
+  //   // }[] = [];
+    
+  //   // 아바타를 변경할때 마다, 로그인을 할 때 마다 로그아웃을 할 때마다, 게임 방에 들어갈 때 마다!
+  //   // emit을 보내주어야 한다!
+
+  //   const ret = this.users.findFriend(intra).then((res) => {
+  //     for (const [key, values] of res.entries()) {
+  //       let ava : string = "";
+  //       this.users.findByIntra(values.friend).then((res) => {
+  //         if (res && res.avatar)
+  //           ava = res.avatar;
+  //       });
+  //       const temp: { friend: string; state: UserStatus; blocked: boolean; avatar : string} = {
+  //         friend: values.friend, state: 0, blocked: values.block, avatar: ava,
+  //       };
+  //       // if (this.user.isUserName(values.friend)) {
+  //       //   temp.state = 1; //login
+  //       // } 
+  //       // else {
+  //       //   temp.state = 2; // logout
+  //       // }
+  //       // this.gameroom.allGameRoom().forEach((e) => {
+  //       //   if (e.playerA.intra == values.friend)
+  //       //     temp.state = 3;
+  //       //   else if  (e.playerB.intra == values.friend)
+  //       //     temp.state = 3;
+  //       //   e.observers.forEach((a) => {
+  //       //     if (a.intra == values.friend)
+  //       //       temp.state = 3;
+  //       //   })
+  //       // }); 
+  //       stateFriend.push(temp); // 친구
+  //     }
+  //     // console.log(stateFriend);
+  //     return JSON.stringify(stateFriend);
+  //   });
+  //   return ret
+  // }
+
+
 }
