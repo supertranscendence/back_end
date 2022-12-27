@@ -48,10 +48,12 @@ CREATE INDEX FK_FRIENDS ON pong.FRIENDS
 CREATE TABLE pong.ACHIEVEMENTS
 (
  "id"          int NOT NULL,
+ tid serial4 NOT NULL,
  achievement int NOT NULL,
  created  TIMESTAMP not null default now(),
  updated  TIMESTAMP,
  CONSTRAINT FK_1 FOREIGN KEY ( "id" ) REFERENCES pong.USERS ( "id" )
+ CONSTRAINT PK_ACHIEVEMENTS PRIMARY KEY (tid)
 );
 
 CREATE INDEX FK_1 ON pong.ACHIEVEMENTS
