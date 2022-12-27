@@ -1243,7 +1243,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   //friend 로직 friend가 없어요!!!
   @SubscribeMessage('myFriend')
   myFriend(client: Socket) {
-    client.emit('myFriend', this.user.myFriend(client));
+    return this.user.myFriend(client)
   }
   //   const intra = this.room.getIntraAtToken(client);
     
