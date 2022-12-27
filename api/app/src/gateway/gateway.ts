@@ -1052,10 +1052,6 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   gameStart(client: Socket, roomInfo : {room: string, mode : boolean}) { // 모드 이면 true
     
       if (this.gameroom.allGameRoom().get(roomInfo.room).playerB) {
-
-        this.user.getUsers().get(this.gameroom.allGameRoom().get(roomInfo.room).playerA.intra).status = 2;
-        this.user.getUsers().get(this.gameroom.allGameRoom().get(roomInfo.room).playerB.intra).status = 2;
-        client.emit('changeState');
         // a가 뭔지 user에서 찾고
         // b가 뭔지 user에서 찾고
         // user에서 상태 변화!
@@ -1071,6 +1067,10 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
           this.gameroom.allGameRoom().get(roomInfo.room).roomState = true;
           client.to(roomInfo.room).emit('gameStart', {start : true, mode :roomInfo.mode});
           client.emit('gameStart', {start : true, mode :roomInfo.mode});
+          
+          this.user.getUsers().get(this.gameroom.allGameRoom().get(roomInfo.room).playerA.intra).status = 2;
+          this.user.getUsers().get(this.gameroom.allGameRoom().get(roomInfo.room).playerB.intra).status = 2;
+          client.emit('changeState');
           // return {};
         } else {
           // client.to(roomInfo.room).emit('gameStart', {start: false, mode : roomInfo.mode});
