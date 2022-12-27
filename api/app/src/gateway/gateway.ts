@@ -831,22 +831,29 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
 
 
-    // this.gameroom.getQueue().enqueue(userTemp); //소켓 디스커넥트가
+    this.gameroom.getQueue().enqueue(userTemp); //소켓 디스커넥트가
     // console.log('enqueue before');
     // this.gameroom.getQueue().data();
     // console.log('enqueue after');
 
     if (this.gameroom.getQueue().getSize()>= 2) {
-      const userBefore: IUser = this.gameroom.getQueue().dequeue(); // a
-      const tempAfter: IUser = this.gameroom.getQueue().dequeue(); // b
+      const userBefore: IUser = this.gameroom.getQueue().dequeue(); // b이여된다!
+      const tempAfter: IUser = this.gameroom.getQueue().dequeue(); // a여야된다! 
 
       const roomName =  userBefore.intra + ' ' + tempAfter.intra;
       // this.gameroom.createGameRoom(roomName, new gameRoom(userBefore)); // a
       // this.gameroom.setPlayerB(roomName, tempAfter); // b
 
+
+      // 내가 생성하는 방 creategameroom
+      if (this.gameroom.createGameRoom(roomName, new gameRoom(tempAfter)))
+        return {};
       client.join(roomName);
-      client.to(userBefore.client.id).emit('findMatch', {roomName :roomName, isA :true}); // a
-      client.emit('findMatch', {roomName:roomName, isA : false}); // b
+    // gameroomInfo도 emit을 보낼 수도 있다!
+    // 뒤에 들어온 애를 A 앞에 들어온 애를 B로!
+
+      client.to(userBefore.client.id).emit('findMatch', {roomName :roomName, isA :false}); // b
+      client.emit('findMatch', {roomName:roomName, isA : true}); // a
     }
     return this.gameroom.getQueue().getSize();
   }
