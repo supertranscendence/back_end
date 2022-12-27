@@ -1067,8 +1067,8 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
           client.to(roomInfo.room).emit('gameStart', {start : true, mode :roomInfo.mode});
           client.emit('gameStart', {start : true, mode :roomInfo.mode});
           
-          this.user.getUsers().get(this.gameroom.allGameRoom().get(roomInfo.room).playerA.client.id).status = 2;
-          this.user.getUsers().get(this.gameroom.allGameRoom().get(roomInfo.room).playerB.client.id).status = 2;
+          this.user.getUsers().get(this.gameroom.allGameRoom().get(roomInfo.room).playerA.client.id).status = 3;
+          this.user.getUsers().get(this.gameroom.allGameRoom().get(roomInfo.room).playerB.client.id).status = 3;
           
           client.broadcast.emit('changeState');
           // return {};
