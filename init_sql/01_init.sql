@@ -52,7 +52,7 @@ CREATE TABLE pong.ACHIEVEMENTS
  achievement int NOT NULL,
  created  TIMESTAMP not null default now(),
  updated  TIMESTAMP,
- CONSTRAINT FK_1 FOREIGN KEY ( "id" ) REFERENCES pong.USERS ( "id" )
+ CONSTRAINT FK_1 FOREIGN KEY ( "id" ) REFERENCES pong.USERS ( "id" ),
  CONSTRAINT PK_ACHIEVEMENTS PRIMARY KEY (tid)
 );
 
