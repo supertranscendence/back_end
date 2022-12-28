@@ -265,7 +265,7 @@ export class UsersService {
     const myid = (await this.usersRepository.findOneBy({ intra: intra })).id;
     const member = await this.achiev
       .createQueryBuilder('m')
-      .where('m.id = :id ANDm.achievement = :achievement', {
+      .where('m.id = :id AND m.achievement = :achievement', {
         id :myid,
         achievement: num,
       })
