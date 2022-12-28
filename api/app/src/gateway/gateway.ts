@@ -1124,15 +1124,13 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       this.users.addAchiev(b.intra, 1); // 첫 b 승리 했을 때!
     }
     else {
-      // if (client.id == this.gameroom.getPlayerAId(User.name)) {
-        for (const [key, value] of this.gameroom.allGameRoom().get(User.name)
-          .observers) {
-          client.to(value.client.id).emit('gameSet', {
-            userA: User.userA,
-            userB: User.userB,
-            mode: User.mode,
-          });
-        // }
+      for (const [key, value] of this.gameroom.allGameRoom().get(User.name)
+        .observers) {
+        client.to(value.client.id).emit('gameSet', {
+          userA: User.userA,
+          userB: User.userB,
+          mode: User.mode,
+        });
       }
     }
     // **********************
