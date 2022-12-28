@@ -1266,7 +1266,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
 
-  
+
   //   const intra = this.room.getIntraAtToken(client);
     
   //   // const stateFriend: {
