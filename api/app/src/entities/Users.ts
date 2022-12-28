@@ -48,7 +48,7 @@ export class Users {
   @Column('timestamp without time zone', { name: 'updated', nullable: true })
   updated: Date | null;
 
-  @OneToMany(() => Achievements, (achievements) => achievements.userid)
+  @OneToMany(() => Achievements, (achievements) => achievements.id)
   achievements: Achievements[];
 
   @OneToMany(() => Friends, (friends) => friends.id)

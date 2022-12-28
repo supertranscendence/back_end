@@ -128,7 +128,6 @@ export class UsersService {
 
   public async addmyfriend(intra: string, addFriend: string): Promise<void> {
     const myid = (await this.usersRepository.findOneBy({ intra: intra })).id;
-
     const member = await this.friendsRepository
       .createQueryBuilder('m')
       .where('m.id = :id AND m.friend = :friend', {
@@ -255,8 +254,7 @@ export class UsersService {
 
   //post
   public async addAchiev(intra: string, num : number): Promise<void> {
-    const my = (await this.usersRepository.findOneBy({ intra: intra }));
-    const myid = my.id;
+    const myid = (await this.usersRepository.findOneBy({ intra: intra })).id;
     const member = await this.achiev
       .createQueryBuilder('m')
       .where('m.id = :id AND m.achievement = :achievement', {
@@ -265,13 +263,11 @@ export class UsersService {
       })
       .getMany();
 
-      const newAchiev = new Achievements();
-      newAchiev.userid = myid;
-      newAchiev.achievement = num;
-      // newAchiev.tid = myid;
-
     if (member.length == 0) {
-      await this.achiev.save(newAchiev);
+      await this.achiev.save({
+        id : myid,
+        achievement : num,
+      });
     }
   }
 
