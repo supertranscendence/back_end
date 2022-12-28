@@ -1226,8 +1226,6 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   //     });
   //   }
 
-
-
   // @SubscribeMessage('unBlock')
   // unBlock(client: Socket, friendName : string) {
   //   const my = this.user.getUsers().get(client.id).intra;
