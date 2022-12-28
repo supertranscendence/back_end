@@ -35,7 +35,7 @@ export class AuthService {
 
   makeAccess(intra: string): string {
     return jwt.sign({ ...{ intra } }, this.JWT_SECRET, {
-      expiresIn: '1h',
+      expiresIn: '2h',
       //expiresIn: '20sec',
     });
   }
