@@ -61,6 +61,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     // 여기서 login emit을 보내기!
     // **********************
     client.broadcast.emit('changeState');
+    client.emit('changeState');
 
     this.logger.log(this.user.getUsers());
   }
@@ -78,6 +79,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     // **********************
 
     client.broadcast.emit('changeState');
+    client.emit('changeState');
 
     for (const [key, value] of this.gameroom.allGameRoom()) {
       // this.gameroom.deleteUser(key, client.id);
@@ -1071,6 +1073,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
           this.user.getUsers().get(this.gameroom.allGameRoom().get(roomInfo.room).playerB.client.id).status = 3;
           
           client.broadcast.emit('changeState');
+          client.emit('changeState');
           // return {};
         } else {
           // client.to(roomInfo.room).emit('gameStart', {start: false, mode : roomInfo.mode});
@@ -1137,6 +1140,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       this.user.getUsers().get(this.gameroom.allGameRoom().get(User.name).playerA.intra).status = 1;
       this.user.getUsers().get(this.gameroom.allGameRoom().get(User.name).playerB.intra).status = 1;
       client.broadcast.emit('changeState');
+      client.emit('changeState');
 
     return {};
   }
