@@ -1137,8 +1137,8 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
         // 여기서 a, b 게임 끝으로
     // ********************** 
         // a, b 로그인으로
-      this.user.getUsers().get(this.gameroom.allGameRoom().get(User.name).playerA.intra).status = 1;
-      this.user.getUsers().get(this.gameroom.allGameRoom().get(User.name).playerB.intra).status = 1;
+      this.user.getUsers().get(a.intra).status = 1;
+      this.user.getUsers().get(b.intra).status = 1;
       client.broadcast.emit('changeState');
       client.emit('changeState');
 
