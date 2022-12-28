@@ -1110,6 +1110,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       this.users.update(a.intra);
       this.game.create(a.intra + '|' + b.intra ,User.userA + '|' + User.userB)
       this.game.create(b.intra + '|' + a.intra ,User.userB + '|' + User.userA)
+      this.users.addAchiev(a.intra, 1); // 첫 a 승리 했을 때!
       
     } else if (User.userB >= 3) {
       intra = this.gameroom.allGameRoom().get(User.name).playerB.intra;
@@ -1120,15 +1121,18 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       this.users.update(b.intra);
       this.game.create(a.intra + '|' + b.intra ,User.userA + '|' + User.userB)
       this.game.create(b.intra + '|' + a.intra ,User.userB + '|' + User.userA)
+      this.users.addAchiev(b.intra, 1); // 첫 b 승리 했을 때!
     }
     else {
-      for (const [key, value] of this.gameroom.allGameRoom().get(User.name)
-        .observers) {
-        client.to(value.client.id).emit('gameSet', {
-          userA: User.userA,
-          userB: User.userB,
-          mode: User.mode,
-        });
+      if (client.id == this.gameroom.getPlayerAId(User.name)) {
+        for (const [key, value] of this.gameroom.allGameRoom().get(User.name)
+          .observers) {
+          client.to(value.client.id).emit('gameSet', {
+            userA: User.userA,
+            userB: User.userB,
+            mode: User.mode,
+          });
+        }
       }
     }
     // **********************
