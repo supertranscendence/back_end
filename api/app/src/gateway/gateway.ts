@@ -1245,6 +1245,16 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   myFriend(client: Socket) {
     return this.user.myFriend(client)
   }
+
+  @SubscribeMessage('AddMyFriend')
+  addMyFriend(client:Socket, friendName: string) {
+    const intra = this.room.getIntraAtToken(client); // 나
+    // return this.users.findByIntra(intra);
+    this.users.addmyfriend(intra, friendName);
+    return {};
+  }
+
+
   //   const intra = this.room.getIntraAtToken(client);
     
   //   // const stateFriend: {

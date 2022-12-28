@@ -54,16 +54,16 @@ export class UsersController {
     return this.users.findUserFriend(intra);
   }
 
-  @Post()
-  @HttpCode(201)
-  @Header('Access-Control-Allow-Origin', 'https://gilee.click')
-  @Header('Access-Control-Allow-Credentials', 'true')
-  IsFriend(@Body('intra') addIntra: string, @Req() request: Request): string {
-    const intra = this.auth.getIntra(this.auth.extractToken(request, 'http'));
-    // return this.users.findByIntra(intra);
-    this.users.addmyfriend(intra, addIntra);
-    return addIntra;
-  }
+  // @Post()
+  // @HttpCode(201)
+  // @Header('Access-Control-Allow-Origin', 'https://gilee.click')
+  // @Header('Access-Control-Allow-Credentials', 'true')
+  // IsFriend(@Body('intra') addIntra: string, @Req() request: Request): string {
+  //   const intra = this.auth.getIntra(this.auth.extractToken(request, 'http'));
+  //   // return this.users.findByIntra(intra);
+  //   this.users.addmyfriend(intra, addIntra);
+  //   return addIntra;
+  // }
 
   @Post('email')
   @HttpCode(204)
