@@ -135,7 +135,7 @@ export class UsersService {
         friend: addFriend,
       })
       .getOne();
-      if (member != null) {
+      if (member == null) {
         await this.friendsRepository.save({
           id: myid,
           intra: intra,
@@ -264,7 +264,7 @@ export class UsersService {
       })
       .getOne();
 
-    if (member != null) {
+    if (member == null) {
       await this.achiev.save({
         id : myid,
         achievement : num,
