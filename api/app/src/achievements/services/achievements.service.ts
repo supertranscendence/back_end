@@ -39,16 +39,21 @@ export class AchievementsService {
 
     async findAchi(intra: string) : Promise<Achievements[]>{
         // let findName = intra + '|';
-        const my = (await this.usersRepository.findOneBy({ intra: intra })).id;
+        const id = (await this.usersRepository.findOneBy({ intra: intra })).id;
         
-
+        return await this.achieveRepository
+      .createQueryBuilder('m')
+      .where('m.id = :id', {
+        id: id,
+      })
+      .getMany();
     //     let a = this.usersRepository
     //   .createQueryBuilder('m')
     //   .leftJoinAndSelect('m.achievements', 't')
     //   .where('m.id = :id', { id: myid })
     //   .getMany();
 
-    return this.achieveRepository.findBy({id : my})
+    // return this.achieveRepository.findBy({id : my})
         // user에서 join을 해서 achievement를 찾자
     }
 
