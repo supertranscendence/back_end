@@ -128,24 +128,21 @@ export class UsersService {
 
   public async addmyfriend(intra: string, addFriend: string): Promise<void> {
     const myid = (await this.usersRepository.findOneBy({ intra: intra })).id;
-    // const member = await this.friendsRepository
-    //   .createQueryBuilder('m')
-    //   .where('m.id = :id', {
-    //     id: myid,
-    //   })
-    //   .where('m.friend = : friend', {
-    //     friend: addFriend,
-    //   })
-    //   .getMany();
-
-    //   if (member.length == 0) {
+    const member = await this.friendsRepository
+      .createQueryBuilder('m')
+      .where('m.id = :id AND m.friend = :friend', {
+        id: myid,
+        friend: addFriend,
+      })
+      .getOne();
+      if (member != null) {
         await this.friendsRepository.save({
           id: myid,
           intra: intra,
           friend: addFriend,
           block: false,
         });
-      // }
+      }
 
     // }
   }
@@ -259,22 +256,15 @@ export class UsersService {
   //post
   public async addAchiev(intra: string, num : number): Promise<void> {
     const myid = (await this.usersRepository.findOneBy({ intra: intra })).id;
-    // const member = await this.achiev
-    //   .createQueryBuilder('ach')
-    //   .select([
-    //     'ach.id',
-    //     'ach.title',
-        
-    //   ])
-    //   .where('m.id = :id', {
-    //     id: myid,
-    //   })
-    //   .where('m.achievement = :achievement', {
-    //     achievement: num,
-    //   })
-    //   .getMany();
+    const member = await this.achiev
+      .createQueryBuilder('m')
+      .where('m.id = :id ANDm.achievement = :achievement', {
+        id :myid,
+        achievement: num,
+      })
+      .getOne();
 
-    // if (member.length == 0) {
+    if (member != null) {
       await this.achiev.save({
         id : myid,
         achievement : num,
@@ -317,3 +307,5 @@ export class UsersService {
 
 
 /////////////////////////////////////////////////////////
+
+}
