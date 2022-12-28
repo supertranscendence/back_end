@@ -1081,6 +1081,18 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       return {};
   }
 
+  // GameStop
+  @SubscribeMessage('GameSwitch')
+  GameSwitch(client: Socket, gameRoom: {name: string, isA: boolean | undefined}) {
+
+    if (gameRoom.isA !== undefined) {
+      if(gameRoom.isA) {
+        client.emit('GameSwitch');
+        client.to(gameRoom.name).emit('GameSwitch'); //플레이어 에이인지 아닌지
+      }
+    }
+  }
+
   @SubscribeMessage('gameSet')
   gameSet(
     client: Socket,
