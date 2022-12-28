@@ -130,20 +130,24 @@ export class UsersService {
     const myid = (await this.usersRepository.findOneBy({ intra: intra })).id;
     const member = await this.friendsRepository
       .createQueryBuilder('m')
-      .where('m.id = :id AND m.friend = :friend', {
+      .where('m.id = :id', {
         id: myid,
+      })
+      .where('m.friend = : friend', {
         friend: addFriend,
       })
       .getMany();
-    if (member.length == 0) {
-      await this.friendsRepository.save({
-        id: myid,
-        intra: intra,
-        friend: addFriend,
-        block: false,
-      });
+      
+      if (member.length == 0) {
+        await this.friendsRepository.save({
+          id: myid,
+          intra: intra,
+          friend: addFriend,
+          block: false,
+        });
+      }
 
-    }
+    // }
   }
 
   // public async register(intra: string): Promise<Users> {
@@ -257,8 +261,10 @@ export class UsersService {
     const myid = (await this.usersRepository.findOneBy({ intra: intra })).id;
     const member = await this.achiev
       .createQueryBuilder('m')
-      .where('m.id = :id AND m.achievement = :achievement', {
+      .where('m.id = :id', {
         id: myid,
+      })
+      .where('m.achievement = :achievement', {
         achievement: num,
       })
       .getMany();
