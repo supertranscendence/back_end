@@ -268,7 +268,7 @@ export class UsersService {
       const newAchiev = new Achievements();
       newAchiev.userid = myid;
       newAchiev.achievement = num;
-      newAchiev.tid = myid;
+      // newAchiev.tid = myid;
 
     if (member.length == 0) {
       await this.achiev.save(newAchiev);
