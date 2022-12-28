@@ -48,7 +48,10 @@ export class AchievementsService {
     //   .where('m.id = :id', { id: myid })
     //   .getMany();
 
-    return this.achieveRepository.findBy({userid : my})
+    return this.achieveRepository.find({
+        where: {
+            userid :my
+    } })
         // user에서 join을 해서 achievement를 찾자
     }
 
