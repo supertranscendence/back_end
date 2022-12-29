@@ -268,6 +268,16 @@ export class UsersService {
       .catch(/*this.logger.error(`${intra} avatar update failed`)*/);
   }
 
+  async updateVerifyChkByIntra(intra: string, value: string) {
+    await this.usersRepository
+      .update({ intra: intra }, { verify_chk: value })
+      .then((res) => {
+        if (!res.affected) throw InternalServerErrorException;
+        //this.logger.log(`${intra} avatar updated`);
+      })
+      .catch(/*this.logger.error(`${intra} avatar update failed`)*/);
+  }
+
   async findOneByVerify(verify: string): Promise<Users> | null {
     return await this.usersRepository.findOneBy({ verify: verify });
   }
