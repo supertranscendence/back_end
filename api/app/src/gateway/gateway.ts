@@ -79,9 +79,9 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   handleDisconnect(client: any) {
     this.room.getAllRoom().forEach((element) => {
-      client.leave(element.name);
-        client.to(element.name).emit('roomInfo', this.room.getChatRoomInfo(element.name));
       this.room.deleteUserBysocketId(client.id, element.name);
+      client.to(element.name).emit('roomInfo', this.room.getChatRoomInfo(element.name));
+      client.leave(element.name);
       this.room.deleteEmptyRoom(element.name);
     });
     this.room.deleteUser(client.id);
