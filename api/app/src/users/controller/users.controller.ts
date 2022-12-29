@@ -16,6 +16,7 @@ import {
   Req,
   Res,
   SetMetadata,
+  UseFilters,
   UseGuards,
 } from '@nestjs/common';
 import { UsersService } from '../services/users.service';
@@ -27,6 +28,7 @@ import { add } from 'winston';
 @UseGuards(AuthGuardLocal)
 @SetMetadata('roles', ['admin'])
 @Controller('api/users')
+@UseFilters(JWTExceptionFilter)
 export class UsersController {
   private readonly logger: Logger;
 
@@ -125,7 +127,7 @@ export class UsersController {
   @Header('Access-Control-Allow-Credentials', 'true')
   getOther(@Param('id') tid: string) {
     // const intra = this.auth.getIntra(this.auth.extractToken(request, 'http'));
-    
+
     return this.users.findByIntra(tid);
   }
 
@@ -135,9 +137,8 @@ export class UsersController {
   @Header('Access-Control-Allow-Credentials', 'true')
   addAchi(@Req() req: Request, @Body('achi') achi: number) {
     const intra = this.auth.getIntra(this.auth.extractToken(req, 'http'));
-    this.users.addAchiev(intra, achi)
+    this.users.addAchiev(intra, achi);
   }
-
 }
 
 // 게임 정보 내정보, 상대 정보

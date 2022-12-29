@@ -1,27 +1,31 @@
-
 // import { EntityRepository, Repository } from "typeorm";
-import { Achievements } from "../../entities/Achievements";
+import { Achievements } from '../../entities/Achievements';
 
-import { Injectable } from "@nestjs/common";
-import { DataSource, Repository } from "typeorm";
-
+import { Injectable } from '@nestjs/common';
+import { DataSource, Repository } from 'typeorm';
 
 // @EntityRepository(Achievements)
-// export class AchievementsRepository extends Repository<Achievements> 
-// {} 
+// export class AchievementsRepository extends Repository<Achievements>
+// {}
 
 // base repository > custom repository
 
 @Injectable()
 export class AchievementsRepository extends Repository<Achievements> {
-    constructor(private readonly datasource: DataSource) {
-        super(Achievements, datasource.createEntityManager(), datasource.createQueryRunner());
-    }
+  constructor(private readonly datasource: DataSource) {
+    super(
+      Achievements,
+      datasource.createEntityManager(),
+      datasource.createQueryRunner(),
+    );
+  }
 
-    // 비동기 처리를 위한 미래에 무언가 데이터가 올것이다! Promise
-    async getById(id: number): Promise<Achievements>{
-        return await this.datasource.createEntityManager().findOneById(Achievements, id)
-    }
+  // 비동기 처리를 위한 미래에 무언가 데이터가 올것이다! Promise
+  async getById(id: number): Promise<Achievements> {
+    return await this.datasource
+      .createEntityManager()
+      .findOneById(Achievements, id);
+  }
 }
 
 // datasource란 typeorm.config에서 설정을 해주었던 설정내용을 저장한 객체
