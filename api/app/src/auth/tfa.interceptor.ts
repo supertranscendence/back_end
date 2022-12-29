@@ -34,7 +34,7 @@ export class TwoFactorInterceptor implements NestInterceptor {
     this.logger.log(`email auth start ======>`);
     const user: Users = await this.userService.findByIntra(intra);
     this.logger.log(user);
-    if (user.tf == true && user.email && !user.verify) {
+    if (user.tf == true && user.email && !user.verify_chk) {
       const code = uuid.v4();
       await this.mailerService
         .sendMail({

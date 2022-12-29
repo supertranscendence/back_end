@@ -13,19 +13,18 @@ export class UsersService {
     // private usersRepository : Repository<Users>,
     private usersRepository: UsersRepository,
     private friendsRepository: FriendsRepository,
-    private achiev :AchievementsRepository,
+    private achiev: AchievementsRepository,
   ) {}
 
   findAll() {
     return this.usersRepository.find();
   }
 
-
-  async update(name : string) {
+  async update(name: string) {
     let a = (await this.usersRepository.findOneBy({ intra: name })).level;
 
-    this.usersRepository.update({ intra : name}, {level :  a + 30});
-}
+    this.usersRepository.update({ intra: name }, { level: a + 30 });
+  }
   // findOne(id : number) {
   //     return this.usersRepository.findOne(id);
   // }
@@ -39,23 +38,29 @@ export class UsersService {
   // 친구
 
   //비동기를 동기적으로 어떻게 처리를 해야되는 걸까?
-  async chkBlock(myintra: string, friendIntra: string) : Promise<boolean> {
-    let chk :boolean = false;
-    await (await this.friendsRepository.findBy({intra: myintra})).forEach(element => {
-      if (element.intra == myintra && element.friend == friendIntra && element.block === true) {
+  async chkBlock(myintra: string, friendIntra: string): Promise<boolean> {
+    let chk: boolean = false;
+    await (
+      await this.friendsRepository.findBy({ intra: myintra })
+    ).forEach((element) => {
+      if (
+        element.intra == myintra &&
+        element.friend == friendIntra &&
+        element.block === true
+      ) {
         chk = true;
       }
     });
-      return chk;
+    return chk;
   }
   ///////////////
 
-  async ListBlock(myintra: string) : Promise<Friends[]>{
+  async ListBlock(myintra: string): Promise<Friends[]> {
     // const id = (await this.usersRepository.findOneBy({ intra: myintra })).id;
-    return await this.friendsRepository.findBy({ intra: myintra, block : true });
+    return await this.friendsRepository.findBy({ intra: myintra, block: true });
   }
 
-  async IsBlock(myintra: string, friendIntra: string) : Promise<boolean>{
+  async IsBlock(myintra: string, friendIntra: string): Promise<boolean> {
     // const id = (await this.usersRepository.findOneBy({ intra: myintra })).id;
 
     let friends = await this.friendsRepository.findBy({ intra: myintra });
@@ -66,19 +71,23 @@ export class UsersService {
     return false;
   }
 
-  async deleteBlock(myintra: string, friendIntra: string){
+  async deleteBlock(myintra: string, friendIntra: string) {
     const id = (await this.usersRepository.findOneBy({ intra: myintra })).id;
-    this.friendsRepository
-    .update({id: id, friend: friendIntra}, {block : false})    
+    this.friendsRepository.update(
+      { id: id, friend: friendIntra },
+      { block: false },
+    );
   }
 
-  async blockFriend(myintra: string, friendIntra: string){
+  async blockFriend(myintra: string, friendIntra: string) {
     const id = (await this.usersRepository.findOneBy({ intra: myintra })).id;
-    this.friendsRepository
-    .update({id: id, friend: friendIntra}, {block : true})    
+    this.friendsRepository.update(
+      { id: id, friend: friendIntra },
+      { block: true },
+    );
   }
 
-  async BlockFriendsList(myintra: string) : Promise<Users[]>{
+  async BlockFriendsList(myintra: string): Promise<Users[]> {
     return await this.usersRepository
       .createQueryBuilder('m')
       .leftJoinAndSelect('m.friends', 't')
@@ -88,11 +97,9 @@ export class UsersService {
 
   public async findFriend(intra: string): Promise<Friends[]> {
     // const id = (await this.usersRepository.findOneBy({ intra: intra })).id;
-    
-    return await this.friendsRepository.findBy({ intra: intra })
 
+    return await this.friendsRepository.findBy({ intra: intra });
   }
-
 
   public async findUserFriend(intra: string): Promise<Friends[]> {
     const id = (await this.usersRepository.findOneBy({ intra: intra })).id;
@@ -109,7 +116,6 @@ export class UsersService {
       })
       .getMany();
     // return await this.friendsRepository.findBy({ intra: intra })
-
   }
 
   public async editNick(intra: string, fixNick: string): Promise<Users> {
@@ -142,14 +148,14 @@ export class UsersService {
         friend: addFriend,
       })
       .getOne();
-      if (member == null) {
-        await this.friendsRepository.save({
-          id: myid,
-          intra: intra,
-          friend: addFriend,
-          block: false,
-        });
-      }
+    if (member == null) {
+      await this.friendsRepository.save({
+        id: myid,
+        intra: intra,
+        friend: addFriend,
+        block: false,
+      });
+    }
 
     // }
   }
@@ -249,6 +255,16 @@ export class UsersService {
       .catch(/*this.logger.error(`${intra} avatar update failed`)*/);
   }
 
+  async updateVerifyChkByIntra(intra: string, value: string) {
+    await this.usersRepository
+      .update({ intra: intra }, { verify_chk: value })
+      .then((res) => {
+        if (!res.affected) throw InternalServerErrorException;
+        //this.logger.log(`${intra} avatar updated`);
+      })
+      .catch(/*this.logger.error(`${intra} avatar update failed`)*/);
+  }
+
   async findOneByVerify(verify: string) {
     return await this.usersRepository.findOneBy({ verify: verify });
   }
@@ -258,28 +274,28 @@ export class UsersService {
     return true;
   }
 
-/////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////
 
   //post
-  public async addAchiev(intra: string, num : number): Promise<void> {
+  public async addAchiev(intra: string, num: number): Promise<void> {
     const myid = (await this.usersRepository.findOneBy({ intra: intra })).id;
     const member = await this.achiev
       .createQueryBuilder('m')
       .where('m.id = :id AND m.achievement = :achievement', {
-        id :myid,
+        id: myid,
         achievement: num,
       })
       .getOne();
 
     if (member == null) {
       await this.achiev.save({
-        id : myid,
-        achievement : num,
+        id: myid,
+        achievement: num,
       });
     }
   }
 
-  // 다른 방법의 
+  // 다른 방법의
   // const member = await this.achiev
   //     .createQueryBuilder('m')
   //     .where('m.id = :id AND m.achievement = :achievement', {
@@ -296,9 +312,6 @@ export class UsersService {
   //   if (member == null) {
   //     await this.achiev.save(newAchiev);
   //   }
-  
-
-
 
   //get
   // public async findAchiev(intra: string): Promise<Users> {
@@ -312,7 +325,5 @@ export class UsersService {
 
   // }
 
-
-/////////////////////////////////////////////////////////
-
+  /////////////////////////////////////////////////////////
 }
