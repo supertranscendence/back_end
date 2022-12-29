@@ -107,7 +107,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
         client.emit('gameRoomInfo', {
           playerA: value.playerA.intra,
           playerB: '',
-          isA: this.gameroom.isPlayerA('', key),
+          isA: false,
         });
       } else {
         // 관전자
