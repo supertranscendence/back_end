@@ -108,6 +108,20 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   }
 
+  // 비밀번호
+  // 링크
+
+  //친구 갱신했던것 마냥
+
+  // 방이 새로고침을 하면 생기니까 중간에 어떠한 과정을 추가하면 될거 같고
+  // createRoom, (enterRoom), setPwd, leaveRoom, clearRoom
+
+  // 여기서 방 갱신 이벤트를 주고! 일단 setPWD만
+  // client.broadcast.emit('changeRoomState');
+  // client.emit('changeRoomState');
+  // 
+
+  //프론트에서 받아서 정보 요청(emit) 할 때 gatChatRoomInfo하면 될듯?
   @SubscribeMessage('getChatRoomInfo')
   getChatRoomInfo() {
     return this.room.getChatRooms();
@@ -448,7 +462,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('enterRoom') // 비밀번호유무
   enterRoom(client: Socket, joinInfo: { name: string; room: string }) {
     const intra = this.room.getIntraAtToken(client);
-    if (this.room.getRoom(joinInfo.room).ban.includes(intra))
+    if (this.room.getRoom(joinInfo.room).ban.includes(intra) || this.room.getRoom(joinInfo.room).isPublic == false)
       client.emit('kicked'); // intra));
     else {
       client.join(joinInfo.room);
@@ -466,13 +480,18 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('roomInfo')
   roomInfo(socket: Socket, roomInfo: { roomName: string }) {
     const tmpArr: string[] = [];
-    this.room
-      .getAllRoom()
-      .get(roomInfo.roomName)
-      .users.forEach((ele) => {
-        tmpArr.push(ele.intra);
-      });
-    return tmpArr;
+    for (const [key, value] of this.room.getAllRoom().get(roomInfo.roomName).users) {
+      if (key == socket.id){
+        this.room
+        .getAllRoom()
+        .get(roomInfo.roomName)
+        .users.forEach((ele) => {
+          tmpArr.push(ele.intra);
+        });
+        return {tmpArr, joined: true};
+      }
+    }
+    return {tmpArr, joined: false};
   }
 
   // 방 나가기 버튼
