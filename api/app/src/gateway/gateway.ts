@@ -694,11 +694,11 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
     // console.log(this.gameroom.allGameRoom().get(room).playerB);
 
-    // client.to(room).emit('gameRoomInfo', {
-    //   playerA: playerA,
-    //   playerB: this.gameroom.allGameRoom().get(room).playerB.intra,
-    //   isA: this.gameroom.isPlayerA(userTemp.intra, room),
-    // });
+    client.to(room).emit('gameRoomInfo', {
+      playerA: playerA,
+      playerB: this.gameroom.allGameRoom().get(room).playerB.intra,
+      isA: this.gameroom.isPlayerA(userTemp.intra, room),
+    });
     return isB;
   }
 
