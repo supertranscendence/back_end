@@ -418,23 +418,21 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       msg: newMsgObj.msg,
     };
 
-    this.room
-      .getAllRoom()
-      .get(newMsgObj.room)
-      .users.forEach((element) => {
-        this.users.IsBlock(element.intra, intra).then((res) => {
-          if (res) {
-          } else {
-            if (newMsgObj.msgType && newMsgObj.msgType == 'Dm')
-              socket.to(element.client.id).emit('newMsg', temp);
-            else {
-              if (!this.room.getRoom(newMsgObj.room).muted.includes(intra)) {
-                socket.to(element.client.id).emit('newMsg', temp);
-              }
+    if (newMsgObj.msgType && newMsgObj.msgType == 'Dm')
+      socket.to(newMsgObj.room).emit('newMsg', temp);
+    else {
+      this.room.getAllRoom().get(newMsgObj.room)
+        .users.forEach((element) => {
+          this.users.IsBlock(element.intra, intra).then((res) => {
+            if (res) {
+            } else {
+                if (!this.room.getRoom(newMsgObj.room).muted.includes(intra)) {
+                  socket.to(element.client.id).emit('newMsg', temp);
+                }
             }
-          }
-        });
-      });
+          });
+        })
+    } 
 
     // this.users.IsBlock(newMsgObj.user, intra).then( // 내가 이사람 블락?
     //   (res) => {
