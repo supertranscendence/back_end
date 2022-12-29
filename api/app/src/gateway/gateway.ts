@@ -1135,6 +1135,10 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       this.game.create(a.intra + '|' + b.intra ,User.userA + '|' + User.userB)
       this.game.create(b.intra + '|' + a.intra ,User.userB + '|' + User.userA)
       this.users.addAchiev(a.intra, 1); // 첫 a 승리 했을 때!
+      this.user.getUsers().get(a.client.id).status = 1;
+      this.user.getUsers().get(b.client.id).status = 1;
+      client.broadcast.emit('changeState');
+      client.emit('changeState');
       
     } else if (User.userB >= 3) {
       intra = this.gameroom.allGameRoom().get(User.name).playerB.intra;
@@ -1146,6 +1150,10 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       this.game.create(a.intra + '|' + b.intra ,User.userA + '|' + User.userB)
       this.game.create(b.intra + '|' + a.intra ,User.userB + '|' + User.userA)
       this.users.addAchiev(b.intra, 1); // 첫 b 승리 했을 때!
+      this.user.getUsers().get(a.client.id).status = 1;
+      this.user.getUsers().get(b.client.id).status = 1;
+      client.broadcast.emit('changeState');
+      client.emit('changeState');
     }
     else {
       // for (const [key, value] of this.gameroom.allGameRoom().get(User.name)
@@ -1158,10 +1166,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
         // 여기서 a, b 게임 끝으로
     // ********************** 
         // a, b 로그인으로
-      this.user.getUsers().get(a.intra).status = 1;
-      this.user.getUsers().get(b.intra).status = 1;
-      client.broadcast.emit('changeState');
-      client.emit('changeState');
+      
 
     return {};
   }
