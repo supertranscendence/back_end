@@ -1125,6 +1125,19 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     let intra: string;
     const a = this.gameroom.allGameRoom().get(User.name).playerA; // 여기가 설정이 안되어있음! 그래서 게임이 안끝남!
     const b = this.gameroom.allGameRoom().get(User.name).playerB;
+
+    if (!a) {
+      this.user.getUsers().get(b.client.id).status = 1;
+        client.to(User.name).emit('kickAll'); // 다른 사람 다 내보내기
+        client.emit('kickAll'); // 자기 나가기
+    }
+
+    if (!b) {
+      this.user.getUsers().get(a.client.id).status = 1;
+      client.to(User.name).emit('kickAll'); // 다른 사람 다 내보내기
+        client.emit('kickAll'); // 자기 나가기
+    }
+
     if (User.userA >= 3) {
       intra = this.gameroom.allGameRoom().get(User.name).playerA.intra;
       client.to(User.name).emit('gameDone', intra);
