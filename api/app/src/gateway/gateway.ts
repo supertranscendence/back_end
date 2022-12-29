@@ -480,7 +480,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('roomInfo')
   roomInfo(socket: Socket, roomInfo: { roomName: string | undefined }) {
     const tmpArr: string[] = [];
-    if (roomInfo.roomName != undefined){
+    if (this.room.getAllRoom().get(roomInfo.roomName)){
       for (const [key, value] of this.room.getAllRoom().get(roomInfo.roomName).users) {
         if (key == socket.id){
           this.room
