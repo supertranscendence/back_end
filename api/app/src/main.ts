@@ -9,6 +9,7 @@ import {
 } from 'nest-winston';
 import * as winston from 'winston';
 import * as winstonDaily from 'winston-daily-rotate-file';
+import { GlobalFilter } from './exception/global.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
@@ -50,6 +51,7 @@ async function bootstrap() {
   });
   app.use(cookieParser());
   app.set('trust proxy', '1');
+  app.useGlobalFilters(new GlobalFilter());
   await app.listen(3000);
 }
 
