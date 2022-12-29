@@ -95,6 +95,7 @@ export class AuthController {
   @Header('Access-Control-Allow-Origin', 'https://gilee.click')
   @Header('Access-Control-Allow-Credentials', 'true')
   async ftTakeCode(@Body('code') code: string, @Req() req, @Res() res) {
+    this.logger.log('email verify: ', code);
     if (await this.user.findOneByVerify(code)) {
       await this.user.updateVerifyChkByIntra(
         this.auth.getIntra(this.auth.extractToken(req)),
