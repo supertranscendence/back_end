@@ -488,10 +488,10 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
         .users.forEach((ele) => {
           tmpArr.push(ele.intra);
         });
-        return {tmpArr, joined: true};
+        return {userArr: tmpArr, joined: true};
       }
     }
-    return {tmpArr, joined: false};
+    return {userArr: tmpArr, joined: false};
   }
 
   // 방 나가기 버튼
