@@ -104,7 +104,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       } else if (this.gameroom.isPlayerB(client.id, key)) {
         // b인지 확인
         this.gameroom.deletePlayer(key);
-        client.emit('gameRoomInfo', {
+        client.to(key).emit('gameRoomInfo', {
           playerA: value.playerA.intra,
           playerB: '',
           isA: false,
