@@ -750,7 +750,16 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   goOBS(client:Socket, obs : {roomName : string | undefined, gameUser : string}) {
     let gameRoom : string = "";
 
-    if (this.room.getAllRoom().get(obs.roomName).users.get(client.id)) { // 채팅방일 때
+    if (obs.roomName == undefined) {
+      for (const [key, value] of this.gameroom.allGameRoom()) {
+        if (obs.gameUser == value.playerA.intra  || obs.gameUser == value.playerB.intra) {
+          gameRoom = key;
+          return gameRoom;
+        }
+      }
+      return gameRoom;
+    }
+    else if (this.room.getAllRoom().get(obs.roomName).users.get(client.id)) { // 채팅방일 때
       for (const [key, value] of this.gameroom.allGameRoom()) {
         if (obs.gameUser == value.playerA.intra  || obs.gameUser == value.playerB.intra) {
           gameRoom = key;
@@ -759,16 +768,8 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
         }
       }
       return gameRoom;
-    } else {
-        for (const [key, value] of this.gameroom.allGameRoom()) {
-          if (obs.gameUser == value.playerA.intra  || obs.gameUser == value.playerB.intra) {
-            gameRoom = key;
-            return gameRoom;
-          }
-        }
-        return gameRoom;
-      }
-    }
+    } 
+  }
 
   /////////////////////////////////////////////////////////////////////////////////////////////
 
