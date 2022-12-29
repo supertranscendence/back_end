@@ -25,6 +25,7 @@ export class UsersService {
 
     this.usersRepository.update({ intra: name }, { level: a + 30 });
   }
+
   // findOne(id : number) {
   //     return this.usersRepository.findOne(id);
   // }
@@ -35,6 +36,7 @@ export class UsersService {
   async findByIntra(intra: string): Promise<Users> {
     return await this.usersRepository.findOneBy({ intra: intra });
   }
+
   // 친구
 
   //비동기를 동기적으로 어떻게 처리를 해야되는 걸까?
@@ -53,6 +55,7 @@ export class UsersService {
     });
     return chk;
   }
+
   ///////////////
 
   async ListBlock(myintra: string): Promise<Friends[]> {
@@ -265,7 +268,7 @@ export class UsersService {
       .catch(/*this.logger.error(`${intra} avatar update failed`)*/);
   }
 
-  async findOneByVerify(verify: string) {
+  async findOneByVerify(verify: string): Promise<Users> | null {
     return await this.usersRepository.findOneBy({ verify: verify });
   }
 
