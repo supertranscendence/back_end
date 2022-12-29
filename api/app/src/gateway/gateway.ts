@@ -765,7 +765,15 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       for (const [key, value] of this.gameroom.allGameRoom()) {
         if (obs.gameUser == value.playerA.intra  || (value.playerB && obs.gameUser == value.playerB.intra)) {
           gameRoom = key;
+
+          
+          this.room.deleteUserBysocketId(client.id, obs.roomName);
           client.leave(obs.roomName);
+          client
+            .to(obs.roomName)
+            .emit('roomInfo', this.room.getChatRoomInfo(obs.roomName)); // join leave할때
+          this.room.deleteEmptyRoom(obs.roomName);
+
           client.emit('goOBS', gameRoom);
           return {};
         }
@@ -1205,7 +1213,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       client.to(User.name).emit('kickAll'); // 다른 사람 다 내보내기
       client.emit('kickAll'); // 자기 나가기
     }
-    
+
     console.log('gameSet 2')
     console.log(a);
     console.log(a.intra);
