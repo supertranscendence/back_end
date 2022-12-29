@@ -20,6 +20,7 @@ import { AuthGuardLocal } from './auth.guard';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { TwoFactorInterceptor } from './tfa.interceptor';
 import { UsersService } from '../users/services/users.service';
+import { Users } from '../entities/Users';
 
 @ApiBearerAuth()
 @Controller('api/auth')
@@ -96,11 +97,9 @@ export class AuthController {
   @Header('Access-Control-Allow-Credentials', 'true')
   async ftTakeCode(@Body('code') code: string, @Req() req, @Res() res) {
     this.logger.log('email verify: ', code);
-    if (await this.user.findOneByVerify(code)) {
-      await this.user.updateVerifyChkByIntra(
-        this.auth.getIntra(this.auth.extractToken(req)),
-        code,
-      );
+    const user: Users = await this.user.findOneByVerify(code);
+    if (user) {
+      await this.user.updateVerifyChkByCode(code, code);
       res.status(200).send('');
     } else res.status(500).send('');
   }
