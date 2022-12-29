@@ -67,8 +67,20 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.logger.log(this.user.getUsers());
   }
 
+  // 로그아웃 조인 풀고 겜방 챗방
+  // 룸인포 게임룸 인포
+
+  
+  //   socket.leave(roomInfo.room);
+  //   socket
+  //     .to(roomInfo.room)
+  //     .emit('roomInfo', this.room.getChatRoomInfo(roomInfo.room)); // join leave할때
+  
+
   handleDisconnect(client: any) {
     this.room.getAllRoom().forEach((element) => {
+      client.leave(element.name);
+        client.to(element.name).emit('roomInfo', this.room.getChatRoomInfo(element.name));
       this.room.deleteUserBysocketId(client.id, element.name);
       this.room.deleteEmptyRoom(element.name);
     });
@@ -92,6 +104,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       } else if (this.gameroom.isPlayerB(client.id, key)) {
         // b인지 확인
         this.gameroom.deletePlayer(key);
+        client.to(key).emit('roomInfo', this.room.getChatRoomInfo(key));
       } else {
         // 관전자
         if (this.gameroom.allGameRoom().get(key).observers)
