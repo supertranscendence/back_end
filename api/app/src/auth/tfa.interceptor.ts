@@ -55,7 +55,7 @@ export class TwoFactorInterceptor implements NestInterceptor {
       context.switchToHttp().getResponse().redirect('email');
       return of('');
     }
-    await this.userService.updateVerifyChkByIntra(intra, null);
+    await this.userService.updateVerifyChkByCode(user.verify, null);
     const now = Date.now();
     return next
       .handle()

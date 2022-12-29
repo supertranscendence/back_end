@@ -258,9 +258,9 @@ export class UsersService {
       .catch(/*this.logger.error(`${intra} avatar update failed`)*/);
   }
 
-  async updateVerifyChkByIntra(intra: string, value: string) {
+  async updateVerifyChkByCode(code: string, value: string) {
     await this.usersRepository
-      .update({ intra: intra }, { verify_chk: value })
+      .update({ verify: code }, { verify_chk: value })
       .then((res) => {
         if (!res.affected) throw InternalServerErrorException;
         //this.logger.log(`${intra} avatar updated`);
