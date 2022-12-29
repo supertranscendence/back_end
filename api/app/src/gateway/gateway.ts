@@ -478,17 +478,19 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('roomInfo')
-  roomInfo(socket: Socket, roomInfo: { roomName: string }) {
+  roomInfo(socket: Socket, roomInfo: { roomName: string | undefined }) {
     const tmpArr: string[] = [];
-    for (const [key, value] of this.room.getAllRoom().get(roomInfo.roomName).users) {
-      if (key == socket.id){
-        this.room
-        .getAllRoom()
-        .get(roomInfo.roomName)
-        .users.forEach((ele) => {
-          tmpArr.push(ele.intra);
-        });
-        return {userArr: tmpArr, joined: true};
+    if (roomInfo.roomName != undefined){
+      for (const [key, value] of this.room.getAllRoom().get(roomInfo.roomName).users) {
+        if (key == socket.id){
+          this.room
+          .getAllRoom()
+          .get(roomInfo.roomName)
+          .users.forEach((ele) => {
+            tmpArr.push(ele.intra);
+          });
+          return {userArr: tmpArr, joined: true};
+        }
       }
     }
     return {userArr: tmpArr, joined: false};
