@@ -468,7 +468,6 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       this.room.addUser(joinInfo.room, userTemp, client); // 방에 사람 추가하기
       this.room.getInRoomUser(joinInfo.room); // 여기서는 방에 사람이 있는지
     }
-
     client
       .to(joinInfo.room)
       .emit('roomInfo', this.room.getChatRoomInfo(joinInfo.room)); // join leave할때
@@ -746,6 +745,30 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     });
     return {};
   }
+
+  @SubscribeMessage('goOBS')
+  goOBS(client:Socket, obs : {roomName : string | undefined, gameUser : string}) {
+    let gameRoom : string = "";
+
+    if (this.room.getAllRoom().get(obs.roomName).users.get(client.id)) { // 채팅방일 때
+      for (const [key, value] of this.gameroom.allGameRoom()) {
+        if (obs.gameUser == value.playerA.intra  || obs.gameUser == value.playerB.intra) {
+          gameRoom = key;
+          client.leave(obs.roomName);
+          return gameRoom;
+        }
+      }
+      return gameRoom;
+    } else {
+        for (const [key, value] of this.gameroom.allGameRoom()) {
+          if (obs.gameUser == value.playerA.intra  || obs.gameUser == value.playerB.intra) {
+            gameRoom = key;
+            return gameRoom;
+          }
+        }
+        return gameRoom;
+      }
+    }
 
   /////////////////////////////////////////////////////////////////////////////////////////////
 
