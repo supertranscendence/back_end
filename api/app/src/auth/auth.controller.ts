@@ -95,7 +95,12 @@ export class AuthController {
   @Header('Access-Control-Allow-Origin', 'https://gilee.click')
   @Header('Access-Control-Allow-Credentials', 'true')
   async ftTakeCode(@Body('code') code: string, @Req() req, @Res() res) {
-    if (await this.user.findOneByVerify(code)) res.status(200).send('');
-    else res.status(500).send('');
+    if (await this.user.findOneByVerify(code)) {
+      await this.user.updateVerifyChkByIntra(
+        this.auth.getIntra(this.auth.extractToken(req)),
+        code,
+      );
+      res.status(200).send('');
+    } else res.status(500).send('');
   }
 }

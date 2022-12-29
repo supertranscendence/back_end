@@ -39,6 +39,14 @@ export class Users {
   })
   verify: string | null;
 
+  @Column('character varying', {
+    name: 'verify_chk',
+    nullable: true,
+    default: false,
+    length: 200,
+  })
+  verify_chk: string | null;
+
   @Column('character varying', { name: 'email', nullable: true, length: 50 })
   email: string | null;
 

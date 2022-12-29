@@ -12,6 +12,7 @@ CREATE TABLE pong.USERS
  tf bool NULL DEFAULT false,
  email varchar(50) NULL,
  verify varchar(200) NULL,
+ verify_chk varchar(200) NULL,
  CONSTRAINT PK_1 PRIMARY KEY ( "id" )
 );
 
@@ -123,6 +124,6 @@ CREATE TRIGGER set_updated_at
     FOR EACH ROW
 EXECUTE PROCEDURE pong.set_updated_at()
 ;
-   
+
 REVOKE ALL ON SCHEMA public FROM PUBLIC;
 REVOKE ALL ON DATABASE ts_dev FROM PUBLIC;
