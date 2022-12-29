@@ -754,20 +754,24 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       for (const [key, value] of this.gameroom.allGameRoom()) {
         if (obs.gameUser == value.playerA.intra  || (value.playerB && obs.gameUser == value.playerB.intra)) {
           gameRoom = key;
-          return gameRoom;
+          client.emit('goOBS', gameRoom);
+          return {};
         }
       }
-      return gameRoom;
+      client.emit('goOBS', gameRoom);
+      return {};
     }
     else if (this.room.getAllRoom().get(obs.roomName).users.get(client.id)) { // 채팅방일 때
       for (const [key, value] of this.gameroom.allGameRoom()) {
         if (obs.gameUser == value.playerA.intra  || (value.playerB && obs.gameUser == value.playerB.intra)) {
           gameRoom = key;
           client.leave(obs.roomName);
-          return gameRoom;
+          client.emit('goOBS', gameRoom);
+          return {};
         }
       }
-      return gameRoom;
+      client.emit('goOBS', gameRoom);
+      return {};
     } 
   }
 
@@ -1183,7 +1187,11 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     User: { userA: number; userB: number; name: string; mode: boolean },
   ) {
     let intra: string;
+    
     const a = this.gameroom.allGameRoom().get(User.name).playerA; // 여기가 설정이 안되어있음! 그래서 게임이 안끝남!
+    console.log('gameSet 1')
+    console.log(a);
+    console.log(a.intra);
     const b = this.gameroom.allGameRoom().get(User.name).playerB;
 
     if (!a) {
@@ -1197,7 +1205,10 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       client.to(User.name).emit('kickAll'); // 다른 사람 다 내보내기
       client.emit('kickAll'); // 자기 나가기
     }
-
+    
+    console.log('gameSet 2')
+    console.log(a);
+    console.log(a.intra);
     if (User.userA >= 3) {
       intra = this.gameroom.allGameRoom().get(User.name).playerA.intra;
       client.to(User.name).emit('gameDone', intra);
