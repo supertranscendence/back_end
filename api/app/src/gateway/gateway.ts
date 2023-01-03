@@ -399,6 +399,8 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     // 오너는 admin에 추가하면 안됨
 
     this.room.getAllRoom();
+    if (roomInfo.adminUser == this.room.getOwenr(roomInfo.roomName))
+          return ;
     if (intra == this.room.getOwenr(roomInfo.roomName)) {
       for (const admin of this.room.getRoom(roomInfo.roomName).admin) {
         if (admin == roomInfo.adminUser)
@@ -717,24 +719,84 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     return isB;
   }
 
+//방이 존재 하는지 false, ? a, b, obs, 확인 후 다 아니면 false;
+
   @SubscribeMessage('gameRoomInfo')
   gameRoomInfo(client: Socket, roomName: string) {
-    const player_A: string = this.gameroom.allGameRoom().get(roomName)
-      .playerA.intra;
-    let player_B: string = '';
 
-    let isA: boolean;
-    if (
-      this.gameroom.allGameRoom().get(roomName).playerA.client.id == client.id
-    )
-      isA = true;
-    else isA = false;
+    // if (!this.gameroom.allGameRoom().get(roomName))
+    //   return { playerA: '', playerB: '', isA: false, joined: false }; // 방이 없어
+  
+    // const player_A: string = this.gameroom.allGameRoom().get(roomName)
+    //   .playerA.intra;
+    // let player_B: string = '';
+    // if (
+      //   this.gameroom.allGameRoom().get(roomName).playerA.client.id == client.id
+      // )
+      //   isA = true;
+      // else isA = false;
 
-    if (this.gameroom.allGameRoom().get(roomName).playerB)
-      player_B = this.gameroom.allGameRoom().get(roomName).playerB.intra;
-
-    return { playerA: player_A, playerB: player_B, isA: isA };
+      // if (this.gameroom.allGameRoom().get(roomName).playerB)
+        // player_B = this.gameroom.allGameRoom().get(roomName).playerB.intra;
+      
+      // if ()
+      
+      // return { playerA: player_A, playerB: player_B, isA: isA, joined: true};
+      
+      let player_A: string
+      let isA: boolean;
+      let player_B: string = '';
+      if (!this.gameroom.allGameRoom().get(roomName))
+        return { playerA: '', playerB: '', isA: false, joined: false }; // 방이 없어
+      else {
+        if (this.gameroom.allGameRoom().get(roomName).playerA.client.id == client.id)// A이니?
+        {
+          isA = true;
+          player_A = this.gameroom.allGameRoom().get(roomName).playerA.intra;
+          player_B =  (this.gameroom.allGameRoom().get(roomName).playerB) ? this.gameroom.allGameRoom().get(roomName).playerB.intra : "";
+          return { playerA: player_A, playerB: player_B, isA: isA, joined: true };
+        }
+        else if (this.gameroom.allGameRoom().get(roomName).playerB && this.gameroom.allGameRoom().get(roomName).playerB.client.id == client.id) //B이니?
+        {
+          isA = false;
+          player_A = this.gameroom.allGameRoom().get(roomName).playerA.intra;
+          player_B =  this.gameroom.allGameRoom().get(roomName).playerB.intra;
+          return { playerA: player_A, playerB: player_B, isA: isA, joined: true };
+        }
+        else if (this.gameroom.allGameRoom().get(roomName).observers.has(client.id))//옵저버니?
+        {
+          isA = false;
+          player_A = this.gameroom.allGameRoom().get(roomName).playerA.intra;
+          player_B =  (this.gameroom.allGameRoom().get(roomName).playerB) ? this.gameroom.allGameRoom().get(roomName).playerB.intra : "";
+          return { playerA: player_A, playerB: player_B, isA: isA, joined: true };
+        }
+        else
+          return { playerA: '', playerB: '', isA: false, joined: false }; // 아무고토아닌데 들어온사람
+      }
   }
+
+  // @SubscribeMessage('gameRoomInfo')
+  // gameRoomInfo(socket: Socket, roomInfo: { roomName: string | undefined }) {
+  //   const tmpArr: string[] = [];
+  //   if (this.room.getAllRoom().get(roomInfo.roomName)) {
+  //     for (const [key, value] of this.room.getAllRoom().get(roomInfo.roomName)
+  //       .users) {
+  //       if (key == socket.id) {
+  //         this.room
+  //           .getAllRoom()
+  //           .get(roomInfo.roomName)
+  //           .users.forEach((ele) => {
+  //             tmpArr.push(ele.intra);
+  //           });
+  //         return { userArr: tmpArr, joined: true };
+  //       }
+  //     }
+  //   }
+  //   return { userArr: tmpArr, joined: false };
+  // }
+
+
+
 
   @SubscribeMessage('enterGameRoomOBS')
   enterGameRoomOBS(client: Socket, room: string) {
@@ -1212,9 +1274,6 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     let intra: string;
     
     const a = this.gameroom.allGameRoom().get(User.name).playerA; // 여기가 설정이 안되어있음! 그래서 게임이 안끝남!
-    console.log('gameSet 1')
-    console.log(a);
-    console.log(a.intra);
     const b = this.gameroom.allGameRoom().get(User.name).playerB;
 
     if (!a) {
@@ -1228,10 +1287,6 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       client.to(User.name).emit('kickAll'); // 다른 사람 다 내보내기
       client.emit('kickAll'); // 자기 나가기
     }
-
-    console.log('gameSet 2')
-    console.log(a);
-    console.log(a.intra);
     if (User.userA >= 3) {
       intra = this.gameroom.allGameRoom().get(User.name).playerA.intra;
       client.to(User.name).emit('gameDone', intra);
