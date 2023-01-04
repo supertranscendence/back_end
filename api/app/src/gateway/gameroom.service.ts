@@ -83,6 +83,23 @@ export class GameroomService {
   //   this.gameRooms.get(room).
   // }
 
+  checkUser(roomName: string, clientId : string) : number {
+    if (this.gameRooms.get(roomName).playerA.client.id == clientId) { // a
+      return 1;
+    }
+    else if (this.gameRooms.get(roomName).playerB.client.id == clientId) {
+      return 2;
+    } // b
+    else {
+      for (const [obs, values] of this.gameRooms.get(roomName).observers) {
+        if (obs == clientId) {
+          return 3;
+        }
+      }
+      return 0;
+    }
+  }
+
   deleteRoom(room: string): void {
     
     this.gameRooms.get(room).playerA = null;

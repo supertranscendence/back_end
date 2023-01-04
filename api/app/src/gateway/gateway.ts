@@ -104,6 +104,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       } else if (this.gameroom.isPlayerB(client.id, key)) {
         // b인지 확인
         this.gameroom.deletePlayer(key);
+        client.emit('kickAll'); // 자기 나가기
         client.to(key).emit('gameRoomInfo', {
           playerA: value.playerA.intra,
           playerB: '',
@@ -111,8 +112,10 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
         });
       } else {
         // 관전자
-        if (this.gameroom.allGameRoom().get(key).observers)
+        if (this.gameroom.allGameRoom().get(key).observers) {
+          client.emit('kickAll'); // 자기 나가기
           this.gameroom.allGameRoom().get(key).observers.delete(client.id);
+        }
       }
     }
     // 다 끊어주기,, cleargame룸 (다른 버튼을 눌렀을 때)
